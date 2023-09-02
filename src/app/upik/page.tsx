@@ -8,9 +8,9 @@ import Link from 'next/link';
 const ListItem = ({ value }: { value: string[] }) => {
   return (
     <div className="bg-primary/5 p-3 flex flex-col gap-2 rounded-lg">
-      <div>{value[0]}</div>
+      <div className="text-sm">{value[0]}</div>
       <h3 className="font-medium leading-tight">{value[1]}</h3>
-      <p className="">{value[2]}</p>
+      <p className="font-semibold">{value[2]}</p>
     </div>
   );
 };
@@ -95,7 +95,7 @@ export default function ProfilPage() {
                 />
               </div>
             </div>
-            <div className="mt-5">
+            <div className="mt-10">
               <h2 className="text-2xl font-medium mb-3">Experience</h2>
               <div className="flex flex-col gap-6">
                 <div>
@@ -103,7 +103,7 @@ export default function ProfilPage() {
                     value={[
                       '06/2019 - Present',
                       'Experts',
-                      'Diskominfo Bolsel',
+                      'Dinas Komunikasi dan Informatika Bolsel',
                     ]}
                   />
 
