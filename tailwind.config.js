@@ -26,12 +26,6 @@ module.exports = {
 
       fontFamily: {
         default: ['var(--font-inter)', ...fontFamily.sans],
-        heading: ['var(--font-heading)', ...fontFamily.sans],
-        cal: ['var(--font-cal)', ...fontFamily.sans],
-        title: ['var(--font-title)', ...fontFamily.sans],
-        intro: ['var(--font-intro)', ...fontFamily.sans],
-        lato: ['var(--font-lato)', ...fontFamily.sans],
-        raleway: ['var(--font-raleway)', ...fontFamily.sans],
         mono: ['Consolas', ...fontFamily.mono],
       },
       backgroundImage: {

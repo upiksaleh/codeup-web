@@ -1,7 +1,6 @@
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
-import { Inter, Raleway } from 'next/font/google';
-import { intro, raleway } from '@/styles/fonts';
+import { Inter } from 'next/font/google';
 import clsx from 'clsx';
 import MainFooter from '@/components/footer/main-footer';
 
@@ -19,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={clsx(inter.className, intro.variable, raleway.variable)}>
+      <body className={clsx(inter.className)}>
         <div className="flex flex-col min-h-screen justify-between">
           {children}
           <MainFooter />
