@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import clsx from 'clsx';
 import MainFooter from '@/components/footer/main-footer';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
           {children}
           <MainFooter />
         </div>
+        <Analytics />
       </body>
     </html>
   );
