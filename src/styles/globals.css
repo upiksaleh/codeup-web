@@ -7,7 +7,7 @@
   color: #fefefe;
 }
 body {
-  background: linear-gradient(to right,#fff 0%,#fff 50%,#fafafa 75%,#fafafa 100%);
+  background: linear-gradient(to right,#f2f2f2 0%,#f2f2f2 50%,#fafafa 75%,#fafafa 100%);
   /* @apply bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black */
   @apply text-gray-700;
 }
