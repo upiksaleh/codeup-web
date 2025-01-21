@@ -1,3 +1,9 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
+.snapshots/
+build/
+dist/
+node_modules/
+.next/
+.vercel/
+
+.demo/
+.renderer/
