@@ -253,7 +253,11 @@ export function NotionPage({
 
   const name = getBlockTitle(block, recordMap) || site.name
   const title =
-    tagsPage && propertyToFilterName ? `${propertyToFilterName} ${name}` : name
+    tagsPage && propertyToFilterName
+      ? `${propertyToFilterName} ${name}`
+      : isBioPage
+        ? `Abdul Rahman Saleh -[upik]`
+        : name
 
   console.log('notion page', {
     isDev: config.isDev,
