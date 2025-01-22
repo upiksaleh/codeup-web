@@ -71,5 +71,9 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
 }
 
 export async function search(params: SearchParams): Promise<SearchResults> {
+  params.filters = {
+    // @ts-expect-error
+    includePublicPagesWithoutExplicitAccess: true
+  }
   return notion.search(params)
 }
