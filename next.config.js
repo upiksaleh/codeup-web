@@ -5,6 +5,7 @@ export default {
   staticPageGenerationTimeout: 300,
   images: {
     remotePatterns: [
+      { protocol: 'https', hostname: 'codeup.id' },
       { protocol: 'https', hostname: 'www.notion.so' },
       { protocol: 'https', hostname: 'notion.so' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
