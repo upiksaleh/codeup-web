@@ -4,7 +4,8 @@ import { normalizePageId } from './page-id'
 export function resolvePageId(segment: string) {
   return (
     siteConfig.navigation.find(({ path }) => path === `/${segment}`)?.pageId ??
-    normalizePageId(segment)
+    normalizePageId(segment) ??
+    normalizePageId(segment.match(/^.+-([a-f\d]{32})$/i)?.[1] ?? '')
   )
 }
 

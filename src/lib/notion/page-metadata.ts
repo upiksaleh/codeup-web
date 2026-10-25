@@ -1,0 +1,35 @@
+import 'server-only'
+
+import type { Metadata } from 'next'
+import { siteConfig } from '@/site.config'
+import { getPageInfo } from './page-info'
+import { getNotionPage } from './get-page'
+
+export async function getPageMetadata(segment: string): Promise<Metadata> {
+  const { pageId, recordMap } = await getNotionPage(segment)
+  const info = getPageInfo(pageId, recordMap)
+  const isHome = pageId === siteConfig.rootNotionPageId
+  const title = isHome ? siteConfig.name : info.title
+  const description = info.description || siteConfig.description
+  const images = [info.image || siteConfig.logo]
+
+  return {
+    title: isHome ? { absolute: title } : title,
+    description,
+    alternates: { canonical: info.url, types: { 'application/rss+xml': '/feed' } },
+    openGraph: {
+      type: info.isBlogPost ? 'article' : 'website',
+      siteName: siteConfig.name,
+      title,
+      description,
+      url: info.url,
+      images,
+      ...(info.isBlogPost && {
+        publishedTime: new Date(info.published).toISOString(),
+        modifiedTime: new Date(info.lastEdited).toISOString(),
+        tags: info.tags,
+      }),
+    },
+    twitter: { card: info.image ? 'summary_large_image' : 'summary', title, description, images },
+  }
+}

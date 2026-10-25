@@ -21,7 +21,7 @@ pnpm start
 ## Configuration
 
 Public settings live in `src/site.config.ts`: the Notion root page ID, site name,
-domain, description, author, logo, navigation, and social links. The root page is public and needs
+domain, description, author, logo, navigation, blog collection ID, and social links. The root page is public and needs
 no environment variables or tokens. `.env.example` contains no values.
 Other `.env*` files are ignored. Keep secrets in server environment variables
 without the `NEXT_PUBLIC_` prefix.
@@ -44,21 +44,40 @@ without the `NEXT_PUBLIC_` prefix.
 
 - `src/app/`: routes, layouts, metadata, loading, error, and 404 states.
 - `src/components/`: server components and the client Notion renderer.
-- `src/lib/notion/`: server-only data access, ID and ancestry checks, and page URLs.
+- `src/lib/notion/`: server-only page loading, route resolution, a public page index,
+  metadata extraction, ID and ancestry checks, and page URLs.
 - `src/styles/`: application styles, used alongside react-notion-x styles.
 - `src/site.config.ts`: public site settings.
 - `public/`: the CodeUP logo and remaining assets from the initial scaffold.
 
 The `/` route combines the homepage hero with the Notion root page. `/upik`,
-`/notes`, and `/contact` map to the verified public Notion pages in the navigation
+`/notes`, `/projects`, and `/contact` map to the verified public Notion pages in the navigation
 configuration. `/<pageId>` also opens descendants using a 32-character hexadecimal
 ID or UUID. Links and canonical metadata use the configured paths when available.
+Unique Notion slugs (or title-derived slugs) and title-ID URLs also resolve to the
+same pages. Slugs are compatibility aliases; canonical URLs remain configured
+paths or stable page IDs. Ambiguous slugs return 404.
+`/about` is reserved for the studio page and cannot resolve to the personal About title.
 Unknown paths and pages outside the root return 404. Pages use ISR with a 300-second
 revalidation interval; requests may receive cached content during regeneration.
 The renderer uses the installed Collection component and native, keyboard-scrollable
 code blocks. Syntax highlighting and copy controls are not included. Media and
 page content remain managed by Notion. Pages must be public and belong to the
 configured root.
+
+`/search?q=...` searches titles, descriptions, tags, and page text on the server.
+Queries are limited to 200 characters, and all search terms must match. No arbitrary
+Notion search proxy or client-side record-map index is exposed. `/sitemap.xml`
+lists the indexed pages once; `/robots.txt` points crawlers to it. `/feed` provides
+RSS for the configured Blogs collection, excluding Projects. Metadata uses Notion
+Description or Summary properties, covers, and article dates where available.
+
+The shared index loads public descendants in batches of four and uses Next.js
+`unstable_cache` with a 300-second revalidation interval. This API fits the existing
+ISR setup without enabling Cache Components. Transient fetch failures propagate
+instead of becoming a partial successful index. Cached search results, feed, and
+sitemap can remain stale during regeneration; remove server caches when access
+must be withdrawn immediately. No Redis or additional dependencies are required.
 
 The layout supports small screens and light/dark themes. The default
 follows the system; a manual selection is stored in browser local storage and
