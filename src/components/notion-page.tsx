@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getBlockValue } from 'notion-utils'
 import { getNotionPage } from '@/lib/notion/get-page'
+import { withImagePreviews } from '@/lib/notion/image-previews'
 import { siteConfig } from '@/site.config'
 import { NotionContent } from './notion-content'
 import { HomeHero } from './home-hero'
@@ -12,7 +13,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
 
   return (
     <NotionContent
-      recordMap={recordMap}
+      recordMap={await withImagePreviews(recordMap)}
       pageId={id}
       isHome={isHome}
       pageHeader={

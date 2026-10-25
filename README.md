@@ -21,7 +21,8 @@ pnpm start
 ## Configuration
 
 Public settings live in `src/site.config.ts`: the Notion root page ID, site name,
-domain, description, author, logo, navigation, blog collection ID, and social links. The root page is public and needs
+domain, description, author, logo, navigation, blog collection ID, allowed image sources,
+and social links. The root page is public and needs
 no environment variables or tokens. `.env.example` contains no values.
 Other `.env*` files are ignored. Keep secrets in server environment variables
 without the `NEXT_PUBLIC_` prefix.
@@ -82,6 +83,25 @@ must be withdrawn immediately. No Redis or additional dependencies are required.
 The layout supports small screens and light/dark themes. The default
 follows the system; a manual selection is stored in browser local storage and
 applied before paint. It does not require cookies, authentication, or new dependencies.
+
+## Image loading
+
+Notion covers, gallery images, and images with preview metadata use `next/image`
+with responsive sizes and the default WebP optimizer. Covers load eagerly; gallery
+and body images load lazily. The local logo is also optimized at the rendered size.
+Server-generated 16-pixel WebP previews provide blur placeholders and intrinsic
+dimensions without changing Notion content. `sharp` is a direct dependency for
+this work; Next.js already uses the same installed version.
+
+Image hosts and path prefixes are defined in `site.config.ts` and shared by the
+optimizer and preview loader. Unlisted sources and SVGs render directly. If an
+optimized image fails, the renderer retries its original URL. If a preview fails,
+page content still renders. Preview loading checks each redirect and accepts only
+supported raster responses, with an 8-second timeout, 10 MB download limit,
+40-million-pixel decode limit, and batches of four. Successful previews use the
+Next.js data cache for one day; full image variants use the Next.js image cache.
+No Redis, image proxy service, or `lqip-modern` dependency is needed. Immediate
+withdrawal of public media requires clearing these caches along with page caches.
 
 Application UI, metadata, and repository documentation use English. Notion content
 is rendered in its original language. The current pages are Indonesian, so the

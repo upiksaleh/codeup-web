@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="site-header">
           <div className="site-header-inner">
             <Link href="/" className="site-name" aria-label={`${siteConfig.name} home`}>
-              <Image src={siteConfig.logo} alt="" width={32} height={32} unoptimized />
+              <Image src={siteConfig.logo} alt="" width={32} height={32} loading="eager" />
               <span>
                 {siteConfig.name}
                 <span className="brand-dot">.</span>

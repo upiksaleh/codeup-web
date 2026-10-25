@@ -8,6 +8,7 @@ import type { ComponentProps, ReactNode } from 'react'
 import { NotionRenderer, Text, useNotionContext } from 'react-notion-x'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
+import { NotionImage } from './notion-image'
 
 const Collection = dynamic(() =>
   import('react-notion-x/third-party/collection').then((module) => module.Collection),
@@ -66,8 +67,14 @@ export function NotionContent({
       pageCover={pageCover}
       disableHeader
       darkMode={false}
+      previewImages
       isImageZoomable={false}
-      components={{ nextLink: Link, Collection: NotionCollection, Code: NotionCode }}
+      components={{
+        nextLink: Link,
+        nextImage: NotionImage,
+        Collection: NotionCollection,
+        Code: NotionCode,
+      }}
     />
   )
 }

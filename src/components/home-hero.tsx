@@ -18,7 +18,8 @@ export function HomeHero() {
         alt=""
         width={150}
         height={150}
-        unoptimized
+        sizes="(max-width: 580px) 72px, (max-width: 800px) 110px, 150px"
+        loading="eager"
       />
       <span className="home-hero-domain" aria-hidden="true">
         {siteConfig.domain}

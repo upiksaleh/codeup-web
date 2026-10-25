@@ -10,6 +10,12 @@ export const siteConfig = {
   author: 'Upik',
   label: 'Independent Studio',
   logo: '/codeup.png',
+  imageSources: [
+    { hostname: 'app.notion.com', pathname: '/image/' },
+    { hostname: 'app.notion.com', pathname: '/images/' },
+    { hostname: 'app.notion.com', pathname: '/icons/' },
+    { hostname: 'img.notionusercontent.com', pathname: '/s3/' },
+  ],
   footerStatus: 'CodeUP is an independent studio run by Upik Saleh',
   navigation: [
     { label: 'Home', path: '/', pageId: rootNotionPageId },
