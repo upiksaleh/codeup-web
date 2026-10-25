@@ -1,7 +1,7 @@
 # CodeUP - Web Personal Notion
 
 > A modern personal site & digital garden powered by Next.js, Notion, and Vercel.
-> 
+>
 > Fork & customization from [nextjs-notion-starter-kit](https://github.com/transitive-bullshit/nextjs-notion-starter-kit)
 
 ## 📚 Architecture
@@ -23,8 +23,8 @@ This project uses a **fork & mirror** workflow:
 
 ### Prerequisites
 
-- Node.js >= 20
-- pnpm >= 10.29.3
+- Node.js >= 22 (Node.js 24 recommended)
+- pnpm 11.25.0 (via Corepack)
 
 ### Installation
 
@@ -34,7 +34,8 @@ git clone https://github.com/upiksaleh/nextjs-notion-starter-kit.git
 cd nextjs-notion-starter-kit
 
 # Install dependencies
-pnpm install
+corepack enable
+pnpm install --frozen-lockfile
 
 # Start dev server
 pnpm dev
@@ -83,12 +84,15 @@ pnpm dev              # Start development server
 pnpm build            # Build for production
 pnpm start            # Start production server
 pnpm test             # Run all tests
-pnpm test:lint        # Run ESLint
-pnpm test:prettier    # Check code formatting
-pnpm deps:upgrade     # Upgrade Notion packages
+pnpm test:lint        # Run Oxlint
+pnpm test:format      # Check code formatting
+pnpm test:typecheck   # Check TypeScript types
+pnpm deps:update      # Upgrade Notion packages
 ```
 
 ## 🎨 Customization
+
+Routes and API handlers live in [app/](app/) (Next.js App Router).
 
 - Update site config in [site.config.ts](site.config.ts)
 - Modify components in [components/](components/)
@@ -104,10 +108,10 @@ pnpm deps:upgrade     # Upgrade Notion packages
 ### Environment Variables
 
 Optional:
+
 - `NEXT_PUBLIC_FATHOM_ID` - Analytics (Fathom)
-- `NEXT_PUBLIC_POSTHOG_KEY` - Product analytics (PostHog)
+- `NEXT_PUBLIC_POSTHOG_ID` - Product analytics (PostHog)
 
 ## 📄 License
 
 MIT © [Original](https://github.com/transitive-bullshit/nextjs-notion-starter-kit) + Fork by [@upiksaleh](https://github.com/upiksaleh)
-
