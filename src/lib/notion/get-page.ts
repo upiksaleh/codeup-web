@@ -6,7 +6,7 @@ import type { Block, Collection, ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { cache } from 'react'
 import { siteConfig } from '@/site.config'
-import { normalizePageId } from './page-id'
+import { resolvePageId } from './page-url'
 
 const notion = new NotionAPI({ ofetchOptions: { timeout: 15_000 } })
 
@@ -48,7 +48,7 @@ async function fetchPage(pageId: string) {
 }
 
 export const getNotionPage = cache(async (rawPageId: string) => {
-  const pageId = normalizePageId(rawPageId)
+  const pageId = resolvePageId(rawPageId)
   if (!pageId) notFound()
 
   const recordMap = await fetchPage(pageId)

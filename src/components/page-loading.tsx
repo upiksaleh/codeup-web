@@ -1,7 +1,7 @@
 export function PageLoading() {
   return (
-    <output className="page-state" aria-live="polite" lang="en">
-      Loading…
-    </output>
+    <main className="page-state" lang="en">
+      <output aria-live="polite">Loading…</output>
+    </main>
   )
 }
