@@ -1,0 +1,86 @@
+:root {
+  color-scheme: light;
+  color: #202124;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main {
+  flex: 1;
+  min-width: 0;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid #245bd7;
+  outline-offset: 4px;
+}
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  padding: 12px;
+  background: #fff;
+  transform: translateY(-160%);
+  z-index: 100;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.site-header,
+.site-footer {
+  width: 100%;
+  max-width: 1000px;
+  margin-inline: auto;
+  padding: 24px;
+}
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.site-name {
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-header span,
+.site-footer {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.site-footer {
+  border-top: 1px solid #e5e5e5;
+}
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.page-state {
+  max-width: 760px;
+  margin-inline: auto;
+  padding: 64px 24px;
+  line-height: 1.6;
+}
+button {
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+.notion-page {
+  padding-bottom: 64px;
+}

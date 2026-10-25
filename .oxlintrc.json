@@ -1,0 +1,12 @@
+{
+  "plugins": ["typescript", "react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-has-content": "error"
+  },
+  "ignorePatterns": [".next/**", "next-env.d.ts", "node_modules/**"]
+}
