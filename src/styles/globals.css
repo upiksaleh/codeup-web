@@ -666,58 +666,38 @@ button {
   font-size: 23px;
   letter-spacing: -0.6px;
 }
+/* The root gallery keeps Notion's own view, like the old site; cards share the bookmark border. */
 .home-page .notion-gallery-grid {
-  grid-template-columns: minmax(0, 1fr);
-  grid-auto-rows: auto;
-  gap: 32px;
-  border-top: 0;
-  padding-top: 0;
+  /* Three, two, or one column by available width. */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, max(240px, calc((100% - 2 * 16px) / 3))), 1fr)
+  );
 }
 .home-page .notion-gallery-grid .notion-collection-card {
-  flex-direction: row;
-  align-items: center;
-  gap: 32px;
+  border: 1px solid var(--site-line);
   box-shadow: none;
-  background: transparent;
-  border-radius: 18px;
 }
+/* Cards are links; keep their text color instead of the global link hover color. */
 .home-page .notion-gallery-grid .notion-collection-card:hover {
-  background: transparent;
-}
-.home-page .notion-gallery-grid .notion-collection-card-cover {
-  flex: 0 0 51%;
-  height: auto;
-  aspect-ratio: 1.85;
-  border: 0;
-  border-radius: 18px;
-}
-.home-page .notion-gallery-grid .notion-collection-card-cover img {
-  border-radius: inherit;
-}
-.home-page .notion-gallery-grid .notion-collection-card-body {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-}
-.home-page .notion-gallery-grid .notion-collection-card-property {
-  overflow: visible;
-  white-space: normal;
+  color: var(--site-ink);
 }
 .home-page .notion-gallery-grid .notion-page-icon-inline {
   display: none;
 }
-.home-page .notion-gallery-grid .notion-property-title {
-  font-size: 23px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: -0.5px;
-}
-
-.home-page .notion-gallery-grid .notion-page-title,
-.home-page .notion-gallery-grid .notion-page-title-text {
+/* Titles wrap to two lines so cards in a row keep the same height. */
+.home-page .notion-gallery-grid .notion-collection-card-property:first-child {
   white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
+}
+.home-page
+  .notion-gallery-grid
+  .notion-collection-card-property:first-child
+  .notion-page-title-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
 }
 
 .home-page .notion-property-multi_select-item {
@@ -730,15 +710,6 @@ button {
     'SFMono-Regular',
     Consolas,
     monospace;
-}
-.home-page .notion-gallery-grid .notion-collection-card-property:has(.notion-property-date) {
-  order: -1;
-  color: var(--site-muted);
-}
-.home-page
-  .notion-gallery-grid
-  .notion-collection-card-property:has(.notion-property-multi_select) {
-  margin-top: 12px;
 }
 .home-page > .notion-row {
   display: grid;
@@ -791,7 +762,9 @@ button {
   border-color: var(--site-line);
 }
 .notion .notion-bookmark:hover,
-.notion .notion-bookmark:focus-visible {
+.notion .notion-bookmark:focus-visible,
+.home-page .notion-gallery-grid .notion-collection-card:hover,
+.home-page .notion-gallery-grid .notion-collection-card:focus-visible {
   border-color: transparent;
   background:
     linear-gradient(var(--site-background), var(--site-background)) padding-box,
@@ -840,6 +813,7 @@ button {
   min-width: 100%;
   padding-inline: 0 !important;
 }
+
 .content-page .notion-page {
   width: 100%;
   max-width: 780px;
@@ -1072,12 +1046,6 @@ button {
     width: calc(100% - 64px);
     margin-inline: 32px;
   }
-  .home-page .notion-gallery-grid .notion-collection-card {
-    gap: 22px;
-  }
-  .home-page .notion-gallery-grid .notion-property-title {
-    font-size: 20px;
-  }
 }
 @media (max-width: 580px) {
   :root {
@@ -1129,19 +1097,6 @@ button {
   .home-page > .notion-page-link {
     width: calc(100% - 44px);
     margin-inline: 22px;
-  }
-  .home-page .notion-gallery-grid .notion-collection-card {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 18px;
-  }
-  .home-page .notion-gallery-grid .notion-collection-card-cover {
-    flex-basis: auto;
-    width: 100%;
-    border-radius: 14px;
-  }
-  .home-page .notion-gallery-grid .notion-property-title {
-    font-size: 20px;
   }
   .site-footer {
     align-items: flex-start;
