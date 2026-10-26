@@ -6,6 +6,7 @@ import type { ExtendedRecordMap } from 'notion-types'
 import type { ComponentProps, ReactNode } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
+import { normalizePageId } from '@/lib/notion/page-id'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
@@ -51,6 +52,7 @@ function NotionCollection(props: ComponentProps<typeof Collection>) {
 export function NotionContent({
   recordMap,
   pageId,
+  pageUrls,
   isHome,
   isBlogPost,
   pageHeader,
@@ -59,6 +61,7 @@ export function NotionContent({
 }: {
   recordMap: ExtendedRecordMap
   pageId: string
+  pageUrls: Record<string, string>
   isHome: boolean
   isBlogPost: boolean
   pageHeader: ReactNode
@@ -72,7 +75,7 @@ export function NotionContent({
       blockId={pageId}
       rootPageId={siteConfig.rootNotionPageId}
       rootDomain={siteConfig.domain}
-      mapPageUrl={getPageUrl}
+      mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
       fullPage={!isHome}
       showCollectionViewDropdown={!isHome}
       className={isHome ? 'home-page' : isBlogPost ? 'content-page blog-page' : 'content-page'}

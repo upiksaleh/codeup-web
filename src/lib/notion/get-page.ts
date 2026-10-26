@@ -4,13 +4,13 @@ import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { loadNotionPage } from './load-page'
 import { resolvePageId } from './page-url'
-import { getSitePages } from './site-pages'
+import { getSitePages, isReservedSlug } from './site-pages'
 
 export const getNotionPage = cache(async (segment: string) => {
   let pageId = resolvePageId(segment)
 
-  // Reserve the studio route instead of resolving the personal About page's title.
-  if (!pageId && segment === 'about') notFound()
+  // Reserved routes, such as the studio's /about, never resolve to a Notion title.
+  if (!pageId && isReservedSlug(segment)) notFound()
 
   if (!pageId && /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(segment) && segment.length <= 200) {
     const matches = (await getSitePages()).filter(({ slug }) => slug === segment)

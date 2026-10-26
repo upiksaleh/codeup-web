@@ -7,7 +7,6 @@ import {
   getPageProperty,
 } from 'notion-utils'
 import { siteConfig } from '@/site.config'
-import { getPageUrl } from './page-url'
 
 export function getPageInfo(pageId: string, recordMap: ExtendedRecordMap) {
   const page = getBlockValue(recordMap.block[pageId])!
@@ -22,7 +21,6 @@ export function getPageInfo(pageId: string, recordMap: ExtendedRecordMap) {
 
   return {
     id: pageId,
-    url: getPageUrl(pageId),
     title: getBlockTitle(page, recordMap) || siteConfig.name,
     description: textProperty('Description') || textProperty('Summary'),
     slug: slug.length <= 200 && /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(slug) ? slug : '',

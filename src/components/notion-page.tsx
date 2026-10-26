@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getBlockValue } from 'notion-utils'
-import { getPageUrl } from '@/lib/notion/page-url'
 import { getNotionPage } from '@/lib/notion/get-page'
 import { withImagePreviews } from '@/lib/notion/image-previews'
 import { getPageInfo } from '@/lib/notion/page-info'
+import { normalizePageId } from '@/lib/notion/page-id'
+import { getPageUrl } from '@/lib/notion/page-url'
+import { getSitePageUrls } from '@/lib/notion/site-pages'
 import { siteConfig } from '@/site.config'
 import { NotionContent } from './notion-content'
 import { HomeHero } from './home-hero'
@@ -16,6 +18,9 @@ export async function NotionPage({ pageId }: { pageId: string }) {
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId
   const { isBlogPost } = getPageInfo(id, recordMap)
+  const pageUrls = await getSitePageUrls(
+    Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
+  )
 
   const pageTools = (
     <div className="page-tools" lang="en">
@@ -26,7 +31,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         </Link>
       </nav>
       <CopyButton
-        value={`https://${siteConfig.domain}${getPageUrl(id)}`}
+        value={`https://${siteConfig.domain}${pageUrls[id] ?? getPageUrl(id)}`}
         label="Copy link"
         icon="link"
       />
@@ -37,6 +42,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     <NotionContent
       recordMap={await withImagePreviews(recordMap)}
       pageId={id}
+      pageUrls={pageUrls}
       isHome={isHome}
       isBlogPost={isBlogPost}
       pageHeader={
