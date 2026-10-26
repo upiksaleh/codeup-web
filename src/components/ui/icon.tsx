@@ -22,12 +22,6 @@ const paths = {
     </>
   ),
   check: <path d="m5 12 4 4L19 6" />,
-  link: (
-    <>
-      <path d="m9 15 6-6M8 10l-2 2a4 4 0 0 0 6 6l2-2M10 8l2-2a4 4 0 0 1 6 6l-2 2" />
-    </>
-  ),
-  arrowLeft: <path d="m10 5-7 7 7 7M3 12h18" />,
   enter: <path d="M9 10 4 15l5 5M20 4v7a4 4 0 0 1-4 4H4" />,
   external: (
     <path d="M14 3h7v7m0-7L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5" />

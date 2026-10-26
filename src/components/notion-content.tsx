@@ -10,6 +10,7 @@ import { normalizePageId } from '@/lib/notion/page-id'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
+import { usePointerEffects } from './use-pointer-effects'
 
 const Collection = dynamic(() =>
   import('react-notion-x/third-party/collection').then((module) => module.Collection),
@@ -57,7 +58,6 @@ export function NotionContent({
   isBlogPost,
   pageHeader,
   pageCover,
-  pageFooter,
 }: {
   recordMap: ExtendedRecordMap
   pageId: string
@@ -66,9 +66,9 @@ export function NotionContent({
   isBlogPost: boolean
   pageHeader: ReactNode
   pageCover?: ReactNode
-  pageFooter?: ReactNode
 }) {
   const theme = useSiteTheme()
+  usePointerEffects()
   return (
     <NotionRenderer
       recordMap={recordMap}
@@ -81,7 +81,6 @@ export function NotionContent({
       className={isHome ? 'home-page' : isBlogPost ? 'content-page blog-page' : 'content-page'}
       pageHeader={pageHeader}
       pageCover={pageCover}
-      pageFooter={pageFooter}
       showTableOfContents={!isHome}
       minTableOfContentsItems={3}
       tableOfContentsTitle="Table of contents"

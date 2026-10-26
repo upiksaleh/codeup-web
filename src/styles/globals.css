@@ -12,6 +12,8 @@
   --site-accent: light-dark(#087c73, #7ed3c8);
   --site-cover: light-dark(#127b72, #287c73);
   --site-tint: light-dark(#e7f2ef, #344a48);
+  --site-glow-from: light-dark(#0d9488, #2dd4bf);
+  --site-glow-to: light-dark(#7c3aed, #a78bfa);
   --site-width: 1200px;
   --notion-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   --notion-max-width: 720px;
@@ -206,25 +208,12 @@ button {
     display: none;
   }
 }
-.page-breadcrumb a,
 .copy-button,
 .search-form button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-.page-tools {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 16px;
-}
-.page-tools .page-breadcrumb {
-  width: auto;
-  margin: 0;
 }
 .copy-button {
   min-height: 36px;
@@ -779,12 +768,41 @@ button {
 .notion-page-link {
   opacity: 1;
 }
+/* Like the old site: a quiet underline at rest; on hover it fades and a gradient
+   draws in from the pointer (set by usePointerEffects), or from the center for keyboard focus. */
 .notion-link {
-  border-bottom-color: var(--site-accent);
+  --link-origin: 50%;
+  border-bottom: 1px solid color-mix(in srgb, var(--site-ink) 35%, transparent);
+  background-image: linear-gradient(90deg, var(--site-glow-from), var(--site-glow-to));
+  background-origin: border-box;
+  background-repeat: no-repeat;
+  background-position: var(--link-origin) 100%;
+  background-size: 0 2px;
 }
-.notion-link:hover {
-  background: var(--site-tint);
-  color: var(--site-accent);
+.notion-link:hover,
+.notion-link:focus-visible {
+  border-bottom-color: transparent;
+  color: inherit;
+  background-size: 100% 2px;
+}
+
+/* The whole border turns into the gradient at once, keeping the rounded corners. */
+.notion .notion-bookmark {
+  border-color: var(--site-line);
+}
+.notion .notion-bookmark:hover,
+.notion .notion-bookmark:focus-visible {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--site-background), var(--site-background)) padding-box,
+    linear-gradient(90deg, var(--site-glow-from), var(--site-glow-to)) border-box;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .notion-link {
+    transition:
+      background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      border-bottom-color 0.2s ease;
+  }
 }
 
 .notion-collection-section {
@@ -870,18 +888,6 @@ button {
 }
 .content-page .notion-page-icon-hero img {
   border-radius: 50%;
-}
-.page-breadcrumb {
-  width: 100%;
-  margin: 10px 0 24px;
-  font-size: 12px;
-}
-.page-breadcrumb a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--site-muted);
-  text-decoration: none;
 }
 .content-page .notion-title {
   margin-bottom: 28px;
@@ -1327,12 +1333,6 @@ button {
 .blog-page .notion-h3 {
   font-size: 24px;
 }
-.blog-page .page-tools {
-  margin-top: 48px;
-  margin-bottom: 0;
-  padding-top: 24px;
-  border-top: 1px solid var(--site-line);
-}
 @media (min-width: 1300px) {
   .content-page .notion-page-content-has-aside {
     flex-direction: row;
@@ -1386,8 +1386,7 @@ button {
 }
 @media (prefers-reduced-motion: no-preference) {
   .site-navigation a,
-  .theme-toggle,
-  .notion-link {
+  .theme-toggle {
     transition:
       color 150ms ease,
       background-color 150ms ease;
