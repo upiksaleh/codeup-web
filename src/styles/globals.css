@@ -235,7 +235,7 @@ a:hover {
   align-items: center;
   min-height: 44px;
   color: var(--site-muted);
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none;
 }
 .site-navigation a[aria-current='page'] {
@@ -624,7 +624,7 @@ button {
 .home-hero h1 {
   margin: 0;
   color: inherit;
-  font-size: 60px;
+  font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -2px;
@@ -674,7 +674,7 @@ button {
 .site-footer p {
   margin: 6px 0 0;
   color: var(--site-muted);
-  font-size: 12px;
+  font-size: 0.8rem;
   line-height: 1.6;
 }
 .footer-links {
@@ -698,9 +698,18 @@ button {
   padding: 64px 24px;
   line-height: 1.6;
 }
-.notion {
-  font-size: 16px;
-  line-height: 1.8;
+/* Keep the old reading rhythm and Notion's small-text setting. */
+.notion-page {
+  line-height: 1.65;
+}
+.notion-quote {
+  line-height: 1.5;
+}
+.notion .notion-h1 {
+  font-size: 1.625em;
+}
+.notion .notion-h2 {
+  font-size: 1.375em;
 }
 .notion-app {
   min-height: 0;
@@ -728,7 +737,6 @@ button {
 }
 .home-page > .notion-text {
   padding: 5px 0;
-  font-size: 14px;
 }
 
 .home-page > .notion-blank {
@@ -747,7 +755,6 @@ button {
   overflow: visible;
 }
 .home-page .notion-collection-header-title {
-  font-size: 23px;
   letter-spacing: -0.6px;
 }
 /* The root gallery keeps Notion's own view, like the old site; cards share the bookmark border. */
@@ -769,6 +776,14 @@ button {
 .home-page .notion-gallery-grid .notion-page-icon-inline {
   display: none;
 }
+/* Keep titles proportional to the narrower cards in the three-column grid. */
+.notion-gallery-grid .notion-page-title-text {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+.notion-gallery-grid .notion-property-text {
+  font-size: 14px;
+}
 /* Titles wrap to two lines so cards in a row keep the same height. */
 .home-page .notion-gallery-grid .notion-collection-card-property:first-child {
   white-space: normal;
@@ -787,11 +802,6 @@ button {
 .home-page .notion-property-multi_select-item {
   padding: 2px 8px;
   border-radius: 4px;
-  font:
-    11px/1.7 ui-monospace,
-    'SFMono-Regular',
-    Consolas,
-    monospace;
 }
 .home-page > .notion-row {
   display: grid;
@@ -815,7 +825,6 @@ button {
   min-height: 58px;
   padding: 8px 0;
   border-bottom: 1px solid var(--site-line);
-  font-size: 14px;
 }
 .notion-link,
 .notion-page-link {
@@ -947,13 +956,12 @@ button {
 }
 .content-page .notion-title {
   margin-bottom: 28px;
-  font-size: 44px;
+  font-size: clamp(1.75em, calc(1.25em + 1vw), 2em);
   font-weight: 700;
   letter-spacing: -1.8px;
 }
 .content-page .notion-text {
   padding-block: 8px;
-  font-size: 15px;
 }
 
 .content-page .notion-page-content-inner > .notion-page-link {
@@ -962,7 +970,6 @@ button {
   margin: 0;
   padding: 12px 0;
   border-bottom: 1px solid var(--site-line);
-  font-size: 14px;
 }
 
 .content-page .notion-page-link .notion-page-title-text {
@@ -971,9 +978,6 @@ button {
   border-bottom: 0;
 }
 
-.content-page .notion-h3 {
-  font-size: 18px;
-}
 .content-page .notion-h {
   margin-top: 28px;
 }
@@ -995,7 +999,7 @@ button {
   color: light-dark(#1f2937, #e5e7eb);
   background: light-dark(#f9fafb, #111827);
   font:
-    13px/1.7 ui-monospace,
+    85%/1.7 ui-monospace,
     'SFMono-Regular',
     Consolas,
     monospace;
@@ -1113,9 +1117,6 @@ button {
     gap: 22px;
     padding: 38px 30px 48px;
   }
-  .home-hero h1 {
-    font-size: 50px;
-  }
   .home-hero-logo {
     width: 110px;
     height: 110px;
@@ -1163,9 +1164,6 @@ button {
     height: 72px;
     margin: 0;
   }
-  .home-hero h1 {
-    font-size: 44px;
-  }
   .home-hero p {
     font-size: 15px;
   }
@@ -1205,9 +1203,6 @@ button {
   }
   .content-page .notion-page-icon-hero {
     left: 22px;
-  }
-  .content-page .notion-title {
-    font-size: 40px;
   }
   .notion-row {
     flex-direction: column;
@@ -1302,8 +1297,7 @@ button {
 }
 .blog-page .notion-title {
   margin: 0 0 28px;
-  font-size: 40px;
-  line-height: 1.22;
+  line-height: 1.2;
   letter-spacing: -0.6px;
   text-align: center;
   text-wrap: balance;
@@ -1364,12 +1358,6 @@ button {
 .blog-page .notion-aside {
   padding-top: 16px;
 }
-.blog-page .notion-text {
-  font-size: 16px;
-}
-.blog-page .notion-h3 {
-  font-size: 24px;
-}
 @media (min-width: 1300px) {
   .content-page .notion-page-content-has-aside {
     flex-direction: row;
@@ -1411,7 +1399,6 @@ button {
     margin-left: -44px;
   }
   .blog-page .notion-title {
-    font-size: 28px;
     letter-spacing: -0.4px;
   }
   .blog-page .notion-page-content {
