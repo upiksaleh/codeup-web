@@ -56,9 +56,12 @@ The `/` route combines the homepage hero with the Notion root page. `/upik`,
 `/notes`, `/projects`, and `/contact` map to the verified public Notion pages in the navigation
 configuration. `/<pageId>` also opens descendants using a 32-character hexadecimal
 ID or UUID. Links and canonical metadata use the configured paths when available.
-Unique Notion slugs (or title-derived slugs) and title-ID URLs also resolve to the
-same pages. Slugs are compatibility aliases; canonical URLs remain configured
-paths or stable page IDs. Ambiguous slugs return 404.
+Blog database items use `/blog/<slug>` and project database items use
+`/project/<slug>`. Other pages keep their unique root-level slugs. Slugs come from
+Notion's Slug property or page title; navigation paths take precedence. Missing
+or duplicate slugs fall back to a stable page ID within the same namespace.
+ID, title-ID, and unambiguous old root-level slug URLs permanently redirect to
+the canonical path. A category path only resolves items from its own database.
 `/about` is reserved for the studio page and cannot resolve to the personal About title.
 Unknown paths and pages outside the root return 404. Pages use ISR with a 300-second
 revalidation interval; requests may receive cached content during regeneration.

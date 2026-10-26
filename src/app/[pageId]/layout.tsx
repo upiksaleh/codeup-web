@@ -1,7 +1,5 @@
-import { permanentRedirect } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { getNotionPage } from '@/lib/notion/get-page'
-import { getSitePageUrl } from '@/lib/notion/site-pages'
+import { validatePagePath } from '@/lib/notion/get-page'
 
 export default async function PageLayout({
   children,
@@ -11,16 +9,7 @@ export default async function PageLayout({
   params: Promise<{ pageId: string }>
 }) {
   const { pageId: segment } = await params
-  const { pageId } = await getNotionPage(segment)
-  const url = await getSitePageUrl(pageId)
-
-  const requested = new Set([`/${segment}`])
-  try {
-    requested.add(`/${decodeURIComponent(segment)}`)
-  } catch {}
-
-  // ID, title-ID, and alias URLs keep working but move to the canonical path.
-  if (!requested.has(url)) permanentRedirect(url)
+  await validatePagePath(segment)
 
   return children
 }
