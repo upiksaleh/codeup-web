@@ -24,9 +24,14 @@ export const siteConfig = {
     { label: 'Projects', path: '/projects', pageId: 'ecc33737-84d0-491e-a468-b7ce4abebea7' },
     { label: 'Contact', path: '/contact', pageId: '7ed4ac77-d51a-8385-af1c-011f2551fb4e' },
   ],
-  socialLinks: {
-    GitHub: 'https://github.com/upiksaleh',
-    LinkedIn: 'https://www.linkedin.com/in/upik',
-    X: 'https://x.com/alrahmsa',
-  },
+  socialLinks: [
+    { label: 'GitHub', handle: 'upiksaleh', icon: 'github', url: 'https://github.com/upiksaleh' },
+    {
+      label: 'LinkedIn',
+      handle: 'upik',
+      icon: 'linkedin',
+      url: 'https://www.linkedin.com/in/upik',
+    },
+    { label: 'X', handle: 'alrahmsa', icon: 'x', url: 'https://x.com/alrahmsa' },
+  ],
 } as const

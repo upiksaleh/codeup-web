@@ -5,7 +5,10 @@ import { useState } from 'react'
 import { useNotionContext } from 'react-notion-x'
 import { canOptimizeImage } from '@/lib/notion/image-source'
 
-export function NotionImage({ src, sizes, unoptimized, onError, ...props }: ImageProps) {
+// The renderer attaches medium-zoom on load; this marks those images so the zoom also works by keyboard.
+const zoomClass = 'medium-zoom-image'
+
+export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props }: ImageProps) {
   const { fullPage } = useNotionContext()
   const [failedSource, setFailedSource] = useState<ImageProps['src']>()
   let imageSizes =
@@ -15,7 +18,7 @@ export function NotionImage({ src, sizes, unoptimized, onError, ...props }: Imag
     imageSizes = '(max-width: 580px) calc(100vw - 44px), (max-width: 1200px) 50vw, 560px'
   } else if (props.className?.includes('notion-page-cover')) {
     imageSizes =
-      '(max-width: 580px) calc(100vw - 24px), (max-width: 1200px) calc(100vw - 48px), 1152px'
+      '(max-width: 580px) calc(100vw - 24px), (max-width: 1248px) calc(100vw - 48px), 1200px'
   }
 
   return (
@@ -27,6 +30,19 @@ export function NotionImage({ src, sizes, unoptimized, onError, ...props }: Imag
       unoptimized={
         unoptimized || failedSource === src || (typeof src === 'string' && !canOptimizeImage(src))
       }
+      onLoad={(event) => {
+        onLoad?.(event)
+        const image = event.currentTarget
+        if (image.classList.contains(zoomClass)) image.tabIndex = 0
+      }}
+      onKeyDown={(event) => {
+        const image = event.currentTarget
+        if ((event.key === 'Enter' || event.key === ' ') && image.classList.contains(zoomClass)) {
+          event.preventDefault()
+          image.addEventListener('medium-zoom:closed', () => image.focus(), { once: true })
+          image.click()
+        }
+      }}
       onError={(event) => {
         setFailedSource(src)
         onError?.(event)

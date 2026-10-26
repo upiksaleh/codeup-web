@@ -59,3 +59,25 @@ export const getSitePages = unstable_cache(
     revalidate: 300,
   },
 )
+
+export function normalizeSearchQuery(value: unknown) {
+  return typeof value === 'string' ? value.trim().slice(0, 200) : ''
+}
+
+// Every term must match; pages whose title matches more terms rank first.
+export async function searchSitePages(query: string) {
+  const terms = query.toLocaleLowerCase().split(/\s+/).filter(Boolean)
+  if (!terms.length) return []
+
+  return (await getSitePages())
+    .filter(({ searchText }) => {
+      const text = searchText.toLocaleLowerCase()
+      return terms.every((term) => text.includes(term))
+    })
+    .map((page) => {
+      const title = page.title.toLocaleLowerCase()
+      return { page, score: terms.filter((term) => title.includes(term)).length }
+    })
+    .sort((a, b) => b.score - a.score)
+    .map(({ page }) => page)
+}

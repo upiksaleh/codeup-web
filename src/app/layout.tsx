@@ -1,9 +1,7 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
+import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
-import { SiteNavigation } from '@/components/site-navigation'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import { siteConfig } from '@/site.config'
 import 'react-notion-x/styles.css'
 import '@/styles/globals.css'
@@ -24,10 +22,17 @@ export const metadata: Metadata = {
     url: '/',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: siteConfig.name,
     description: siteConfig.description,
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fafcfc' },
+    { media: '(prefers-color-scheme: dark)', color: '#20282b' },
+  ],
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -47,39 +52,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
-        <header className="site-header">
-          <div className="site-header-inner">
-            <Link href="/" className="site-name" aria-label={`${siteConfig.name} home`}>
-              <Image src={siteConfig.logo} alt="" width={32} height={32} loading="eager" />
-              <span>
-                {siteConfig.name}
-                <span className="brand-dot">.</span>
-              </span>
-            </Link>
-            <span className="site-label">{siteConfig.label}</span>
-            <SiteNavigation />
-            <ThemeToggle />
-          </div>
-        </header>
+        <SiteHeader />
         <div id="main-content" className="site-content" lang="id" tabIndex={-1}>
           {children}
         </div>
-        <footer className="site-footer">
-          <div>
-            <Link href="/" className="footer-name">
-              {siteConfig.name}
-              <span className="brand-dot">.</span>
-            </Link>
-            <p>{siteConfig.footerStatus}</p>
-          </div>
-          <nav aria-label="Social media">
-            {Object.entries(siteConfig.socialLinks).map(([label, url]) => (
-              <a key={label} href={url}>
-                {label}
-              </a>
-            ))}
-          </nav>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   )

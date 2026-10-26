@@ -9,7 +9,7 @@ import { canOptimizeImage, isRemoteImageAllowed } from './image-source'
 
 const maxImageBytes = 10_000_000
 
-async function readImage(url: string) {
+export async function readImage(url: string) {
   const signal = AbortSignal.timeout(8_000)
 
   for (let redirects = 0; redirects <= 3; redirects++) {

@@ -44,12 +44,13 @@ without the `NEXT_PUBLIC_` prefix.
 ## Structure
 
 - `src/app/`: routes, layouts, metadata, loading, error, and 404 states.
-- `src/components/`: server components and the client Notion renderer.
+- `src/components/`: site header/footer, Notion rendering, search, zoom, theme, and copy controls.
+- `src/components/ui/`: shared SVG icons and the accessible native dialog.
 - `src/lib/notion/`: server-only page loading, route resolution, a public page index,
   metadata extraction, ID and ancestry checks, and page URLs.
 - `src/styles/`: application styles, used alongside react-notion-x styles.
 - `src/site.config.ts`: public site settings.
-- `public/`: the CodeUP logo and remaining assets from the initial scaffold.
+- `public/`: the CodeUP logo. Unused starter assets have been removed.
 
 The `/` route combines the homepage hero with the Notion root page. `/upik`,
 `/notes`, `/projects`, and `/contact` map to the verified public Notion pages in the navigation
@@ -62,7 +63,7 @@ paths or stable page IDs. Ambiguous slugs return 404.
 Unknown paths and pages outside the root return 404. Pages use ISR with a 300-second
 revalidation interval; requests may receive cached content during regeneration.
 The renderer uses the installed Collection component and native, keyboard-scrollable
-code blocks. Syntax highlighting and copy controls are not included. Media and
+code blocks with PrismJS syntax highlighting, language labels, and copy controls. Media and
 page content remain managed by Notion. Pages must be public and belong to the
 configured root.
 
@@ -73,6 +74,11 @@ lists the indexed pages once; `/robots.txt` points crawlers to it. `/feed` provi
 RSS for the configured Blogs collection, excluding Projects. Metadata uses Notion
 Description or Summary properties, covers, and article dates where available.
 
+Validated public record maps share a Next.js data cache by normalized page ID and
+configured root for 300 seconds. Missing pages are cached as missing for that interval;
+network errors propagate without becoming 404s or successful cache entries. This
+avoids fetching the same page again for aliases, metadata, and discovery.
+
 The shared index loads public descendants in batches of four and uses Next.js
 `unstable_cache` with a 300-second revalidation interval. This API fits the existing
 ISR setup without enabling Cache Components. Transient fetch failures propagate
@@ -80,9 +86,27 @@ instead of becoming a partial successful index. Cached search results, feed, and
 sitemap can remain stale during regeneration; remove server caches when access
 must be withdrawn immediately. No Redis or additional dependencies are required.
 
-The layout supports small screens and light/dark themes. The default
-follows the system; a manual selection is stored in browser local storage and
-applied before paint. It does not require cookies, authentication, or new dependencies.
+The layout supports small screens and light/dark themes. The default follows the
+system; a manual selection is stored in browser local storage and applied before
+paint. A shared browser subscription keeps the sun/moon control, renderer,
+system changes, and other tabs in sync without cookies or a theme dependency.
+
+## Reading controls
+
+The search icon opens a quick-search dialog; Ctrl+K or Command+K also opens it.
+The form uses the same server search page, and the link works without JavaScript.
+Covers and body images expose an enlarge button that loads their original image
+on demand. Gallery cards retain their page navigation. Both dialogs use native
+modal focus handling, Escape, backdrop dismissal, scroll locking, and focus return.
+Dialogs render at the body level so Notion image styles cannot constrain them.
+
+Pages with at least three headings use the renderer's table of contents and active
+section tracking. It stays beside the text on wide screens and appears above the
+body in a scrollable panel on smaller screens. Blog posts use a wide cover,
+centered page icon (or the site logo), title, and compact Notion metadata. Empty
+metadata rows are hidden. Their canonical link tools appear after the article.
+Code tools copy the exact block text and announce success or failure. The footer
+links to the existing RSS feed.
 
 ## Image loading
 

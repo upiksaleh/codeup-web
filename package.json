@@ -19,6 +19,7 @@
     "notion-client": "8.0.8",
     "notion-types": "8.0.8",
     "notion-utils": "8.0.8",
+    "prismjs": "1.30.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-notion-x": "8.0.8",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/prismjs": "1.26.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "oxfmt": "0.74.0",

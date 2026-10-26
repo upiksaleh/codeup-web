@@ -11,7 +11,6 @@ export async function getPageMetadata(segment: string): Promise<Metadata> {
   const isHome = pageId === siteConfig.rootNotionPageId
   const title = isHome ? siteConfig.name : info.title
   const description = info.description || siteConfig.description
-  const images = [info.image || siteConfig.logo]
 
   return {
     title: isHome ? { absolute: title } : title,
@@ -23,13 +22,13 @@ export async function getPageMetadata(segment: string): Promise<Metadata> {
       title,
       description,
       url: info.url,
-      images,
       ...(info.isBlogPost && {
         publishedTime: new Date(info.published).toISOString(),
         modifiedTime: new Date(info.lastEdited).toISOString(),
         tags: info.tags,
       }),
     },
-    twitter: { card: info.image ? 'summary_large_image' : 'summary', title, description, images },
+    // Images come from the generated opengraph-image route.
+    twitter: { card: 'summary_large_image', title, description },
   }
 }

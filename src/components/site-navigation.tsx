@@ -16,9 +16,6 @@ export function SiteNavigation() {
           {label}
         </Link>
       ))}
-      <Link href="/search" aria-current={pathname === '/search' ? 'page' : undefined}>
-        Search
-      </Link>
     </nav>
   )
 }

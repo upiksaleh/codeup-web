@@ -1,10 +1,12 @@
 import 'server-only'
 
+import { unstable_cache } from 'next/cache'
 import { NotionAPI } from 'notion-client'
 import type { Block, Collection, ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { cache } from 'react'
 import { siteConfig } from '@/site.config'
+import { normalizePageId } from './page-id'
 
 const notion = new NotionAPI({ ofetchOptions: { timeout: 15_000 } })
 
@@ -45,18 +47,27 @@ async function fetchPage(pageId: string) {
   }
 }
 
+const loadCachedPage = unstable_cache(
+  async (pageId: string) => {
+    const recordMap = await fetchPage(pageId)
+    const page = recordMap && getBlockValue(recordMap.block[pageId])
+
+    if (
+      !recordMap ||
+      !page?.alive ||
+      (page.type !== 'page' && page.type !== 'collection_view_page') ||
+      !belongsToSite(recordMap, page)
+    ) {
+      return null
+    }
+
+    return recordMap
+  },
+  ['notion-page', siteConfig.rootNotionPageId],
+  { revalidate: 300 },
+)
+
 export const loadNotionPage = cache(async (pageId: string) => {
-  const recordMap = await fetchPage(pageId)
-  const page = recordMap && getBlockValue(recordMap.block[pageId])
-
-  if (
-    !recordMap ||
-    !page?.alive ||
-    (page.type !== 'page' && page.type !== 'collection_view_page') ||
-    !belongsToSite(recordMap, page)
-  ) {
-    return undefined
-  }
-
-  return recordMap
+  const id = normalizePageId(pageId)
+  return id ? ((await loadCachedPage(id)) ?? undefined) : undefined
 })
