@@ -1,16 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState, type KeyboardEvent } from 'react'
+import type { SearchResult } from '@/lib/notion/search'
+import { Highlight } from './highlight'
 import { Icon } from './ui/icon'
 import { Modal } from './ui/modal'
 
-type SearchResult = { id: string; url: string; title: string; description: string }
-type SearchState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'done'; query: string; total: number; results: SearchResult[] }
-  | { status: 'error' }
+type Results = { query: string; total: number; results: SearchResult[] }
+
+const listId = 'search-palette-list'
+const optionId = (index: number) => `search-palette-option-${index}`
 
 export function SearchButton() {
   const [open, setOpen] = useState(false)
@@ -44,39 +45,46 @@ export function SearchButton() {
       </Link>
       {open && (
         <Modal label="Search" className="search-dialog" onClose={() => setOpen(false)}>
-          <QuickSearch onNavigate={() => setOpen(false)} />
+          <SearchPalette onClose={() => setOpen(false)} />
         </Modal>
       )}
     </>
   )
 }
 
-function QuickSearch({ onNavigate }: { onNavigate: () => void }) {
+function SearchPalette({ onClose }: { onClose: () => void }) {
+  const router = useRouter()
   const [query, setQuery] = useState('')
-  const [state, setState] = useState<SearchState>({ status: 'idle' })
-  const listRef = useRef<HTMLUListElement>(null)
+  const [data, setData] = useState<Results>()
+  const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [active, setActive] = useState(0)
   const trimmed = query.trim()
+  const results = data?.results ?? []
+  const shortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘K' : 'Ctrl K'
 
   useEffect(() => {
-    if (!trimmed) return
-
     const controller = new AbortController()
-    const timer = setTimeout(async () => {
-      setState({ status: 'loading' })
-      try {
-        const response = await fetch(`/search/results?q=${encodeURIComponent(trimmed)}`, {
-          signal: controller.signal,
-        })
-        if (!response.ok) throw new Error(`Search failed with ${response.status}`)
-        const data: { total: number; results: SearchResult[] } = await response.json()
-        setState({ status: 'done', query: trimmed, ...data })
-      } catch (error) {
-        if (!controller.signal.aborted) {
+    const timer = setTimeout(
+      async () => {
+        setLoading(true)
+        try {
+          const response = await fetch(`/search/results?q=${encodeURIComponent(trimmed)}`, {
+            signal: controller.signal,
+          })
+          if (!response.ok) throw new Error(`Search failed with ${response.status}`)
+          setData(await response.json())
+          setActive(0)
+          setFailed(false)
+        } catch (error) {
+          if (controller.signal.aborted) return
           console.error(error)
-          setState({ status: 'error' })
+          setFailed(true)
         }
-      }
-    }, 200)
+        setLoading(false)
+      },
+      trimmed ? 120 : 0,
+    )
 
     return () => {
       clearTimeout(timer)
@@ -84,75 +92,121 @@ function QuickSearch({ onNavigate }: { onNavigate: () => void }) {
     }
   }, [trimmed])
 
-  // Arrow keys move between the input and the result links.
-  function onKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
-    const links = [...(listRef.current?.querySelectorAll('a') ?? [])]
-    if (!links.length) return
-    event.preventDefault()
-    const index = links.indexOf(document.activeElement as HTMLAnchorElement)
-    const next = index + (event.key === 'ArrowDown' ? 1 : -1)
-    if (next < 0) document.getElementById('quick-search')?.focus()
-    else links[Math.min(next, links.length - 1)].focus()
+  useEffect(() => {
+    document.getElementById(optionId(active))?.scrollIntoView({ block: 'nearest' })
+  }, [active])
+
+  function open(url: string) {
+    router.push(url)
+    onClose()
   }
 
-  const current = trimmed ? state : { status: 'idle' as const }
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!results.length) return
+      const step = event.key === 'ArrowDown' ? 1 : -1
+      setActive((index) => (index + step + results.length) % results.length)
+    } else if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+      event.preventDefault()
+      const result = data?.query === trimmed ? results[active] : undefined
+      if (result) open(result.url)
+      else if (trimmed) open(`/search?q=${encodeURIComponent(trimmed)}`)
+    }
+  }
+
+  const status = failed
+    ? 'Search is unavailable. Press Enter for the search page.'
+    : !data
+      ? 'Loading…'
+      : !data.query
+        ? 'Recent'
+        : data.total
+          ? `${data.total} ${data.total === 1 ? 'result' : 'results'}`
+          : 'No results'
 
   return (
-    <>
-      <h2>Search</h2>
-      <search>
-        <form action="/search" className="search-form">
-          <label htmlFor="quick-search">Search pages and articles</label>
-          <div>
-            <input
-              id="quick-search"
-              name="q"
-              type="search"
-              maxLength={200}
-              autoComplete="off"
-              required
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={onKeyDown}
-              aria-controls="quick-search-results"
-            />
-            <button type="submit" className="icon-button" aria-label="Show all results">
-              <Icon name="search" />
-            </button>
-          </div>
-        </form>
+    <div className="search-palette" data-loading={loading || undefined}>
+      <search className="search-palette-field">
+        <Icon name="search" />
+        <input
+          type="search"
+          role="combobox"
+          aria-label="Search pages, notes, and projects"
+          aria-expanded={results.length > 0}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={results.length ? optionId(active) : undefined}
+          placeholder="Search…"
+          autoComplete="off"
+          spellCheck={false}
+          maxLength={200}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={onKeyDown}
+        />
+        <kbd>{shortcut}</kbd>
       </search>
-      <output className="quick-search-status" aria-live="polite">
-        {current.status === 'loading' && 'Searching…'}
-        {current.status === 'error' && 'Quick results are unavailable. Press Enter to search.'}
-        {current.status === 'done' &&
-          (current.total
-            ? `${current.total} ${current.total === 1 ? 'result' : 'results'}`
-            : `No results for “${current.query}”`)}
-      </output>
-      {current.status === 'done' && current.results.length > 0 && (
-        <ul id="quick-search-results" className="quick-search-results" ref={listRef} lang="id">
-          {current.results.map(({ id, url, title, description }) => (
-            <li key={id}>
-              <Link href={url} onClick={onNavigate} onKeyDown={onKeyDown}>
-                <strong>{title}</strong>
-                {description && <span>{description}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
+
+      {data && !data.query && results.length > 0 && (
+        <p className="search-palette-caption">Recent</p>
       )}
-      {current.status === 'done' && current.total > current.results.length && (
-        <Link
-          className="quick-search-all"
-          href={`/search?q=${encodeURIComponent(current.query)}`}
-          onClick={onNavigate}
-        >
-          Show all {current.total} results
-        </Link>
+      <div
+        id={listId}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- native select cannot hold rich options
+        role="listbox"
+        aria-label={data?.query ? 'Search results' : 'Recent pages'}
+        className="search-palette-list"
+        lang="id"
+      >
+        {results.map(({ id, url, title, label, snippet, description }, index) => (
+          <Link
+            key={id}
+            id={optionId(index)}
+            href={url}
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- options stay real links
+            role="option"
+            aria-selected={index === active}
+            tabIndex={-1}
+            className="search-palette-option"
+            onMouseMove={() => setActive(index)}
+            onClick={onClose}
+          >
+            <span className="search-palette-label" lang="en">
+              {label}
+            </span>
+            <span className="search-palette-text">
+              <span className="search-palette-title">
+                <Highlight text={title} query={data?.query ?? ''} />
+              </span>
+              {(snippet || description) && (
+                <span className="search-palette-snippet">
+                  <Highlight text={snippet || description} query={data?.query ?? ''} />
+                </span>
+              )}
+            </span>
+            <Icon name="enter" className="search-palette-enter" width={16} height={16} />
+          </Link>
+        ))}
+      </div>
+      {data?.query && !data.total && (
+        <p className="search-palette-empty">
+          Nothing matches “{data.query}”. Try fewer or different words.
+        </p>
       )}
-      <p className="dialog-hint">↑↓ to move · Enter to open · Esc to close</p>
-    </>
+
+      <footer className="search-palette-footer" lang="en">
+        <span className="search-palette-keys" aria-hidden="true">
+          <kbd>↑</kbd>
+          <kbd>↓</kbd> choose <kbd>↵</kbd> open <kbd>esc</kbd> close
+        </span>
+        <output aria-live="polite">{status}</output>
+        {data?.query && data.total > results.length && (
+          <Link href={`/search?q=${encodeURIComponent(data.query)}`} onClick={onClose}>
+            All {data.total} results
+          </Link>
+        )}
+      </footer>
+    </div>
   )
 }

@@ -30,14 +30,17 @@ async function collectSitePages() {
       const info = getPageInfo(id, recordMap)
       const text = getPageContentBlockIds(recordMap, id)
         .map((blockId) => getBlockValue(recordMap.block[blockId]))
-        .filter((block) => block?.alive)
+        // Child page titles belong to those pages, not to this page's text.
+        .filter(
+          (block) =>
+            block?.alive && (block.id === id || !/^(page|collection_view_page)$/.test(block.type)),
+        )
         .map((block) => getBlockTitle(block!, recordMap))
         .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim()
 
-      pages.push({
-        ...info,
-        searchText: `${info.title} ${info.description} ${info.tags.join(' ')} ${text}`,
-      })
+      pages.push({ ...info, content: text })
 
       for (const entry of Object.values(recordMap.block)) {
         const block = getBlockValue(entry)
@@ -96,26 +99,4 @@ export async function getSitePageUrls(pageIds: string[]) {
   return Object.fromEntries(
     (await getSitePages()).filter(({ id }) => ids.has(id)).map(({ id, url }) => [id, url]),
   )
-}
-
-export function normalizeSearchQuery(value: unknown) {
-  return typeof value === 'string' ? value.trim().slice(0, 200) : ''
-}
-
-// Every term must match; pages whose title matches more terms rank first.
-export async function searchSitePages(query: string) {
-  const terms = query.toLocaleLowerCase().split(/\s+/).filter(Boolean)
-  if (!terms.length) return []
-
-  return (await getSitePages())
-    .filter(({ searchText }) => {
-      const text = searchText.toLocaleLowerCase()
-      return terms.every((term) => text.includes(term))
-    })
-    .map((page) => {
-      const title = page.title.toLocaleLowerCase()
-      return { page, score: terms.filter((term) => title.includes(term)).length }
-    })
-    .sort((a, b) => b.score - a.score)
-    .map(({ page }) => page)
 }

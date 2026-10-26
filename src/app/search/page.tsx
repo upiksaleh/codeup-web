@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { normalizeSearchQuery, searchSitePages } from '@/lib/notion/site-pages'
+import { normalizeSearchQuery, searchSitePages } from '@/lib/notion/search'
+import { Highlight } from '@/components/highlight'
 import { Icon } from '@/components/ui/icon'
 
 export const metadata: Metadata = {
@@ -41,12 +42,21 @@ export default async function SearchPage({
         </p>
       )}
       <ul className="search-results" lang="id">
-        {results.map(({ id, url, title, description }) => (
+        {results.map(({ id, url, title, description, label, snippet }) => (
           <li key={id}>
+            <span className="search-result-label" lang="en">
+              {label}
+            </span>
             <h2>
-              <Link href={url}>{title}</Link>
+              <Link href={url}>
+                <Highlight text={title} query={query} />
+              </Link>
             </h2>
-            {description && <p>{description}</p>}
+            {(snippet || description) && (
+              <p>
+                <Highlight text={snippet || description} query={query} />
+              </p>
+            )}
           </li>
         ))}
       </ul>
