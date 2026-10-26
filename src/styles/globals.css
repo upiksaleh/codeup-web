@@ -34,27 +34,111 @@
   --bg-color-2: var(--site-line);
   --select-color-0: var(--site-accent);
   --select-color-1: color-mix(in srgb, var(--site-accent) 24%, transparent);
-  --notion-red: light-dark(#b42324, #ff9a91);
-  --notion-pink: light-dark(#a32b72, #f8a4d2);
-  --notion-blue: light-dark(#176797, #9dcdf4);
-  --notion-purple: light-dark(#7040a5, #c9b1f0);
-  --notion-teal: var(--site-accent);
-  --notion-yellow: light-dark(#806000, #e6d26f);
-  --notion-orange: light-dark(#a55b16, #edbd8a);
-  --notion-brown: light-dark(#805a43, #d4b5a5);
-  --notion-gray: var(--site-muted);
-  --notion-red_background: light-dark(#fbe4e4, #593e3e);
-  --notion-pink_background: light-dark(#f4dfeb, #533b4c);
-  --notion-blue_background: light-dark(#ddebf1, #364954);
-  --notion-purple_background: light-dark(#eae4f2, #443f57);
-  --notion-teal_background: var(--site-tint);
-  --notion-yellow_background: light-dark(#fbf3db, #59563b);
-  --notion-orange_background: light-dark(#faebdd, #594a3a);
-  --notion-brown_background: light-dark(#e9e5e3, #434040);
-  --notion-gray_background: light-dark(#ebeced, #454b4e);
   color: var(--site-ink);
   background: var(--site-background);
   font-family: var(--notion-font);
+}
+/* Keep Notion colors in sync with the CSS theme, including before hydration. */
+.notion {
+  --notion-red: light-dark(rgb(224, 62, 62), rgb(255, 115, 105));
+  --notion-pink: light-dark(rgb(173, 26, 114), rgb(226, 85, 161));
+  --notion-blue: light-dark(rgb(11, 110, 153), rgb(82, 156, 202));
+  --notion-purple: light-dark(rgb(105, 64, 165), rgb(154, 109, 215));
+  --notion-teal: light-dark(rgb(77, 100, 97), rgb(77, 171, 154));
+  --notion-yellow: light-dark(rgb(223, 171, 1), rgb(255, 220, 73));
+  --notion-orange: light-dark(rgb(217, 115, 13), rgb(255, 163, 68));
+  --notion-brown: light-dark(rgb(100, 71, 58), rgb(147, 114, 100));
+  --notion-gray: light-dark(rgb(155, 154, 151), rgba(151, 154, 155, 0.95));
+  --notion-red_background: light-dark(rgb(251, 228, 228), rgb(89, 65, 65));
+  --notion-pink_background: light-dark(rgb(244, 223, 235), rgb(83, 59, 76));
+  --notion-blue_background: light-dark(rgb(221, 235, 241), rgb(54, 73, 84));
+  --notion-purple_background: light-dark(rgb(234, 228, 242), rgb(68, 63, 87));
+  --notion-teal_background: light-dark(rgb(221, 237, 234), rgb(53, 76, 75));
+  --notion-yellow_background: light-dark(rgb(251, 243, 219), rgb(89, 86, 59));
+  --notion-orange_background: light-dark(rgb(250, 235, 221), rgb(89, 74, 58));
+  --notion-brown_background: light-dark(rgb(233, 229, 227), rgb(67, 64, 64));
+  --notion-gray_background: light-dark(rgb(235, 236, 237), rgb(69, 75, 78));
+  --notion-red_background_co: light-dark(rgba(251, 228, 228, 0.3), rgba(89, 65, 65, 0.3));
+  --notion-pink_background_co: light-dark(rgba(244, 223, 235, 0.3), rgba(83, 59, 76, 0.3));
+  --notion-blue_background_co: light-dark(rgba(221, 235, 241, 0.3), rgba(120, 162, 187, 0.3));
+  --notion-purple_background_co: light-dark(rgba(234, 228, 242, 0.3), rgba(68, 63, 87, 0.3));
+  --notion-teal_background_co: light-dark(rgba(221, 237, 234, 0.3), rgba(53, 76, 75, 0.3));
+  --notion-yellow_background_co: light-dark(rgba(251, 243, 219, 0.3), rgba(89, 86, 59, 0.3));
+  --notion-orange_background_co: light-dark(rgba(250, 235, 221, 0.3), rgba(89, 74, 58, 0.3));
+  --notion-brown_background_co: light-dark(rgba(233, 229, 227, 0.3), rgba(67, 64, 64, 0.3));
+  --notion-gray_background_co: light-dark(rgba(235, 236, 237, 0.3), rgba(69, 75, 78, 0.3));
+}
+
+.notion {
+  --highlight-padding: 0 0.5rem;
+  --highlight-margin: 0 -0.5rem 0 -0.25rem;
+  --highlight-radius: 0.5rem 0.5rem 0.5rem 0.125rem;
+}
+.notion
+  :is(
+    .notion-red_background,
+    .notion-pink_background,
+    .notion-blue_background,
+    .notion-purple_background,
+    .notion-teal_background,
+    .notion-yellow_background,
+    .notion-orange_background,
+    .notion-brown_background,
+    .notion-gray_background
+  ) {
+  --highlight-start: #fff697;
+  --highlight-end: #fdf59d;
+  padding: var(--highlight-padding);
+  margin: var(--highlight-margin);
+  border-radius: var(--highlight-radius);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-color: transparent;
+  background-image: var(
+    --highlight-image,
+    linear-gradient(
+      119deg,
+      var(--bg-color),
+      var(--highlight-start) 10.5%,
+      var(--highlight-end) 85.29%,
+      var(--bg-color)
+    )
+  );
+}
+.notion :is(.notion-purple_background, .notion-pink_background) {
+  --highlight-start: #f5b8d1;
+  --highlight-end: #f9bcd3;
+}
+.notion :is(.notion-blue_background, .notion-gray_background) {
+  --highlight-start: #adedfc;
+  --highlight-end: #adebfd;
+}
+.notion :is(.notion-red_background, .notion-orange_background) {
+  --highlight-start: #f5c4ff;
+  --highlight-end: #e7a8fc;
+}
+.notion .notion-teal_background {
+  --highlight-start: #d4eabc;
+  --highlight-end: #d2eabc;
+}
+.notion .notion-brown_background {
+  --highlight-start: #96b8ec;
+  --highlight-end: #a6c3f0;
+}
+/* Follow manual selection and the OS preference without a renderer class. */
+:root[data-theme='dark'] .notion {
+  --highlight-image: none;
+  --highlight-padding: 0;
+  --highlight-margin: 0;
+  --highlight-radius: 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .notion {
+    --highlight-image: none;
+    --highlight-padding: 0;
+    --highlight-margin: 0;
+    --highlight-radius: 0;
+  }
 }
 :root[data-theme='light'] {
   color-scheme: light;
@@ -703,8 +787,6 @@ button {
 .home-page .notion-property-multi_select-item {
   padding: 2px 8px;
   border-radius: 4px;
-  color: var(--site-accent);
-  background: var(--site-tint);
   font:
     11px/1.7 ui-monospace,
     'SFMono-Regular',
