@@ -1,6 +1,7 @@
 import type { ReactNode, SVGProps } from 'react'
 
 const paths = {
+  chevronDown: <path d="m6 9 6 6 6-6" />,
   search: (
     <>
       <circle cx="10.5" cy="10.5" r="6.5" />

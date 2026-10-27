@@ -3,6 +3,7 @@ import { getPageUrl, resolvePageId } from './page-url'
 
 const reservedSlugs = new Set([
   'about',
+  'articles',
   'feed',
   'search',
   'article',
