@@ -27,6 +27,51 @@ export function belongsToSite(recordMap: ExtendedRecordMap, page: Block) {
   return false
 }
 
+const customEmojiPrefix = 'notion://custom_emoji/'
+
+// Notion's image proxy cannot serve custom emoji icons, so swap them for their source URL.
+async function resolveCustomEmojiIcons(recordMap: ExtendedRecordMap) {
+  const targets: { icon: string; set: (url?: string) => void }[] = []
+  const collect = (icon: string | undefined, set: (url?: string) => void) => {
+    if (icon?.startsWith(customEmojiPrefix)) targets.push({ icon, set })
+  }
+
+  for (const entry of Object.values(recordMap.block)) {
+    const format = getBlockValue(entry)?.format
+    if (format) collect(format.page_icon, (url) => (format.page_icon = url))
+  }
+  for (const entry of Object.values(recordMap.collection ?? {})) {
+    const collection = getBlockValue(entry)
+    if (collection) collect(collection.icon, (url) => (collection.icon = url as string))
+  }
+  if (!targets.length) return
+
+  const pointers = new Map(
+    targets.map(({ icon }) => {
+      const [spaceId, id] = icon.slice(customEmojiPrefix.length).split('/')
+      return [icon, { table: 'custom_emoji', id, spaceId }]
+    }),
+  )
+  const urls = new Map<string, string>()
+
+  try {
+    const { recordMap: emojis } = await notion.fetch<{
+      recordMap: { custom_emoji?: Record<string, { value?: { value?: { url?: string } } }> }
+    }>({
+      endpoint: 'syncRecordValuesMain',
+      body: { requests: [...pointers.values()].map((pointer) => ({ pointer, version: -1 })) },
+    })
+    for (const [icon, { id }] of pointers) {
+      const url = emojis.custom_emoji?.[id]?.value?.value?.url
+      if (url) urls.set(icon, url)
+    }
+  } catch {
+    console.warn('Custom emoji icons unavailable')
+  }
+
+  for (const { icon, set } of targets) set(urls.get(icon))
+}
+
 async function fetchPage(pageId: string) {
   try {
     return await notion.getPage(pageId, { throwOnCollectionErrors: true })
@@ -50,6 +95,7 @@ async function fetchPage(pageId: string) {
 const loadCachedPage = unstable_cache(
   async (pageId: string) => {
     const recordMap = await fetchPage(pageId)
+    if (recordMap) await resolveCustomEmojiIcons(recordMap)
     const page = recordMap && getBlockValue(recordMap.block[pageId])
 
     if (
