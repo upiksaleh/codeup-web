@@ -766,12 +766,6 @@ button {
     minmax(min(100%, max(240px, calc((100% - 2 * 16px) / 3))), 1fr)
   );
 }
-.home-page .article-collection .notion-gallery-grid {
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(min(100%, max(240px, calc((100% - 16px) / 2))), 1fr)
-  );
-}
 .home-page .notion-gallery-grid .notion-collection-card {
   border: 1px solid var(--site-line);
   box-shadow: none;
@@ -804,6 +798,71 @@ button {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   white-space: normal;
+}
+
+.home-page .article-collection .notion-collection-card-property:first-child {
+  position: relative;
+  height: calc(var(--article-title-height, 3.15rem) + 8px);
+  overflow: visible;
+  z-index: 1;
+}
+.home-page
+  .article-collection
+  .notion-collection-card-property:first-child
+  .notion-page-title-text {
+  position: absolute;
+  inset-inline: -10px;
+  top: auto;
+  bottom: 4px;
+  height: calc(var(--article-title-height, 2.8em) + 12px);
+  padding: 12px 10px 0;
+  background: var(--site-background);
+  overflow-wrap: anywhere;
+  interpolate-size: allow-keywords;
+}
+.home-page
+  .article-collection
+  .notion-collection-card[data-title-overflow]:is(:hover, :focus-visible)
+  .notion-collection-card-property:first-child
+  .notion-page-title-text {
+  height: auto;
+  border-radius: 12px 12px 0 0;
+  -webkit-line-clamp: unset;
+}
+.home-page
+  .article-collection
+  .notion-collection-card[data-title-overflow]:is(:hover, :focus-visible)
+  .notion-collection-card-cover {
+  transform: translateY(-16px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-page .article-collection .notion-collection-card-cover,
+  .home-page .article-collection .notion-page-title-text {
+    transition:
+      height 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 280ms ease;
+  }
+}
+@media (hover: none) {
+  .home-page .article-collection .notion-collection-card-property:first-child {
+    height: auto;
+  }
+  .home-page
+    .article-collection
+    .notion-collection-card-property:first-child
+    .notion-page-title-text {
+    position: static;
+    height: auto;
+    padding: 0;
+    -webkit-line-clamp: unset;
+  }
+  .home-page
+    .article-collection
+    .notion-collection-card:is(:hover, :focus-visible)
+    .notion-collection-card-cover {
+    transform: none;
+  }
 }
 
 .home-page .notion-property-multi_select-item {

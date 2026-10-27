@@ -11,6 +11,7 @@ import { normalizePageId } from '@/lib/notion/page-id'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
+import { useArticleCardTitles } from './use-article-card-titles'
 import { usePointerEffects } from './use-pointer-effects'
 
 const Collection = dynamic(() =>
@@ -47,9 +48,13 @@ function NotionCollection(props: ComponentProps<typeof Collection>) {
   const { recordMap } = useNotionContext()
   const isArticleCollection =
     getBlockCollectionId(props.block, recordMap) === siteConfig.articleCollectionId
+  const ref = useArticleCardTitles(isArticleCollection)
 
   return (
-    <div className={`notion-collection-section${isArticleCollection ? ' article-collection' : ''}`}>
+    <div
+      ref={ref}
+      className={`notion-collection-section${isArticleCollection ? ' article-collection' : ''}`}
+    >
       <Collection {...props} />
     </div>
   )
