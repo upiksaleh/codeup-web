@@ -772,8 +772,7 @@ button {
   margin-bottom: 12px;
 }
 .skeleton-cover {
-  height: auto;
-  aspect-ratio: 16 / 7;
+  height: 30vh;
   margin-bottom: 12px;
   border-radius: var(--notion-corner-radius);
 }
@@ -1273,17 +1272,17 @@ button {
 .content-page .notion-page-cover-wrapper {
   width: calc(100% - 48px);
   max-width: calc(var(--site-width) - 48px);
-  height: 170px;
-  min-height: 170px;
-  max-height: 170px;
+  height: 30vh;
+  min-height: 30vh;
+  max-height: 30vh;
   margin: 24px auto 0;
   border-radius: 18px;
   overflow: hidden;
 }
 .content-page .notion-page-cover-wrapper img {
-  height: 170px !important;
-  min-height: 170px !important;
-  max-height: 170px !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
 }
 .fallback-cover {
   background: var(--site-cover);
@@ -1553,16 +1552,8 @@ button {
   }
   .content-page .notion-page-cover-wrapper {
     width: calc(100% - 24px);
-    height: 126px;
-    min-height: 126px;
-    max-height: 126px;
     margin-top: 14px;
     border-radius: 14px;
-  }
-  .content-page .notion-page-cover-wrapper img {
-    height: 126px !important;
-    min-height: 126px !important;
-    max-height: 126px !important;
   }
   .content-page .notion-page-icon-hero {
     left: 22px;
@@ -1675,16 +1666,8 @@ button {
 }
 .article-page .notion-page-cover-wrapper {
   max-width: var(--site-width);
-  height: clamp(200px, 20vw, 333px);
-  min-height: 0;
-  max-height: none;
   margin-top: 0;
   border-radius: 24px;
-}
-.article-page .notion-page-cover-wrapper img {
-  height: 100% !important;
-  min-height: 0 !important;
-  max-height: none !important;
 }
 .article-page .notion-page,
 .article-page .notion-page.notion-page-has-cover.notion-page-has-icon {
@@ -1996,8 +1979,6 @@ button {
 }
 @media (max-width: 580px) {
   .article-page .notion-page-cover-wrapper {
-    height: 180px;
-    min-height: 0;
     margin-top: 0;
     border-radius: 16px;
   }
@@ -2031,5 +2012,29 @@ button {
     transition:
       color 150ms ease,
       background-color 150ms ease;
+  }
+}
+
+/* Pages without a Notion cover keep the shorter teal banner */
+.content-page .notion-page-cover-wrapper.fallback-cover {
+  height: 170px;
+  min-height: 170px;
+  max-height: 170px;
+}
+.article-page .notion-page-cover-wrapper.fallback-cover {
+  height: clamp(200px, 20vw, 333px);
+  min-height: 0;
+  max-height: none;
+}
+@media (max-width: 580px) {
+  .content-page .notion-page-cover-wrapper.fallback-cover {
+    height: 126px;
+    min-height: 126px;
+    max-height: 126px;
+  }
+  .article-page .notion-page-cover-wrapper.fallback-cover {
+    height: 180px;
+    min-height: 0;
+    max-height: none;
   }
 }
