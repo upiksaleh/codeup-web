@@ -53,6 +53,7 @@ function NotionCollection(props: ComponentProps<typeof Collection>) {
   return (
     <div
       ref={ref}
+      id={isArticleCollection ? 'articles' : undefined}
       className={`notion-collection-section${isArticleCollection ? ' article-collection' : ''}`}
     >
       <Collection {...props} />

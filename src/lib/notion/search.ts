@@ -81,7 +81,7 @@ export async function searchSitePages(query: string): Promise<SearchResult[]> {
 
 // Suggestions before typing: the most recent content, not the pages already in the header.
 export async function getRecentPages(limit: number): Promise<SearchResult[]> {
-  const navigation = new Set<string>(siteConfig.navigation.map(({ pageId }) => pageId))
+  const navigation = new Set<string | null>(siteConfig.navigation.map(({ pageId }) => pageId))
 
   return (await getSitePages())
     .filter(({ id }) => !navigation.has(id))

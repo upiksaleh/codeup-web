@@ -23,11 +23,13 @@ export const siteConfig = {
   footerStatus: 'CodeUP is an independent studio run by Upik Saleh',
   navigation: [
     { label: 'Home', path: '/', pageId: rootNotionPageId },
+    { label: 'About', path: '/about', pageId: '4064ac77-d51a-8169-85e1-cdf3a41ae29c' },
     { label: 'Upik', path: '/upik', pageId: 'ce74ac77-d51a-8280-8913-81a8aec519bd' },
-    { label: 'Notes', path: '/notes', pageId: notesPageId },
     { label: 'Projects', path: '/projects', pageId: projectsDatabaseId },
+    { label: 'Articles', path: '/#articles', pageId: null },
     { label: 'Contact', path: '/contact', pageId: '7ed4ac77-d51a-8385-af1c-011f2551fb4e' },
   ],
+  pageAliases: [{ path: '/notes', pageId: notesPageId }],
   socialLinks: [
     { label: 'GitHub', handle: 'upiksaleh', icon: 'github', url: 'https://github.com/upiksaleh' },
     {

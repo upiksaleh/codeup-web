@@ -38,7 +38,9 @@ export function withPageUrls<T extends PagePathInfo>(pages: T[]) {
   }
 
   return pages.map((page) => {
-    const navigation = siteConfig.navigation.find(({ pageId }) => pageId === page.id)
+    const configuredPage = [...siteConfig.navigation, ...siteConfig.pageAliases].find(
+      ({ pageId }) => pageId === page.id,
+    )
     const prefix = prefixes[page.kind]
     const usesSlug =
       page.slug &&
@@ -47,7 +49,7 @@ export function withPageUrls<T extends PagePathInfo>(pages: T[]) {
       (prefix || (!resolvePageId(page.slug) && !isReservedSlug(page.slug)))
     const fallback = prefix ? `${prefix}/${page.id.replaceAll('-', '')}` : getPageUrl(page.id)
 
-    return { ...page, url: navigation?.path ?? (usesSlug ? candidate(page) : fallback) }
+    return { ...page, url: configuredPage?.path ?? (usesSlug ? candidate(page) : fallback) }
   })
 }
 
