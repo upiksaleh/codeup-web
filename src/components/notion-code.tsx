@@ -18,14 +18,17 @@ export function NotionCode({ block }: { block: CodeBlock }) {
 
   return (
     <figure className="notion-code-block">
-      <div className="code-toolbar">
-        <span>{notionLanguage}</span>
+      <div className="notion-code-container">
         <CopyButton value={code} label="Copy code" />
+        <pre
+          className={`notion-code language-${language}`}
+          // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allows keyboard scrolling of long code lines.
+          tabIndex={0}
+          aria-label={`${notionLanguage} code block`}
+        >
+          <code className={`language-${language}`} dangerouslySetInnerHTML={{ __html: html }} />
+        </pre>
       </div>
-      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allows keyboard scrolling of long code lines. */}
-      <pre className={`notion-code language-${language}`} tabIndex={0} aria-label="Code block">
-        <code className={`language-${language}`} dangerouslySetInnerHTML={{ __html: html }} />
-      </pre>
       {block.properties.caption && (
         <figcaption className="notion-asset-caption">
           <Text value={block.properties.caption} block={block} />

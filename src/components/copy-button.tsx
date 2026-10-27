@@ -15,6 +15,9 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
     <button
       type="button"
       className="copy-button"
+      aria-label={status === 'copied' ? 'Copied' : status === 'failed' ? 'Copy failed' : label}
+      title={status === 'copied' ? 'Copied' : status === 'failed' ? 'Copy failed' : label}
+      data-status={status}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value)
