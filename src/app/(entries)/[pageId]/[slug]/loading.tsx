@@ -1,1 +1,1 @@
-export { PageLoading as default } from '@/components/page-loading'
+export { ArticleLoading as default } from '@/components/page-loading'

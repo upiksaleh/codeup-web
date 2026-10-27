@@ -746,10 +746,6 @@ button {
   transform-origin: left;
   transform: scaleX(0.3);
 }
-.page-loading-skeleton {
-  display: grid;
-  gap: 14px;
-}
 .skeleton {
   display: block;
   height: 1em;
@@ -764,21 +760,132 @@ button {
   background-size: 200% 100%;
   background-repeat: no-repeat;
 }
+/* Same boxes as the fallback covers of content pages and articles */
+.skeleton-cover {
+  position: relative;
+  width: calc(100% - 48px);
+  max-width: calc(var(--site-width) - 48px);
+  height: 170px;
+  margin: 24px auto 0;
+  border-radius: 18px;
+  /* Dark mode mutes the placeholder teal so it does not glare against the dark page */
+  background: light-dark(
+    var(--site-cover),
+    color-mix(in srgb, var(--site-cover) 45%, var(--site-background))
+  );
+  overflow: hidden;
+}
+.page-loading-article .skeleton-cover {
+  max-width: var(--site-width);
+  height: clamp(200px, 20vw, 333px);
+  margin-top: 0;
+  border-radius: 24px;
+}
+.skeleton-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 14px 14px;
+  mask-image: linear-gradient(to right, #000 30%, transparent 100%);
+}
+/* A brighter copy of the grid, revealed by a band sweeping left to right while loading */
+.skeleton-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.14) 1px, transparent 1px);
+  background-size: 14px 14px;
+  mask-image: linear-gradient(to right, transparent, #000, transparent);
+  mask-size: 40% 100%;
+  mask-repeat: no-repeat;
+  mask-position: -70% 0;
+  opacity: 0;
+}
+.page-loading-body {
+  max-width: calc(var(--notion-max-width) + 48px);
+  margin: 56px auto 64px;
+  padding-inline: 24px;
+}
+.page-loading-article .page-loading-body {
+  max-width: calc(var(--site-width) - 12px);
+  margin-top: 48px;
+}
 .skeleton-title {
-  width: 70%;
-  height: 2.25em;
+  width: min(240px, 60%);
+  height: 2.2em;
+  margin-bottom: 36px;
+}
+.page-loading-article .skeleton-title {
+  width: min(420px, 75%);
+  margin-bottom: 28px;
 }
 .skeleton-meta {
-  width: 35%;
-  margin-bottom: 12px;
+  display: flex;
+  gap: 16px;
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--site-line);
 }
-.skeleton-cover {
-  height: 30vh;
-  margin-bottom: 12px;
-  border-radius: var(--notion-corner-radius);
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+}
+.skeleton-meta-lines {
+  display: grid;
+  gap: 10px;
+}
+.skeleton-tags {
+  width: 130px;
+}
+.skeleton-date {
+  width: 90px;
+}
+.skeleton-columns {
+  display: flex;
+  gap: 48px;
+}
+.skeleton-text,
+.skeleton-toc {
+  display: grid;
+  gap: 14px;
+}
+.skeleton-text {
+  flex: 0 1 var(--notion-max-width);
+}
+.skeleton-toc {
+  flex: 1;
+  align-content: start;
+  max-width: 280px;
 }
 .skeleton-line-short {
   width: 55%;
+}
+@media (max-width: 959px) {
+  .skeleton-toc {
+    display: none;
+  }
+}
+@media (max-width: 580px) {
+  .skeleton-cover {
+    width: calc(100% - 24px);
+    height: 126px;
+    margin-top: 14px;
+    border-radius: 14px;
+  }
+  .page-loading-article .skeleton-cover {
+    height: 180px;
+    margin-top: 0;
+    border-radius: 16px;
+  }
+  .page-loading-body {
+    margin-top: 32px;
+    padding-inline: 22px;
+  }
 }
 @media (prefers-reduced-motion: no-preference) {
   .page-loading-bar {
@@ -786,6 +893,13 @@ button {
   }
   .skeleton {
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+  .skeleton-cover::before {
+    opacity: 1;
+    animation: skeleton-grid-sweep 2.4s ease-in-out 0.6s infinite;
+  }
+  .skeleton-cover::after {
+    animation: home-hero-grid 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
 }
 @keyframes page-loading-in {
@@ -2112,4 +2226,12 @@ button {
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 0.005) 1px, transparent 1px),
     linear-gradient(to bottom, rgb(255 255 255 / 0.005) 1px, transparent 1px);
+}
+@keyframes skeleton-grid-sweep {
+  from {
+    mask-position: -70% 0;
+  }
+  to {
+    mask-position: 170% 0;
+  }
 }

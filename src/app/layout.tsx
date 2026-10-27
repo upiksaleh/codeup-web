@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { LoadingTrail } from '@/components/loading-trail'
 import { siteConfig } from '@/site.config'
 import 'react-notion-x/styles.css'
 import '@/styles/globals.css'
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </div>
         <SiteFooter />
+        <LoadingTrail />
       </body>
     </html>
   )
