@@ -1,9 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
 import { useState } from 'react'
-import { canOptimizeImage } from '@/lib/notion/image-source'
+import { EntryGallery, type EntryGalleryData } from './entry-gallery'
 import { Icon } from './ui/icon'
 
 type Entry = {
@@ -12,55 +10,20 @@ type Entry = {
   title: string
   description: string
   tags: string[]
-  image?: string
-  published: number
+  techStack: string[]
 }
 
 const pageSize = 12
 
-function EntryCard({ entry, showDate }: { entry: Entry; showDate: boolean }) {
-  const [failedSource, setFailedSource] = useState(false)
-
-  return (
-    <li className="entry-card">
-      <Link href={entry.url}>
-        {entry.image && (
-          <div className="entry-cover">
-            <Image
-              src={entry.image}
-              alt=""
-              fill
-              sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 50vw, 360px"
-              unoptimized={failedSource || !canOptimizeImage(entry.image)}
-              onError={() => setFailedSource(true)}
-            />
-          </div>
-        )}
-        <div className="entry-card-content" lang="id">
-          <h2>{entry.title}</h2>
-          {showDate && (
-            <time dateTime={new Date(entry.published).toISOString()} lang="en">
-              {new Date(entry.published).toLocaleDateString('en-US', {
-                dateStyle: 'long',
-                timeZone: 'UTC',
-              })}
-            </time>
-          )}
-          {entry.description && <p>{entry.description}</p>}
-          {entry.tags.length > 0 && (
-            <ul className="entry-tags" aria-label="Tags">
-              {entry.tags.map((tag) => (
-                <li key={tag}>{tag}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </Link>
-    </li>
-  )
-}
-
-export function EntryListing({ kind, entries }: { kind: 'article' | 'project'; entries: Entry[] }) {
+export function EntryListing({
+  kind,
+  entries,
+  gallery,
+}: {
+  kind: 'article' | 'project'
+  entries: Entry[]
+  gallery: EntryGalleryData
+}) {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState('')
   const [page, setPage] = useState(1)
@@ -70,7 +33,8 @@ export function EntryListing({ kind, entries }: { kind: 'article' | 'project'; e
   )
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)
   const filtered = entries.filter((entry) => {
-    const text = `${entry.title} ${entry.description} ${entry.tags.join(' ')}`.toLocaleLowerCase()
+    const text =
+      `${entry.title} ${entry.description} ${entry.tags.join(' ')} ${entry.techStack.join(' ')}`.toLocaleLowerCase()
     return (!tag || entry.tags.includes(tag)) && terms.every((term) => text.includes(term))
   })
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
@@ -78,7 +42,7 @@ export function EntryListing({ kind, entries }: { kind: 'article' | 'project'; e
   const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   return (
-    <main className="entry-listing" lang="en">
+    <main className="entry-listing" data-kind={kind} lang="en">
       <h1>{title}</h1>
       <search className="entry-filters" aria-label={`Filter ${title.toLowerCase()}`}>
         <div className="entry-search-field">
@@ -118,11 +82,11 @@ export function EntryListing({ kind, entries }: { kind: 'article' | 'project'; e
         {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
       </output>
       {visible.length ? (
-        <ul className="entry-grid">
-          {visible.map((entry) => (
-            <EntryCard key={entry.id} entry={entry} showDate={kind === 'article'} />
-          ))}
-        </ul>
+        <EntryGallery
+          gallery={gallery}
+          pageIds={visible.map(({ id }) => id)}
+          pageUrls={Object.fromEntries(entries.map(({ id, url }) => [id, url]))}
+        />
       ) : (
         <p>
           {entries.length

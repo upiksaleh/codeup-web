@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
-export function useArticleCardTitles(enabled: boolean) {
+export function useGalleryCardTitles(enabled: boolean, maxLines = 2) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,11 +25,11 @@ export function useArticleCardTitles(enabled: boolean) {
         title.style.webkitLineClamp = 'unset'
         const style = getComputedStyle(title)
         const textHeight = title.getBoundingClientRect().height - parseFloat(style.paddingTop)
-        const collapsedHeight = Math.min(textHeight, parseFloat(style.lineHeight) * 2)
+        const collapsedHeight = Math.min(textHeight, parseFloat(style.lineHeight) * maxLines)
         title.style.height = height
         title.style.webkitLineClamp = webkitLineClamp
 
-        card.style.setProperty('--article-title-height', `${collapsedHeight}px`)
+        card.style.setProperty('--gallery-title-height', `${collapsedHeight}px`)
         card.toggleAttribute('data-title-overflow', textHeight > collapsedHeight + 1)
         // Commit the restored size before re-enabling hover transitions.
         title.getBoundingClientRect()
@@ -47,7 +47,7 @@ export function useArticleCardTitles(enabled: boolean) {
       resizeObserver.disconnect()
       mutationObserver.disconnect()
     }
-  }, [enabled])
+  }, [enabled, maxLines])
 
   return ref
 }

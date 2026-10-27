@@ -59,7 +59,7 @@ async function collectSitePages() {
 
 export const getSitePages = unstable_cache(
   collectSitePages,
-  ['site-pages', 'listing-paths', siteConfig.rootNotionPageId],
+  ['site-pages', 'project-details', siteConfig.rootNotionPageId],
   {
     revalidate: 300,
   },

@@ -3,9 +3,8 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
-import { getBlockCollectionId } from 'notion-utils'
-import { useEffect, type ComponentProps, type ReactNode } from 'react'
-import { NotionRenderer, useNotionContext } from 'react-notion-x'
+import { useEffect, useMemo, type ReactNode } from 'react'
+import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
 import { normalizePageId } from '@/lib/notion/page-id'
 import { getPageUrl } from '@/lib/notion/page-url'
@@ -13,13 +12,9 @@ import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
 import { MobileTableOfContents } from './mobile-table-of-contents'
 import { TableOfContents, useTableOfContents } from './table-of-contents'
-import { useArticleCardTitles } from './use-article-card-titles'
+import { NotionCollection, type NotionCollectionProps } from './notion-collection'
 import { attachPointerTrail } from './pointer-trail'
 import { usePointerEffects } from './use-pointer-effects'
-
-const Collection = dynamic(() =>
-  import('react-notion-x/third-party/collection').then((module) => module.Collection),
-)
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
 
@@ -47,23 +42,6 @@ function propertyDateValue(
   )
 }
 
-function NotionCollection(props: ComponentProps<typeof Collection>) {
-  const { recordMap } = useNotionContext()
-  const isArticleCollection =
-    getBlockCollectionId(props.block, recordMap) === siteConfig.articleCollectionId
-  const ref = useArticleCardTitles(isArticleCollection)
-
-  return (
-    <div
-      ref={ref}
-      id={isArticleCollection ? 'articles' : undefined}
-      className={`notion-collection-section${isArticleCollection ? ' article-collection' : ''}`}
-    >
-      <Collection {...props} />
-    </div>
-  )
-}
-
 export function NotionContent({
   recordMap,
   pageId,
@@ -72,6 +50,7 @@ export function NotionContent({
   isArticle,
   pageHeader,
   pageCover,
+  pageProperties,
 }: {
   recordMap: ExtendedRecordMap
   pageId: string
@@ -80,10 +59,24 @@ export function NotionContent({
   isArticle: boolean
   pageHeader: ReactNode
   pageCover?: ReactNode
+  pageProperties?: ReactNode
 }) {
   const theme = useSiteTheme()
   const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
+  // The renderer shows a database page's properties through Collection; a page with its own
+  // property view replaces that generic table.
+  const PageCollection = useMemo(
+    () =>
+      function PageCollection(props: NotionCollectionProps) {
+        return pageProperties && props.block.id === pageId ? (
+          pageProperties
+        ) : (
+          <NotionCollection {...props} />
+        )
+      },
+    [pageId, pageProperties],
+  )
   useEffect(() => {
     // The renderer owns the cover markup, so the trail canvas is added after it renders.
     const cover = document.querySelector('.content-page .notion-page-cover-wrapper')
@@ -119,7 +112,7 @@ export function NotionContent({
         components={{
           nextLink: Link,
           nextImage: NotionImage,
-          Collection: NotionCollection,
+          Collection: PageCollection,
           Code: NotionCode,
           propertyDateValue,
         }}

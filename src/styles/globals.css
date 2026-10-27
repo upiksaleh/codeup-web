@@ -944,7 +944,7 @@ button {
 }
 
 .entry-listing {
-  width: min(1120px, calc(100% - 40px));
+  width: min(900px, calc(100% - 40px));
   margin: 48px auto 64px;
 }
 .entry-listing h1 {
@@ -1023,59 +1023,6 @@ button {
   color: var(--site-muted);
   font-size: 14px;
 }
-.entry-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  padding: 0;
-  list-style: none;
-}
-.entry-card {
-  min-width: 0;
-  background: var(--site-surface);
-  border: 1px solid var(--site-line);
-  border-radius: 12px;
-}
-.entry-card > a {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: inherit;
-  color: inherit;
-  text-decoration: none;
-}
-.entry-card:has(a:hover),
-.entry-card:has(a:focus-visible) {
-  border-color: var(--site-accent);
-}
-.entry-cover {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: 11px 11px 0 0;
-  background: var(--site-tint);
-}
-.entry-cover img {
-  object-fit: cover;
-}
-.entry-card-content {
-  display: grid;
-  gap: 12px;
-  padding: 20px;
-  overflow-wrap: anywhere;
-}
-.entry-card h2 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.4;
-}
-.entry-card p,
-.entry-card time {
-  margin: 0;
-  color: var(--site-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
 .entry-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1090,6 +1037,66 @@ button {
   background: var(--site-tint);
   font-size: 12px;
 }
+.project-status {
+  justify-self: start;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--site-tint);
+  color: var(--site-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.project-status[data-status='Released'] {
+  color: var(--site-accent);
+}
+.project-details {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--site-line);
+}
+.project-summary {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 18px;
+  line-height: 1.6;
+}
+.project-details dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 10px 24px;
+  margin: 0;
+  font-size: 14px;
+}
+.project-details dl > div {
+  display: contents;
+}
+.project-details dt {
+  color: var(--site-muted);
+}
+.project-details dd {
+  margin: 0;
+}
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.project-links a {
+  padding: 6px 14px;
+  border: 1px solid var(--site-accent);
+  border-radius: 6px;
+  color: var(--site-accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.project-links a:hover {
+  background: var(--site-tint);
+}
 .entry-pagination {
   display: flex;
   align-items: center;
@@ -1102,11 +1109,6 @@ button {
   opacity: 0.5;
   cursor: default;
 }
-@media (max-width: 900px) {
-  .entry-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 600px) {
   .entry-filters {
     flex-direction: column;
@@ -1114,9 +1116,6 @@ button {
   }
   .entry-tag-field {
     flex-basis: auto;
-  }
-  .entry-grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1161,23 +1160,31 @@ button {
   letter-spacing: -0.6px;
 }
 /* The root gallery keeps Notion's own view, like the old site; cards share the bookmark border. */
-.home-page .notion-gallery-grid {
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid {
   /* Three, two, or one column by available width. */
   grid-template-columns: repeat(
     auto-fill,
     minmax(min(100%, max(240px, calc((100% - 2 * 16px) / 3))), 1fr)
   );
 }
-.home-page .notion-gallery-grid .notion-collection-card {
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-collection-card {
   border: 1px solid var(--site-line);
   box-shadow: none;
 }
 /* Cards are links; keep their text color instead of the global link hover color. */
-.home-page .notion-gallery-grid .notion-collection-card:hover {
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-collection-card:hover {
   color: var(--site-ink);
 }
-.home-page .notion-gallery-grid .notion-page-icon-inline {
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-page-icon-inline {
   display: none;
+}
+:is(.home-page, .entry-listing-gallery) .entry-collection .notion-collection-card-body {
+  flex: 1;
+}
+:is(.home-page, .entry-listing-gallery)
+  .entry-collection
+  .notion-collection-card-property:has(.notion-property-date) {
+  margin-top: auto;
 }
 /* Keep titles proportional to the narrower cards in the three-column grid. */
 .notion-gallery-grid .notion-page-title-text {
@@ -1188,42 +1195,46 @@ button {
   font-size: 14px;
 }
 /* Titles wrap to two lines so cards in a row keep the same height. */
-.home-page .notion-gallery-grid .notion-collection-card-property:first-child {
+:is(.home-page, .entry-listing-gallery)
+  .notion-gallery-grid
+  .notion-collection-card-property:first-child {
   white-space: normal;
 }
-.home-page
+:is(.home-page, .entry-listing-gallery)
   .notion-gallery-grid
   .notion-collection-card-property:first-child
   .notion-page-title-text {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: var(--gallery-title-lines, 2);
   white-space: normal;
 }
 
-.home-page .article-collection .notion-collection-card-property:first-child {
+:is(.home-page, .entry-listing-gallery)
+  .entry-collection
+  .notion-collection-card-property:first-child {
   position: relative;
-  height: calc(var(--article-title-height, 3.15rem) + 8px);
+  height: calc(var(--gallery-title-height, 3.15rem) + 8px);
   overflow: visible;
   z-index: 1;
 }
-.home-page
-  .article-collection
+:is(.home-page, .entry-listing-gallery)
+  .entry-collection
   .notion-collection-card-property:first-child
   .notion-page-title-text {
   position: absolute;
   inset-inline: -10px;
   top: auto;
   bottom: 4px;
-  height: calc(var(--article-title-height, 2.8em) + 12px);
+  height: calc(var(--gallery-title-height, 2.8em) + 12px);
   padding: 12px 10px 0;
   background: var(--site-background);
   overflow-wrap: anywhere;
   interpolate-size: allow-keywords;
 }
-.home-page
-  .article-collection
+:is(.home-page, .entry-listing-gallery)
+  .entry-collection
   .notion-collection-card[data-title-overflow]:is(:hover, :focus-visible)
   .notion-collection-card-property:first-child
   .notion-page-title-text {
@@ -1231,15 +1242,15 @@ button {
   border-radius: 12px 12px 0 0;
   -webkit-line-clamp: unset;
 }
-.home-page
-  .article-collection
+:is(.home-page, .entry-listing-gallery)
+  .entry-collection
   .notion-collection-card[data-title-overflow]:is(:hover, :focus-visible)
   .notion-collection-card-cover {
   transform: translateY(-16px);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .home-page .article-collection .notion-collection-card-cover,
-  .home-page .article-collection .notion-page-title-text {
+  :is(.home-page, .entry-listing-gallery) .entry-collection .notion-collection-card-cover,
+  :is(.home-page, .entry-listing-gallery) .entry-collection .notion-page-title-text {
     transition:
       height 280ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1247,11 +1258,11 @@ button {
   }
 }
 @media (hover: none) {
-  .home-page .article-collection .notion-collection-card-property:first-child {
+  .home-page .entry-collection .notion-collection-card-property:first-child {
     height: auto;
   }
   .home-page
-    .article-collection
+    .entry-collection
     .notion-collection-card-property:first-child
     .notion-page-title-text {
     position: static;
@@ -1260,16 +1271,35 @@ button {
     -webkit-line-clamp: unset;
   }
   .home-page
-    .article-collection
+    .entry-collection
     .notion-collection-card:is(:hover, :focus-visible)
     .notion-collection-card-cover {
     transform: none;
   }
 }
 
-.home-page .notion-property-multi_select-item {
+:is(.home-page, .entry-listing-gallery) .notion-property-multi_select-item {
   padding: 2px 8px;
   border-radius: 4px;
+}
+/* The listing starts at three lines and shares the home hover/focus reveal. */
+.entry-listing-gallery .notion-collection-header {
+  display: none;
+}
+.entry-listing-gallery .notion-gallery-grid {
+  border-top: 0;
+  padding-top: 0;
+}
+.entry-listing-gallery {
+  --gallery-title-lines: 3;
+  --gallery-title-height: 4.725rem;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+.entry-listing-gallery > .notion-collection-section {
+  width: 100%;
+  padding: 0;
 }
 .home-page > .notion-row {
   display: grid;
@@ -1322,8 +1352,8 @@ button {
 }
 .notion .notion-bookmark:hover,
 .notion .notion-bookmark:focus-visible,
-.home-page .notion-gallery-grid .notion-collection-card:hover,
-.home-page .notion-gallery-grid .notion-collection-card:focus-visible {
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-collection-card:hover,
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-collection-card:focus-visible {
   border-color: transparent;
   background:
     linear-gradient(var(--site-background), var(--site-background)) padding-box,
