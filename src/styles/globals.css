@@ -93,7 +93,6 @@
   border-radius: var(--highlight-radius);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  background-color: transparent;
   background-image: var(
     --highlight-image,
     linear-gradient(
