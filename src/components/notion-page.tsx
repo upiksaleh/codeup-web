@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { getBlockValue } from 'notion-utils'
 import { getNotionPage } from '@/lib/notion/get-page'
+import { hideHomePagesSection } from '@/lib/notion/home-content'
 import { withImagePreviews } from '@/lib/notion/image-previews'
 import { getPageInfo } from '@/lib/notion/page-info'
 import { normalizePageId } from '@/lib/notion/page-id'
@@ -20,7 +21,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
 
   return (
     <NotionContent
-      recordMap={await withImagePreviews(recordMap)}
+      recordMap={await withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap)}
       pageId={id}
       pageUrls={pageUrls}
       isHome={isHome}
