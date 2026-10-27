@@ -36,7 +36,7 @@ async function loadEntryGallery(kind: 'article' | 'project') {
 
 export async function getEntryGallery(kind: 'article' | 'project') {
   const gallery = await loadEntryGallery(kind)
-  return { ...gallery, recordMap: await withImagePreviews(gallery.recordMap) }
+  return { ...gallery, recordMap: await withImagePreviews(gallery.recordMap, gallery.blockId) }
 }
 
 // The linked home view uses the Projects database gallery's display settings and results.

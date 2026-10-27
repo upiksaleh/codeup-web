@@ -19,13 +19,16 @@ export async function NotionPage({ pageId }: { pageId: string }) {
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId
   const { isArticle, project, description, tags } = getPageInfo(id, recordMap)
-  const pageUrls = await getSitePageUrls(
-    Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
-  )
+  const [pageUrls, renderMap] = await Promise.all([
+    getSitePageUrls(
+      Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
+    ),
+    withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id),
+  ])
 
   return (
     <NotionContent
-      recordMap={await withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap)}
+      recordMap={renderMap}
       pageId={id}
       pageUrls={pageUrls}
       isHome={isHome}

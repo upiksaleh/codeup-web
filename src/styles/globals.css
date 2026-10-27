@@ -1482,6 +1482,9 @@ button {
 .content-page .notion-asset-wrapper {
   margin-block: 20px;
 }
+.notion-asset-caption {
+  text-align: center;
+}
 .notion-code-container {
   position: relative;
 }

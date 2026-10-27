@@ -12,7 +12,8 @@
     "fix:lint": "oxlint --fix .",
     "check:lint": "oxlint .",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm check:format && pnpm check:lint && pnpm typecheck && pnpm build"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "check": "pnpm check:format && pnpm check:lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "next": "16.4.3",

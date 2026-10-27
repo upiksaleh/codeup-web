@@ -19,6 +19,10 @@ export const siteConfig = {
     { hostname: 'app.notion.com', pathname: '/images/' },
     { hostname: 'app.notion.com', pathname: '/icons/' },
     { hostname: 'img.notionusercontent.com', pathname: '/s3/' },
+    {
+      hostname: 'file.notion.com',
+      pathname: '/f/f/0334ac77-d51a-816c-b20d-0003b543bf8b/',
+    },
   ],
   footerStatus: 'CodeUP is an independent studio run by Upik Saleh',
   navigation: [

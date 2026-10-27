@@ -3,7 +3,8 @@ import { getSitePages } from '@/lib/notion/site-pages'
 import { EntryListing } from './entry-listing'
 
 export async function EntryListingPage({ kind }: { kind: 'article' | 'project' }) {
-  const entries = (await getSitePages())
+  const [pages, gallery] = await Promise.all([getSitePages(), getEntryGallery(kind)])
+  const entries = pages
     .filter((page) => page.kind === kind)
     .sort((a, b) => b.published - a.published || a.title.localeCompare(b.title))
     .map(({ id, url, title, description, tags, project }) => ({
@@ -15,5 +16,5 @@ export async function EntryListingPage({ kind }: { kind: 'article' | 'project' }
       techStack: project?.techStack ?? [],
     }))
 
-  return <EntryListing kind={kind} entries={entries} gallery={await getEntryGallery(kind)} />
+  return <EntryListing kind={kind} entries={entries} gallery={gallery} />
 }

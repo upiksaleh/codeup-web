@@ -45,7 +45,7 @@ export function getPageInfo(pageId: string, recordMap: ExtendedRecordMap) {
   return {
     id: pageId,
     title: getBlockTitle(page, recordMap) || siteConfig.name,
-    description: textProperty('Description') || textProperty('Summary'),
+    description: textProperty('Summary') || textProperty('Description'),
     slug: slug.length <= 200 && /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(slug) ? slug : '',
     tags: listProperty('Tags'),
     image: image ? defaultMapImageUrl(image, page) : undefined,

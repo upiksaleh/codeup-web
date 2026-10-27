@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { unstable_cache } from 'next/cache'
+import { cache } from 'react'
 import { getBlockTitle, getBlockValue, getPageContentBlockIds } from 'notion-utils'
 import { siteConfig } from '@/site.config'
+import { memoizeAsync } from '../memoize-async'
 import { belongsToSite, loadNotionPage } from './load-page'
 import { getPageInfo } from './page-info'
 import { getPageUrl } from './page-url'
@@ -57,13 +58,10 @@ async function collectSitePages() {
   return withPageUrls(pages).sort((a, b) => a.url.localeCompare(b.url))
 }
 
-export const getSitePages = unstable_cache(
-  collectSitePages,
-  ['site-pages', 'project-details', siteConfig.rootNotionPageId],
-  {
-    revalidate: 300,
-  },
-)
+// The index must not put loadNotionPage inside another unstable_cache scope.
+const collectCachedSitePages = memoizeAsync(collectSitePages, { ttl: 300_000, maxEntries: 1 })
+
+export const getSitePages = cache(() => collectCachedSitePages(siteConfig.rootNotionPageId))
 
 export async function getSitePageUrl(pageId: string) {
   return (await getSitePages()).find(({ id }) => id === pageId)?.url ?? getPageUrl(pageId)

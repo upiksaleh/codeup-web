@@ -6,6 +6,7 @@ import type { Block, Collection, ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { cache } from 'react'
 import { siteConfig } from '@/site.config'
+import { memoizeAsync } from '../memoize-async'
 import { normalizePageId } from './page-id'
 
 const notion = new NotionAPI({ ofetchOptions: { timeout: 15_000 } })
@@ -92,7 +93,7 @@ async function fetchPage(pageId: string) {
   }
 }
 
-const loadCachedPage = unstable_cache(
+const fetchValidatedPage = memoizeAsync(
   async (pageId: string) => {
     const recordMap = await fetchPage(pageId)
     if (recordMap) await resolveCustomEmojiIcons(recordMap)
@@ -109,7 +110,12 @@ const loadCachedPage = unstable_cache(
 
     return recordMap
   },
-  ['notion-page', siteConfig.rootNotionPageId],
+  { ttl: 300_000, maxEntries: 128 },
+)
+
+const loadCachedPage = unstable_cache(
+  fetchValidatedPage,
+  ['notion-page', 'validated-memory-v1', siteConfig.rootNotionPageId],
   { revalidate: 300 },
 )
 

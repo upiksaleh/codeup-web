@@ -2,10 +2,11 @@ import 'server-only'
 
 import { unstable_cache } from 'next/cache'
 import type { ExtendedRecordMap, PreviewImage } from 'notion-types'
-import { defaultMapImageUrl, getPageImageUrls } from 'notion-utils'
 import sharp from 'sharp'
 import { siteConfig } from '@/site.config'
+import { memoizeAsync } from '../memoize-async'
 import { canOptimizeImage, isRemoteImageAllowed } from './image-source'
+import { getPreviewImageUrls } from './preview-image-urls'
 
 const maxImageBytes = 10_000_000
 
@@ -55,7 +56,7 @@ export async function readImage(url: string) {
   throw new Error('Too many image redirects')
 }
 
-const getImagePreview = unstable_cache(
+const createImagePreview = memoizeAsync(
   async (url: string): Promise<PreviewImage> => {
     const image = sharp(await readImage(url), { limitInputPixels: 40_000_000 }).rotate()
     const { data } = await image
@@ -71,27 +72,32 @@ const getImagePreview = unstable_cache(
       dataURIBase64: `data:image/webp;base64,${data.toString('base64')}`,
     }
   },
-  ['image-preview', JSON.stringify(siteConfig.imageSources)],
+  { ttl: 86_400_000, maxEntries: 256 },
+)
+
+const getImagePreview = unstable_cache(
+  createImagePreview,
+  ['image-preview', 'bounded-memory-v1', JSON.stringify(siteConfig.imageSources)],
   { revalidate: 86_400 },
 )
 
-export async function withImagePreviews(recordMap: ExtendedRecordMap) {
-  const urls = getPageImageUrls(recordMap, { mapImageUrl: defaultMapImageUrl }).filter(
-    canOptimizeImage,
-  )
+export async function withImagePreviews(recordMap: ExtendedRecordMap, blockId: string) {
+  const urls = getPreviewImageUrls(recordMap, blockId).filter(canOptimizeImage)
   const previews: ExtendedRecordMap['preview_images'] = {}
+  let next = 0
 
-  for (let index = 0; index < urls.length; index += 4) {
-    await Promise.all(
-      urls.slice(index, index + 4).map(async (url) => {
+  await Promise.all(
+    Array.from({ length: Math.min(4, urls.length) }, async () => {
+      while (next < urls.length) {
+        const url = urls[next++]
         try {
           previews[url] = await getImagePreview(url)
         } catch {
           console.warn('Image preview unavailable', new URL(url).hostname)
         }
-      }),
-    )
-  }
+      }
+    }),
+  )
 
   return { ...recordMap, preview_images: previews }
 }
