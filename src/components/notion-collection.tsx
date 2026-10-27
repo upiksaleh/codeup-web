@@ -5,6 +5,7 @@ import { getBlockCollectionId, getBlockValue } from 'notion-utils'
 import type { ComponentProps } from 'react'
 import { useNotionContext } from 'react-notion-x'
 import { siteConfig } from '@/site.config'
+import { useCardCoverTrails } from './pointer-trail'
 import { useGalleryCardTitles } from './use-gallery-card-titles'
 
 const Collection = dynamic(() =>
@@ -25,6 +26,7 @@ export function NotionCollection({
     getBlockValue(recordMap.collection[collectionId])?.parent_id === siteConfig.projectsDatabaseId
   const isEntryCollection = isArticleCollection || isProjectCollection
   const ref = useGalleryCardTitles(isEntryCollection, titleLines)
+  useCardCoverTrails(ref, isEntryCollection)
 
   return (
     <div

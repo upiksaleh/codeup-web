@@ -1212,7 +1212,7 @@ button {
   text-overflow: ellipsis;
 }
 /* Entries without a cover keep the card layout with the brand cover. */
-.entry-collection .notion-collection-card-cover:empty {
+.entry-collection .notion-collection-card-cover:not(:has(img)) {
   background: var(--site-cover) url('/codeup.png') center / 72px no-repeat;
 }
 /* Titles wrap to two lines so cards in a row keep the same height. */

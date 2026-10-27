@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 
 const cell = 14
 const lifetime = 1100
@@ -117,4 +117,38 @@ export function PointerTrail() {
   useEffect(() => attachPointerTrail(canvasRef.current!), [])
 
   return <canvas ref={canvasRef} className="pointer-trail" aria-hidden="true" />
+}
+
+// The renderer owns gallery card markup and adds cards as they load, so covers are found
+// by observing the collection and each gets its own trail canvas.
+export function useCardCoverTrails(ref: RefObject<HTMLElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const collection = ref.current
+    if (!enabled || !collection) return
+    const trails = new Map<HTMLElement, { canvas: HTMLCanvasElement; detach?: () => void }>()
+
+    function sync() {
+      for (const cover of collection!.querySelectorAll<HTMLElement>(
+        '.notion-collection-card-cover',
+      )) {
+        if (trails.has(cover)) continue
+        const canvas = document.createElement('canvas')
+        canvas.className = 'pointer-trail'
+        canvas.setAttribute('aria-hidden', 'true')
+        cover.append(canvas)
+        trails.set(cover, { canvas, detach: attachPointerTrail(canvas) })
+      }
+    }
+
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(collection, { childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      for (const { canvas, detach } of trails.values()) {
+        detach?.()
+        canvas.remove()
+      }
+    }
+  }, [ref, enabled])
 }
