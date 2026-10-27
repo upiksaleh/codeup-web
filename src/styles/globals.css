@@ -1335,39 +1335,55 @@ button {
   min-height: 0 !important;
   max-height: none !important;
 }
-.article-page .notion-page {
-  padding-top: 96px;
+.article-page .notion-page,
+.article-page .notion-page.notion-page-has-cover.notion-page-has-icon {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 16px;
+  padding-top: 48px;
 }
-.article-page .notion-page-icon-hero.notion-page-icon-image {
-  top: -62px;
-  left: 50%;
-  width: 124px;
-  height: 124px;
-  margin-left: -62px;
+.article-page .notion-page::after {
+  content: '';
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin-top: 32px;
+  border-top: 1px solid var(--site-line);
 }
+.article-page .notion-page-icon-hero.notion-page-icon-image,
 .article-page .notion-page-icon-hero.notion-page-icon-span {
-  top: -42px;
-  left: 50%;
-  width: 84px;
-  height: 84px;
-  margin-left: -42px;
+  position: relative;
+  inset: auto;
+  grid-column: 1;
+  grid-row: 2;
+  width: 48px;
+  height: 48px;
+  margin: 0;
 }
 .article-page .notion-page-icon-hero.notion-page-icon-span .notion-page-icon {
-  font-size: 78px;
+  font-size: 44px;
 }
 .article-page .notion-page-icon-hero img {
   width: 100%;
   height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
 }
 .article-page .notion-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: 100%;
+  max-width: none;
   margin: 0 0 28px;
   line-height: 1.2;
   letter-spacing: -0.6px;
-  text-align: center;
-  text-wrap: balance;
+  text-align: left;
 }
-.article-page .notion-collection-section {
+.article-page .notion-page > .notion-collection-section {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 48px;
   width: 100%;
+  max-width: none;
 }
 .article-page .notion-collection-row {
   padding: 0;
@@ -1376,7 +1392,7 @@ button {
 .article-page .notion-collection-row-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
 }
 .article-page .notion-collection-row-property {
@@ -1398,11 +1414,11 @@ button {
 .article-page .notion-collection-row-value {
   width: auto;
   padding: 0;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: 14px;
 }
 .article-page .notion-property-multi_select {
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 6px;
 }
@@ -1413,16 +1429,23 @@ button {
   line-height: 1.3;
 }
 .article-page .notion-page-content {
+  grid-column: 1 / -1;
+  grid-row: 4;
   margin-top: 48px;
 }
 .article-page .notion-page-content-inner {
-  padding-top: 32px;
-  border-top: 1px solid var(--site-line);
+  padding-top: 0;
 }
 .article-page .notion-aside {
-  padding-top: 16px;
+  padding-top: 0;
+}
+.article-page .notion-page-content-inner > :first-child {
+  margin-top: 0;
 }
 @media (min-width: 1300px) {
+  .article-page .notion-page:has(.notion-aside) {
+    max-width: var(--site-width);
+  }
   .content-page .notion-page-content-has-aside {
     flex-direction: row;
     gap: 72px;
@@ -1430,6 +1453,10 @@ button {
   }
   .content-page .notion-page-content-has-aside .notion-page-content-inner {
     flex: 0 0 var(--notion-max-width);
+  }
+  .article-page .notion-page-content-has-aside {
+    width: 100%;
+    gap: 48px;
   }
   .content-page .notion-aside {
     position: sticky;
@@ -1453,23 +1480,28 @@ button {
     margin-top: 0;
     border-radius: 16px;
   }
-  .article-page .notion-page {
-    padding-top: 76px;
+  .article-page .notion-page,
+  .article-page .notion-page.notion-page-has-cover.notion-page-has-icon {
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 12px;
+    padding-top: 32px;
   }
-  .article-page .notion-page-icon-hero.notion-page-icon-image {
-    top: -44px;
-    width: 88px;
-    height: 88px;
-    margin-left: -44px;
+  .article-page .notion-page-icon-hero.notion-page-icon-image,
+  .article-page .notion-page-icon-hero.notion-page-icon-span {
+    width: 36px;
+    height: 36px;
+  }
+  .article-page .notion-page-icon-hero.notion-page-icon-span .notion-page-icon {
+    font-size: 32px;
+  }
+  .article-page .notion-page > .notion-collection-section {
+    min-height: 36px;
   }
   .article-page .notion-title {
     letter-spacing: -0.4px;
   }
   .article-page .notion-page-content {
     margin-top: 32px;
-  }
-  .article-page .notion-page-content-inner {
-    padding-top: 24px;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
