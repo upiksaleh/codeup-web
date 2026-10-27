@@ -41,8 +41,8 @@ export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props
     sizes || '(max-width: 580px) calc(100vw - 44px), (max-width: 780px) calc(100vw - 60px), 720px'
 
   if (!fullPage && sizes?.includes('33vw')) {
-    // Root gallery: one column below about 540px, two below about 860px, then three.
-    imageSizes = '(max-width: 540px) calc(100vw - 44px), (max-width: 860px) 50vw, 360px'
+    // Root gallery cards are at most half of the 900px content column, minus the gap.
+    imageSizes = '(max-width: 540px) calc(100vw - 44px), (max-width: 1008px) 50vw, 442px'
   } else if (props.className?.includes('notion-page-cover')) {
     imageSizes =
       '(max-width: 580px) calc(100vw - 24px), (max-width: 1248px) calc(100vw - 48px), 1200px'

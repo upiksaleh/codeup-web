@@ -1,8 +1,16 @@
 import { siteConfig } from '@/site.config'
 import { getPageUrl, resolvePageId } from './page-url'
 
-const reservedSlugs = new Set(['about', 'feed', 'search', 'blog', 'project', 'opengraph-image'])
-const prefixes = { article: '/blog', project: '/project', note: '', page: '' } as const
+const reservedSlugs = new Set([
+  'about',
+  'feed',
+  'search',
+  'article',
+  'blog',
+  'project',
+  'opengraph-image',
+])
+const prefixes = { article: '/article', project: '/project', note: '', page: '' } as const
 
 type PagePathInfo = { id: string; slug: string; kind: keyof typeof prefixes }
 
@@ -13,7 +21,7 @@ export function isSupportedPagePath(path: string) {
     segments.every(
       (segment) => segment.length <= 200 && /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(segment),
     ) &&
-    (segments.length === 1 || segments[0] === 'blog' || segments[0] === 'project')
+    (segments.length === 1 || segments[0] === 'article' || segments[0] === 'project')
   )
 }
 
@@ -58,7 +66,7 @@ export function resolveSitePageId(path: string, pages: (PagePathInfo & { url: st
 
   if (segments.length === 2) {
     const [category, slug] = segments
-    if (category !== 'blog' && category !== 'project') return
+    if (category !== 'article' && category !== 'project') return
     const id = resolvePageId(slug)
     return pages.find((page) => page.id === id && prefixes[page.kind] === `/${category}`)?.id
   }

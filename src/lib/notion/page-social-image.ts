@@ -7,7 +7,7 @@ export async function renderPageSocialImage(path: string) {
   const { pageId: id, recordMap } = await getNotionPage(path)
   const info = getPageInfo(id, recordMap)
   const section = siteConfig.navigation.find((link) => link.pageId === id)?.label
-  const kicker = info.isBlogPost
+  const kicker = info.isArticle
     ? `Article · ${new Date(info.published).toLocaleDateString('en-US', {
         dateStyle: 'long',
         timeZone: 'UTC',

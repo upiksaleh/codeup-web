@@ -13,7 +13,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
   const { recordMap, pageId: id } = await getNotionPage(pageId)
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId
-  const { isBlogPost } = getPageInfo(id, recordMap)
+  const { isArticle } = getPageInfo(id, recordMap)
   const pageUrls = await getSitePageUrls(
     Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
   )
@@ -24,12 +24,12 @@ export async function NotionPage({ pageId }: { pageId: string }) {
       pageId={id}
       pageUrls={pageUrls}
       isHome={isHome}
-      isBlogPost={isBlogPost}
+      isArticle={isArticle}
       pageHeader={
         isHome ? (
           <HomeHero />
         ) : (
-          isBlogPost &&
+          isArticle &&
           !page?.format?.page_icon && (
             <div className="notion-page-icon-hero notion-page-icon-image">
               <Image src={siteConfig.logo} alt={siteConfig.name} width={124} height={124} />

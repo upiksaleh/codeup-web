@@ -6,7 +6,7 @@ export const siteConfig = {
   rootNotionPageId,
   notesPageId,
   projectsDatabaseId,
-  blogCollectionId: 'd494ac77-d51a-8330-828c-07a4da417c6a',
+  articleCollectionId: 'd494ac77-d51a-8330-828c-07a4da417c6a',
   name: 'CodeUP',
   domain: 'codeup.id',
   description:

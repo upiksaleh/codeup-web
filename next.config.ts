@@ -3,6 +3,9 @@ import { siteConfig } from './src/site.config'
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  redirects() {
+    return [{ source: '/blog/:path+', destination: '/article/:path+', permanent: true }]
+  },
   images: {
     localPatterns: [{ pathname: siteConfig.logo, search: '' }],
     remotePatterns: siteConfig.imageSources.map(({ hostname, pathname }) => ({

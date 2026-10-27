@@ -19,12 +19,12 @@ export async function getPageMetadata(segment: string): Promise<Metadata> {
     description,
     alternates: { canonical: url, types: { 'application/rss+xml': '/feed' } },
     openGraph: {
-      type: info.isBlogPost ? 'article' : 'website',
+      type: info.isArticle ? 'article' : 'website',
       siteName: siteConfig.name,
       title,
       description,
       url,
-      ...(info.isBlogPost && {
+      ...(info.isArticle && {
         publishedTime: new Date(info.published).toISOString(),
         modifiedTime: new Date(info.lastEdited).toISOString(),
         tags: info.tags,

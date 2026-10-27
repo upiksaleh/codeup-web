@@ -18,8 +18,8 @@ export function getPageInfo(pageId: string, recordMap: ExtendedRecordMap) {
   const published = getPageProperty<unknown>('Published', page, recordMap)
   const image = textProperty('Social Image') || page.format?.page_cover
   const tags = getPageProperty<unknown>('Tags', page, recordMap)
-  const isBlogPost =
-    page.parent_table === 'collection' && page.parent_id === siteConfig.blogCollectionId
+  const isArticle =
+    page.parent_table === 'collection' && page.parent_id === siteConfig.articleCollectionId
   const collection =
     page.parent_table === 'collection' ? getBlockValue(recordMap.collection[page.parent_id]) : null
 
@@ -30,8 +30,8 @@ export function getPageInfo(pageId: string, recordMap: ExtendedRecordMap) {
     slug: slug.length <= 200 && /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(slug) ? slug : '',
     tags: Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === 'string') : [],
     image: image ? defaultMapImageUrl(image, page) : undefined,
-    isBlogPost,
-    kind: isBlogPost
+    isArticle,
+    kind: isArticle
       ? ('article' as const)
       : collection?.parent_id === siteConfig.projectsDatabaseId
         ? ('project' as const)
