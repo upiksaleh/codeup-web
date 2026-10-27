@@ -1,11 +1,14 @@
 import Image from 'next/image'
 import { siteConfig } from '@/site.config'
+import { PointerTrail } from './pointer-trail'
+import { TypingText } from './typing-text'
 
 export function HomeHero() {
   return (
     <section className="home-hero" aria-label={siteConfig.label} lang="en">
+      <PointerTrail />
       <div className="home-hero-content">
-        <span className="home-hero-label">{siteConfig.label}</span>
+        <TypingText className="home-hero-label" text={siteConfig.label} />
         <h1>
           {siteConfig.name}
           <span className="brand-dot">.</span>

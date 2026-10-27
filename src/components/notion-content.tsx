@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
 import { getBlockCollectionId } from 'notion-utils'
-import type { ComponentProps, ReactNode } from 'react'
+import { useEffect, type ComponentProps, type ReactNode } from 'react'
 import { NotionRenderer, useNotionContext } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
 import { normalizePageId } from '@/lib/notion/page-id'
@@ -14,6 +14,7 @@ import { NotionImage } from './notion-image'
 import { MobileTableOfContents } from './mobile-table-of-contents'
 import { TableOfContents, useTableOfContents } from './table-of-contents'
 import { useArticleCardTitles } from './use-article-card-titles'
+import { attachPointerTrail } from './pointer-trail'
 import { usePointerEffects } from './use-pointer-effects'
 
 const Collection = dynamic(() =>
@@ -83,6 +84,20 @@ export function NotionContent({
   const theme = useSiteTheme()
   const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
+  useEffect(() => {
+    // The renderer owns the cover markup, so the trail canvas is added after it renders.
+    const cover = document.querySelector('.content-page .notion-page-cover-wrapper')
+    if (!cover) return
+    const canvas = document.createElement('canvas')
+    canvas.className = 'pointer-trail'
+    canvas.setAttribute('aria-hidden', 'true')
+    cover.append(canvas)
+    const detach = attachPointerTrail(canvas)
+    return () => {
+      detach?.()
+      canvas.remove()
+    }
+  }, [pageId])
   return (
     <>
       <NotionRenderer

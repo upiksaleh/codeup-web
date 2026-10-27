@@ -620,6 +620,7 @@ button {
 }
 .home-hero {
   position: relative;
+  cursor: default;
   display: flex;
   align-items: center;
   gap: 36px;
@@ -2037,4 +2038,78 @@ button {
     min-height: 0;
     max-height: none;
   }
+}
+
+.typing-cursor {
+  margin-left: 0.15ch;
+}
+.pointer-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  color: var(--site-glow-from);
+  /* Mostly teal with a hint of the purple glow */
+  outline-color: color-mix(in srgb, var(--site-glow-to) 35%, var(--site-glow-from));
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.home-hero-logo {
+  position: relative;
+}
+/* Trail draws over the logo but stays under the text */
+.home-hero-content {
+  position: relative;
+  z-index: 2;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .typing-cursor {
+    animation: typing-cursor-blink 1s steps(1) infinite;
+  }
+}
+@keyframes typing-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Grid matches the pointer trail cells and fades toward the right */
+.home-hero::before,
+.content-page .notion-page-cover-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 14px 14px;
+  mask-image: linear-gradient(to right, #000 30%, transparent 100%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-hero::before,
+  .content-page .notion-page-cover-wrapper::after {
+    animation: home-hero-grid 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  }
+}
+@keyframes home-hero-grid {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+.content-page .notion-page-cover-wrapper {
+  position: relative;
+}
+/* Covers carry photos, so their grid stays barely visible */
+.content-page .notion-page-cover-wrapper::after {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.005) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.005) 1px, transparent 1px);
 }
