@@ -11,6 +11,8 @@ import { normalizePageId } from '@/lib/notion/page-id'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
+import { MobileTableOfContents } from './mobile-table-of-contents'
+import { TableOfContents, useTableOfContents } from './table-of-contents'
 import { useArticleCardTitles } from './use-article-card-titles'
 import { usePointerEffects } from './use-pointer-effects'
 
@@ -79,32 +81,35 @@ export function NotionContent({
   pageCover?: ReactNode
 }) {
   const theme = useSiteTheme()
+  const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
   return (
-    <NotionRenderer
-      recordMap={recordMap}
-      blockId={pageId}
-      rootPageId={siteConfig.rootNotionPageId}
-      rootDomain={siteConfig.domain}
-      mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
-      fullPage={!isHome}
-      showCollectionViewDropdown={!isHome}
-      className={isHome ? 'home-page' : isArticle ? 'content-page article-page' : 'content-page'}
-      pageHeader={pageHeader}
-      pageCover={pageCover}
-      showTableOfContents={!isHome}
-      minTableOfContentsItems={3}
-      tableOfContentsTitle="Table of contents"
-      disableHeader
-      darkMode={theme === 'dark'}
-      previewImages
-      components={{
-        nextLink: Link,
-        nextImage: NotionImage,
-        Collection: NotionCollection,
-        Code: NotionCode,
-        propertyDateValue,
-      }}
-    />
+    <>
+      <NotionRenderer
+        recordMap={recordMap}
+        blockId={pageId}
+        rootPageId={siteConfig.rootNotionPageId}
+        rootDomain={siteConfig.domain}
+        mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
+        fullPage={!isHome}
+        showCollectionViewDropdown={!isHome}
+        className={isHome ? 'home-page' : isArticle ? 'content-page article-page' : 'content-page'}
+        pageHeader={pageHeader}
+        pageCover={pageCover}
+        showTableOfContents={false}
+        pageAside={toc.entries.length ? <TableOfContents toc={toc} /> : undefined}
+        disableHeader
+        darkMode={theme === 'dark'}
+        previewImages
+        components={{
+          nextLink: Link,
+          nextImage: NotionImage,
+          Collection: NotionCollection,
+          Code: NotionCode,
+          propertyDateValue,
+        }}
+      />
+      {!!toc.entries.length && <MobileTableOfContents key={pageId} toc={toc} />}
+    </>
   )
 }

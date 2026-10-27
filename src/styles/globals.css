@@ -1507,26 +1507,78 @@ button {
   align-items: stretch;
   min-width: 0;
   max-height: 240px;
-  padding: 16px;
-  border: 1px solid var(--site-line);
-  border-radius: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
 }
 .content-page .notion-aside-table-of-contents-header {
+  flex-shrink: 0;
   margin-bottom: 12px;
+  color: var(--site-ink);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: none;
 }
-.content-page .notion-table-of-contents-item {
+.content-page .notion-aside-table-of-contents .notion-table-of-contents {
+  min-height: 0;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--site-line) transparent;
+}
+.content-page .notion-aside-table-of-contents .notion-table-of-contents-item {
   flex-shrink: 0;
-  padding: 7px 0;
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--site-muted);
+  font-size: 13px;
+  line-height: 1.5;
   opacity: 1;
   white-space: normal;
   overflow: visible;
+  overflow-wrap: anywhere;
+}
+.content-page .notion-aside-table-of-contents .notion-table-of-contents-item:hover {
+  color: var(--site-ink);
+  background: transparent;
+}
+.content-page .notion-aside-table-of-contents .notion-table-of-contents-item:focus-visible {
+  outline-offset: -3px;
+}
+.content-page .notion-aside-table-of-contents .notion-table-of-contents-active-item {
+  background: transparent;
 }
 .content-page .notion-table-of-contents-item-body {
+  min-width: 0;
   line-height: 1.5;
+}
+.content-page .notion-table-of-contents-item-body,
+.mobile-contents-dialog nav a span {
+  padding-bottom: 2px;
+  background-image: linear-gradient(90deg, var(--site-glow-from), var(--site-glow-to));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0 1px;
+}
+.content-page
+  .notion-table-of-contents-item:is(:hover, :focus-visible, .notion-table-of-contents-active-item)
+  .notion-table-of-contents-item-body,
+.mobile-contents-dialog nav a:is(:hover, :focus-visible, [aria-current='location']) span {
+  background-size: 100% 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .content-page .notion-table-of-contents-item-body,
+  .mobile-contents-dialog nav a span {
+    transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 .article-page {
   --site-background: light-dark(#ffffff, #282c34);
@@ -1654,21 +1706,194 @@ button {
 .article-page .notion-page-content-inner > :first-child {
   margin-top: 0;
 }
+.mobile-contents-trigger {
+  display: none;
+}
+@media (max-width: 959px) {
+  .content-page .notion-aside {
+    display: none;
+  }
+  .mobile-contents-trigger {
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    z-index: 110;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--site-line);
+    border-radius: 24px;
+    color: var(--site-ink);
+    background: var(--site-surface);
+    box-shadow: 0 4px 16px #0002;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+.site-dialog.mobile-contents-dialog {
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  align-content: end;
+}
+.mobile-contents-dialog .dialog-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  max-height: min(70svh, 600px);
+  padding: 24px 16px 16px;
+}
+.mobile-contents-dialog h2 {
+  flex-shrink: 0;
+  margin: 0 48px 16px 8px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.mobile-contents-dialog nav {
+  min-height: 0;
+  padding: 4px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.mobile-contents-dialog nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--site-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.mobile-contents-dialog nav a:is(:hover, :focus-visible) {
+  color: var(--site-accent);
+  outline-offset: -3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-contents-dialog .dialog-content {
+    animation: contents-enter 220ms ease-out;
+  }
+  @keyframes contents-enter {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+@media (min-width: 960px) and (max-width: 1299px) {
+  .content-page .notion-aside {
+    position: sticky;
+    top: 112px;
+    align-self: flex-end;
+    flex: 0 0 0;
+    width: 40px;
+    height: 0;
+    min-height: 0;
+    margin: 0;
+    transform: translateX(calc((100vw - var(--notion-max-width)) / 2 - 16px));
+  }
+  .content-page .notion-aside-table-of-contents {
+    flex-shrink: 0;
+    max-height: calc(100svh - 136px);
+  }
+  .content-page .notion-aside-table-of-contents-header {
+    display: none;
+  }
+  .content-page .notion-aside-table-of-contents .notion-table-of-contents-item {
+    position: relative;
+    justify-content: flex-end;
+    min-height: 24px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .content-page .notion-aside-table-of-contents .notion-table-of-contents-item::after {
+    content: '';
+    width: 16px;
+    height: 2px;
+    flex-shrink: 0;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+  .content-page .notion-table-of-contents-item-indent-level-1::after {
+    max-width: 12px;
+  }
+  .content-page .notion-table-of-contents-item-indent-level-2::after {
+    max-width: 8px;
+  }
+  .content-page .notion-aside-table-of-contents .notion-table-of-contents-active-item::after {
+    opacity: 1;
+  }
+  .content-page .notion-table-of-contents-item-body {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    opacity: 0;
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) {
+    width: 280px;
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) .notion-aside-table-of-contents {
+    padding: 12px;
+    background: var(--site-background);
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) .notion-aside-table-of-contents-header {
+    display: block;
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) .notion-table-of-contents-item {
+    justify-content: flex-start;
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) .notion-table-of-contents-item::after {
+    display: none;
+  }
+  .content-page .notion-aside:is(:hover, :focus-within) .notion-table-of-contents-item-body {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .content-page .notion-aside {
+      transition: width 220ms ease;
+    }
+    .content-page .notion-aside-table-of-contents {
+      transition:
+        padding 220ms ease,
+        background-color 220ms ease;
+    }
+    .content-page .notion-table-of-contents-item-body {
+      transition:
+        opacity 180ms ease,
+        background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+}
 @media (min-width: 1300px) {
-  .article-page .notion-page:has(.notion-aside) {
+  .content-page .notion-page:has(.notion-aside) {
     max-width: var(--site-width);
   }
   .content-page .notion-page-content-has-aside {
     flex-direction: row;
-    gap: 72px;
-    width: calc((100vw + var(--notion-max-width)) / 2 - 24px);
+    gap: 48px;
+    width: 100%;
   }
   .content-page .notion-page-content-has-aside .notion-page-content-inner {
     flex: 0 0 var(--notion-max-width);
-  }
-  .article-page .notion-page-content-has-aside {
-    width: 100%;
-    gap: 48px;
   }
   .content-page .notion-aside {
     position: sticky;
@@ -1680,9 +1905,6 @@ button {
   }
   .content-page .notion-aside-table-of-contents {
     max-height: calc(100svh - 136px);
-    padding: 0 8px;
-    border: 0;
-    border-radius: 0;
   }
 }
 @media (max-width: 580px) {
