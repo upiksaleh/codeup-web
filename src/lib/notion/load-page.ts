@@ -73,6 +73,18 @@ async function resolveCustomEmojiIcons(recordMap: ExtendedRecordMap) {
   for (const { icon, set } of targets) set(urls.get(icon))
 }
 
+// The renderer maps Notion headings to h2/h3/h4 under the page's h1. A page that starts at
+// Heading 2 would jump from h1 to h3, so shift its headings up one level.
+function promoteHeadings(recordMap: ExtendedRecordMap) {
+  const blocks = Object.values(recordMap.block).flatMap((entry) => getBlockValue(entry) ?? [])
+  if (blocks.some((block) => block.type === 'header')) return
+
+  for (const block of blocks as { type: string }[]) {
+    if (block.type === 'sub_header') block.type = 'header'
+    else if (block.type === 'sub_sub_header') block.type = 'sub_header'
+  }
+}
+
 async function fetchPage(pageId: string) {
   try {
     return await notion.getPage(pageId, { throwOnCollectionErrors: true })
@@ -96,7 +108,10 @@ async function fetchPage(pageId: string) {
 const fetchValidatedPage = memoizeAsync(
   async (pageId: string) => {
     const recordMap = await fetchPage(pageId)
-    if (recordMap) await resolveCustomEmojiIcons(recordMap)
+    if (recordMap) {
+      await resolveCustomEmojiIcons(recordMap)
+      promoteHeadings(recordMap)
+    }
     const page = recordMap && getBlockValue(recordMap.block[pageId])
 
     if (
@@ -115,7 +130,7 @@ const fetchValidatedPage = memoizeAsync(
 
 const loadCachedPage = unstable_cache(
   fetchValidatedPage,
-  ['notion-page', 'validated-memory-v1', siteConfig.rootNotionPageId],
+  ['notion-page', 'validated-memory-v2', siteConfig.rootNotionPageId],
   { revalidate: 300 },
 )
 

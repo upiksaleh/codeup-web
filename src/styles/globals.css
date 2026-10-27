@@ -221,18 +221,19 @@ a:hover {
   padding-left: 18px;
   border-left: 1px solid var(--site-line);
   color: var(--site-muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .site-navigation {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 22px;
+  gap: 8px 6px;
   margin-left: auto;
 }
 .site-navigation a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  padding-inline: 8px;
   color: var(--site-muted);
   font-size: 14px;
   text-decoration: none;
@@ -639,7 +640,7 @@ button {
   margin-bottom: 10px;
   color: #e4faf4;
   font:
-    11px/1.6 ui-monospace,
+    12px/1.6 ui-monospace,
     'SFMono-Regular',
     Consolas,
     monospace;
@@ -1193,6 +1194,26 @@ button {
 }
 .notion-gallery-grid .notion-property-text {
   font-size: 14px;
+}
+.notion-gallery-grid .notion-collection-card-property:not(:has(> .notion-property-text)) {
+  font-size: 13px;
+}
+.notion-gallery-grid .notion-property-multi_select-item,
+.notion-gallery-grid .notion-property-select-item {
+  font-size: 13px;
+}
+/* Summaries wrap to two lines with an ellipsis instead of being cut mid-word. */
+.entry-collection .notion-collection-card-property:has(> .notion-property-text) {
+  display: -webkit-box;
+  height: auto;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+  text-overflow: ellipsis;
+}
+/* Entries without a cover keep the card layout with the brand cover. */
+.entry-collection .notion-collection-card-cover:empty {
+  background: var(--site-cover) url('/codeup.png') center / 72px no-repeat;
 }
 /* Titles wrap to two lines so cards in a row keep the same height. */
 :is(.home-page, .entry-listing-gallery)
@@ -1815,6 +1836,12 @@ button {
 .article-page .notion-page-cover-wrapper {
   max-width: var(--site-width);
   border-radius: 24px;
+}
+/* Shorter than other covers so the title stays near the fold. */
+.article-page .notion-page-cover-wrapper:not(.fallback-cover) {
+  height: clamp(160px, 24vh, 260px);
+  min-height: 0;
+  max-height: none;
 }
 .article-page .notion-page,
 .article-page .notion-page.notion-page-has-cover.notion-page-has-icon {

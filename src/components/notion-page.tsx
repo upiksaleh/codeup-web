@@ -18,7 +18,10 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     id === siteConfig.rootNotionPageId ? await withHomeProjectGallery(pageMap) : pageMap
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId
-  const { isArticle, project, description, tags } = getPageInfo(id, recordMap)
+  const { isArticle, project, description, tags, title, published, lastEdited } = getPageInfo(
+    id,
+    recordMap,
+  )
   const [pageUrls, renderMap] = await Promise.all([
     getSitePageUrls(
       Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
@@ -26,33 +29,57 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id),
   ])
 
+  const articleData = isArticle && {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: description || undefined,
+    datePublished: new Date(published).toISOString(),
+    dateModified: new Date(lastEdited).toISOString(),
+    keywords: tags.length ? tags.join(', ') : undefined,
+    author: { '@type': 'Person', name: siteConfig.author },
+    mainEntityOfPage: `https://${siteConfig.domain}${pageUrls[id] ?? ''}`,
+  }
+
   return (
-    <NotionContent
-      recordMap={renderMap}
-      pageId={id}
-      pageUrls={pageUrls}
-      isHome={isHome}
-      isArticle={isArticle}
-      pageProperties={
-        project && <ProjectDetails project={project} summary={description} tags={tags} />
-      }
-      pageHeader={
-        isHome ? (
-          <HomeHero />
-        ) : (
-          isArticle &&
-          !page?.format?.page_icon && (
-            <div className="notion-page-icon-hero notion-page-icon-image">
-              <Image src={siteConfig.logo} alt={siteConfig.name} width={124} height={124} />
-            </div>
+    <>
+      {articleData && (
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(articleData).replace(/</g, '\\u003c'),
+            }}
+          />
+        </>
+      )}
+      <NotionContent
+        recordMap={renderMap}
+        pageId={id}
+        pageUrls={pageUrls}
+        isHome={isHome}
+        isArticle={isArticle}
+        pageProperties={
+          project && <ProjectDetails project={project} summary={description} tags={tags} />
+        }
+        pageHeader={
+          isHome ? (
+            <HomeHero />
+          ) : (
+            isArticle &&
+            !page?.format?.page_icon && (
+              <div className="notion-page-icon-hero notion-page-icon-image">
+                <Image src={siteConfig.logo} alt={siteConfig.name} width={124} height={124} />
+              </div>
+            )
           )
-        )
-      }
-      pageCover={
-        !isHome && !page?.format?.page_cover ? (
-          <div className="notion-page-cover-wrapper fallback-cover" aria-hidden="true" />
-        ) : undefined
-      }
-    />
+        }
+        pageCover={
+          !isHome && !page?.format?.page_cover ? (
+            <div className="notion-page-cover-wrapper fallback-cover" aria-hidden="true" />
+          ) : undefined
+        }
+      />
+    </>
   )
 }
