@@ -1814,7 +1814,6 @@ button {
 }
 .article-page .notion-page-cover-wrapper {
   max-width: var(--site-width);
-  margin-top: 0;
   border-radius: 24px;
 }
 .article-page .notion-page,
@@ -2127,7 +2126,6 @@ button {
 }
 @media (max-width: 580px) {
   .article-page .notion-page-cover-wrapper {
-    margin-top: 0;
     border-radius: 16px;
   }
   .article-page .notion-page,
