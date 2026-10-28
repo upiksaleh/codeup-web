@@ -48,6 +48,7 @@ export function NotionContent({
   pageHeader,
   pageCover,
   pageProperties,
+  pageFooter,
 }: {
   recordMap: ExtendedRecordMap
   pageId: string
@@ -59,6 +60,7 @@ export function NotionContent({
   pageHeader: ReactNode
   pageCover?: ReactNode
   pageProperties?: ReactNode
+  pageFooter?: ReactNode
 }) {
   const theme = useSiteTheme()
   const renderMap = useMemo(() => withCollectionPropertyOrder(recordMap), [recordMap])
@@ -108,6 +110,7 @@ export function NotionContent({
         }
         pageHeader={pageHeader}
         pageCover={pageCover}
+        pageFooter={pageFooter}
         showTableOfContents={false}
         pageAside={toc.entries.length ? <TableOfContents toc={toc} /> : undefined}
         disableHeader

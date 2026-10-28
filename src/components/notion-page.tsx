@@ -12,6 +12,7 @@ import { siteConfig } from '@/site.config'
 import { getEntryContext } from '@/lib/notion/entry-context'
 import { NotionContent } from './notion-content'
 import { HomeHero } from './home-hero'
+import { EntryShare } from './entry-share'
 import { ProjectDetails } from './project-details'
 import { NotionImage } from './notion-image'
 
@@ -70,6 +71,16 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         isHome={isHome}
         isEntrySubpage={!!context}
         pageType={isArticle ? 'article' : project ? 'project' : undefined}
+        pageFooter={
+          (isArticle || project) &&
+          pageUrls[id] && (
+            <EntryShare
+              kind={isArticle ? 'article' : 'project'}
+              url={`https://${siteConfig.domain}${pageUrls[id]}`}
+              title={title}
+            />
+          )
+        }
         pageProperties={
           project && (
             <ProjectDetails pageId={id} project={project} summary={description} tags={tags} />

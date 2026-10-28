@@ -1,9 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Icon } from './ui/icon'
+import { Icon, type IconName } from './ui/icon'
 
-export function CopyButton({ value, label }: { value: string; label: string }) {
+export function CopyButton({
+  value,
+  label,
+  icon = 'copy',
+}: {
+  value: string
+  label: string
+  icon?: IconName
+}) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
   useEffect(() => {
     if (status === 'idle') return
@@ -27,7 +35,7 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
         }
       }}
     >
-      <Icon name={status === 'copied' ? 'check' : 'copy'} width={16} height={16} />
+      <Icon name={status === 'copied' ? 'check' : icon} width={16} height={16} />
       <span aria-live="polite">
         {status === 'copied' ? 'Copied' : status === 'failed' ? 'Copy failed' : label}
       </span>

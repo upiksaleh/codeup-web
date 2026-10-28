@@ -171,9 +171,13 @@
   --highlight-start: #f5b8d1;
   --highlight-end: #f9bcd3;
 }
-.notion :is(.notion-blue_background, .notion-gray_background) {
+.notion .notion-blue_background {
   --highlight-start: #adedfc;
   --highlight-end: #adebfd;
+}
+.notion .notion-gray_background {
+  --highlight-start: #dfe1e5;
+  --highlight-end: #e4e6e9;
 }
 .notion :is(.notion-red_background, .notion-orange_background) {
   --highlight-start: #f5c4ff;
@@ -1176,6 +1180,71 @@ a:hover {
   border-radius: 5px;
   background: var(--site-tint);
   font-size: 12px;
+}
+.entry-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--site-line);
+  color: var(--site-muted);
+  font-size: 14px;
+}
+.entry-share-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.entry-share-links a,
+.entry-share .copy-button,
+.entry-share-native {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--site-muted);
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.entry-share-links a {
+  width: 36px;
+}
+.entry-share .copy-button,
+.entry-share-native {
+  width: auto;
+  padding-inline: 12px;
+  border-color: var(--site-line);
+  color: var(--site-ink);
+}
+.entry-share .copy-button span {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: nowrap;
+}
+.entry-share .copy-button[data-status='copied'] {
+  color: var(--site-accent);
+}
+.entry-share-links a:hover,
+.entry-share-links a:focus-visible,
+.entry-share .copy-button:hover,
+.entry-share .copy-button:focus-visible,
+.entry-share-native:hover,
+.entry-share-native:focus-visible {
+  color: var(--site-ink);
+  background: var(--site-tint);
 }
 .project-status {
   justify-self: start;
@@ -2516,6 +2585,12 @@ a:hover {
   }
   .content-page .notion-page-content-has-aside .notion-page-content-inner {
     flex: 0 0 var(--notion-max-width);
+  }
+  /* The share row stays under the text column, not the table of contents. */
+  .content-page .notion-page-content-has-aside ~ .entry-share {
+    justify-self: start;
+    align-self: flex-start;
+    max-width: var(--notion-max-width);
   }
   .content-page .notion-aside {
     position: sticky;
