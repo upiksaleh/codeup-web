@@ -1728,6 +1728,24 @@ a:hover {
   margin: 20px 0;
 }
 
+.notion-mermaid {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 48px 20px 20px;
+  border: 1px solid light-dark(#e5e7eb, #333842);
+  border-radius: 10px;
+  background: light-dark(#f9fafb, #21252b);
+  text-align: center;
+}
+
+.notion-mermaid svg {
+  display: block;
+  width: 100%;
+  min-width: 600px;
+  height: auto;
+  margin: auto;
+}
+
 .notion .notion-code {
   max-width: 100%;
   width: 100%;

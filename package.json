@@ -16,6 +16,7 @@
     "check": "pnpm check:format && pnpm check:lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
+    "mermaid": "12.2.0",
     "next": "16.4.3",
     "notion-client": "8.0.8",
     "notion-types": "8.0.8",
