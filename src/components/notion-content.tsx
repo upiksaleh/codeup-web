@@ -47,7 +47,7 @@ export function NotionContent({
   pageId,
   pageUrls,
   isHome,
-  isArticle,
+  pageType,
   pageHeader,
   pageCover,
   pageProperties,
@@ -56,7 +56,7 @@ export function NotionContent({
   pageId: string
   pageUrls: Record<string, string>
   isHome: boolean
-  isArticle: boolean
+  pageType?: 'article' | 'project'
   pageHeader: ReactNode
   pageCover?: ReactNode
   pageProperties?: ReactNode
@@ -101,7 +101,7 @@ export function NotionContent({
         mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
         fullPage={!isHome}
         showCollectionViewDropdown={!isHome}
-        className={isHome ? 'home-page' : isArticle ? 'content-page article-page' : 'content-page'}
+        className={isHome ? 'home-page' : `content-page${pageType ? ` ${pageType}-page` : ''}`}
         pageHeader={pageHeader}
         pageCover={pageCover}
         showTableOfContents={false}
