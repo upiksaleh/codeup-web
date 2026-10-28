@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { getBlockValue } from 'notion-utils'
 import { getNotionPage } from '@/lib/notion/get-page'
 import { withHomeProjectGallery } from '@/lib/notion/entry-gallery'
@@ -8,14 +9,17 @@ import { getPageInfo } from '@/lib/notion/page-info'
 import { normalizePageId } from '@/lib/notion/page-id'
 import { getSitePageUrls } from '@/lib/notion/site-pages'
 import { siteConfig } from '@/site.config'
+import { getEntryContext } from '@/lib/notion/entry-context'
 import { NotionContent } from './notion-content'
 import { HomeHero } from './home-hero'
 import { ProjectDetails } from './project-details'
+import { NotionImage } from './notion-image'
 
 export async function NotionPage({ pageId }: { pageId: string }) {
   const { recordMap: pageMap, pageId: id } = await getNotionPage(pageId)
   const recordMap =
     id === siteConfig.rootNotionPageId ? await withHomeProjectGallery(pageMap) : pageMap
+  const context = await getEntryContext(id)
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId
   const { isArticle, project, description, tags, title, published, lastEdited } = getPageInfo(
@@ -64,6 +68,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         pageUrls={pageUrls}
         previewTargets={previewTargets}
         isHome={isHome}
+        isEntrySubpage={!!context}
         pageType={isArticle ? 'article' : project ? 'project' : undefined}
         pageProperties={
           project && (
@@ -73,6 +78,10 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         pageHeader={
           isHome ? (
             <HomeHero />
+          ) : context ? (
+            <Link className="entry-page-back" href={context.parent.url}>
+              <span aria-hidden="true">←</span> Back to {context.parent.title}
+            </Link>
           ) : (
             isArticle &&
             !page?.format?.page_icon && (
@@ -83,7 +92,19 @@ export async function NotionPage({ pageId }: { pageId: string }) {
           )
         }
         pageCover={
-          !isHome && !page?.format?.page_cover ? (
+          context?.cover ? (
+            <div className="notion-page-cover-wrapper">
+              <NotionImage
+                src={context.cover}
+                alt={context.entry.title}
+                fill
+                preload
+                sizes="100vw"
+                className="notion-page-cover"
+                style={{ objectPosition: `center ${(1 - (context.coverPosition ?? 0.5)) * 100}%` }}
+              />
+            </div>
+          ) : !isHome && (context || !page?.format?.page_cover) ? (
             <div className="notion-page-cover-wrapper fallback-cover" aria-hidden="true" />
           ) : undefined
         }

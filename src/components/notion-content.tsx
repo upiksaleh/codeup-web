@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
-import { useEffect, useMemo, type ReactNode } from 'react'
+import { useEffect, useMemo, type ComponentProps, type ReactNode } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
 import { normalizePageId } from '@/lib/notion/page-id'
@@ -21,12 +21,29 @@ import { LinkPreviews } from './link-previews'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
 
+// The renderer sets target="_blank" on every link; internal pages should open in place.
+function NotionLink({ href, target, rel, children, ...props }: ComponentProps<'a'>) {
+  if (href?.startsWith('/')) {
+    return (
+      <Link href={href} {...props}>
+        {children}
+      </Link>
+    )
+  }
+  return (
+    <a href={href} target={target ?? '_blank'} rel={rel ?? 'noopener noreferrer'} {...props}>
+      {children}
+    </a>
+  )
+}
+
 export function NotionContent({
   recordMap,
   pageId,
   pageUrls,
   previewTargets,
   isHome,
+  isEntrySubpage,
   pageType,
   pageHeader,
   pageCover,
@@ -37,6 +54,7 @@ export function NotionContent({
   pageUrls: Record<string, string>
   previewTargets: Record<string, string>
   isHome: boolean
+  isEntrySubpage: boolean
   pageType?: 'article' | 'project'
   pageHeader: ReactNode
   pageCover?: ReactNode
@@ -83,7 +101,11 @@ export function NotionContent({
         mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
         fullPage={!isHome}
         showCollectionViewDropdown={!isHome}
-        className={isHome ? 'home-page' : `content-page${pageType ? ` ${pageType}-page` : ''}`}
+        className={
+          isHome
+            ? 'home-page'
+            : `content-page${pageType ? ` ${pageType}-page` : ''}${isEntrySubpage ? ' entry-subpage' : ''}`
+        }
         pageHeader={pageHeader}
         pageCover={pageCover}
         showTableOfContents={false}
@@ -92,7 +114,7 @@ export function NotionContent({
         darkMode={theme === 'dark'}
         previewImages
         components={{
-          nextLink: Link,
+          Link: NotionLink,
           nextImage: NotionImage,
           Collection: PageCollection,
           Code: NotionCode,

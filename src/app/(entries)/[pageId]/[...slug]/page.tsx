@@ -10,17 +10,17 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ pageId: string; slug: string }>
+  params: Promise<{ pageId: string; slug: string[] }>
 }) {
   const { pageId: category, slug } = await params
-  return getPageMetadata(`${category}/${slug}`)
+  return getPageMetadata(`${category}/${slug.join('/')}`)
 }
 
 export default async function Page({
   params,
 }: {
-  params: Promise<{ pageId: string; slug: string }>
+  params: Promise<{ pageId: string; slug: string[] }>
 }) {
   const { pageId: category, slug } = await params
-  return <NotionPage pageId={`${category}/${slug}`} />
+  return <NotionPage pageId={`${category}/${slug.join('/')}`} />
 }

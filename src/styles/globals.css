@@ -2198,7 +2198,7 @@ a:hover {
 }
 /* Shorter than other covers so the title stays near the fold. */
 /* Real article and project covers run full-bleed; fallback banners stay inset cards. */
-:is(.article-page, .project-page) .notion-page-cover-wrapper:not(.fallback-cover) {
+:is(.article-page, .project-page, .entry-subpage) .notion-page-cover-wrapper:not(.fallback-cover) {
   width: 100%;
   max-width: none;
   height: clamp(200px, 32vh, 360px);
@@ -2206,6 +2206,20 @@ a:hover {
   max-height: none;
   margin: 0;
   border-radius: 0;
+}
+.entry-page-back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--site-muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+.entry-page-back:hover {
+  color: var(--site-accent);
+  text-decoration: underline;
 }
 .article-page .notion-page,
 .article-page .notion-page.notion-page-has-cover.notion-page-has-icon {

@@ -6,9 +6,9 @@ export default async function EntryLayout({
   params,
 }: {
   children: ReactNode
-  params: Promise<{ pageId: string; slug: string }>
+  params: Promise<{ pageId: string; slug: string[] }>
 }) {
   const { pageId: category, slug } = await params
-  await validatePagePath(`${category}/${slug}`)
+  await validatePagePath(`${category}/${slug.join('/')}`)
   return children
 }

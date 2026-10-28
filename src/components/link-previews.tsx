@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
@@ -97,19 +97,22 @@ function PreviewContent({ preview }: { preview: PagePreview }) {
         <Text block={page} value={page.properties?.title} />
       </div>
       <div className="notion-page-preview-content" inert aria-hidden="true">
-        {preview.blockIds.map((blockId) => (
-          <NotionRenderer
-            key={blockId}
-            blockId={blockId}
-            recordMap={preview.recordMap}
-            rootPageId={siteConfig.rootNotionPageId}
-            fullPage={false}
-            darkMode={theme === 'dark'}
-            isImageZoomable={false}
-            disableHeader
-            components={{ nextImage: NotionImage, Code: NotionCode }}
-          />
-        ))}
+        {/* The lazy code block would otherwise suspend to the route's loading boundary. */}
+        <Suspense fallback={<PreviewSkeleton />}>
+          {preview.blockIds.map((blockId) => (
+            <NotionRenderer
+              key={blockId}
+              blockId={blockId}
+              recordMap={preview.recordMap}
+              rootPageId={siteConfig.rootNotionPageId}
+              fullPage={false}
+              darkMode={theme === 'dark'}
+              isImageZoomable={false}
+              disableHeader
+              components={{ nextImage: NotionImage, Code: NotionCode }}
+            />
+          ))}
+        </Suspense>
       </div>
     </NotionContextProvider>
   )
