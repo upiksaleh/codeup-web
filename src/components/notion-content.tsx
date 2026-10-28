@@ -7,6 +7,7 @@ import { useEffect, useMemo, type ReactNode } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
 import { normalizePageId } from '@/lib/notion/page-id'
+import { withCollectionPropertyOrder } from '@/lib/notion/collection-property-order'
 import { getPageUrl } from '@/lib/notion/page-url'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
@@ -39,6 +40,7 @@ export function NotionContent({
   pageProperties?: ReactNode
 }) {
   const theme = useSiteTheme()
+  const renderMap = useMemo(() => withCollectionPropertyOrder(recordMap), [recordMap])
   const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
   // The renderer shows a database page's properties through Collection; a page with its own
@@ -71,7 +73,7 @@ export function NotionContent({
   return (
     <>
       <NotionRenderer
-        recordMap={recordMap}
+        recordMap={renderMap}
         blockId={pageId}
         rootPageId={siteConfig.rootNotionPageId}
         rootDomain={siteConfig.domain}
