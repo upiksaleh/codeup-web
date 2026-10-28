@@ -14,33 +14,10 @@ import { MobileTableOfContents } from './mobile-table-of-contents'
 import { TableOfContents, useTableOfContents } from './table-of-contents'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
 import { attachPointerTrail } from './pointer-trail'
+import { propertyDateValue } from './property-date-value'
 import { usePointerEffects } from './use-pointer-effects'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
-
-type DateValueProps = {
-  data?: [string, [string, { start_date?: string }][]?][]
-  schema?: { name?: string }
-  pageHeader?: boolean
-}
-
-// Article headers show the Published date in full, like "April 4, 2023".
-function propertyDateValue(
-  { data, schema, pageHeader }: DateValueProps,
-  fallback: () => ReactNode,
-) {
-  const start = data?.[0]?.[1]?.[0]?.[1]?.start_date
-  if (!pageHeader || schema?.name?.toLowerCase() !== 'published' || !start) return fallback()
-
-  const date = new Date(`${start.slice(0, 10)}T00:00:00Z`)
-  if (Number.isNaN(date.getTime())) return fallback()
-
-  return (
-    <time dateTime={start}>
-      {date.toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
-    </time>
-  )
-}
 
 export function NotionContent({
   recordMap,

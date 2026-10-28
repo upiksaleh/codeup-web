@@ -40,7 +40,8 @@ export function ProjectDetails({
             <dd>
               <time dateTime={new Date(project.startDate).toISOString().slice(0, 10)}>
                 {new Date(project.startDate).toLocaleDateString('en-US', {
-                  dateStyle: 'long',
+                  month: 'long',
+                  year: 'numeric',
                   timeZone: 'UTC',
                 })}
               </time>

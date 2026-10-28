@@ -10,6 +10,7 @@ import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
 import { NotionImage } from './notion-image'
+import { propertyDateValue } from './property-date-value'
 
 export type EntryGalleryData = {
   recordMap: ExtendedRecordMap
@@ -82,7 +83,12 @@ export function EntryGallery({
       previewImages
       disableHeader
       showCollectionViewDropdown={false}
-      components={{ nextLink: Link, nextImage: NotionImage, Collection: ListingCollection }}
+      components={{
+        nextLink: Link,
+        nextImage: NotionImage,
+        Collection: ListingCollection,
+        propertyDateValue,
+      }}
     />
   )
 }
