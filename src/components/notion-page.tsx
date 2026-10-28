@@ -60,7 +60,9 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         isHome={isHome}
         pageType={isArticle ? 'article' : project ? 'project' : undefined}
         pageProperties={
-          project && <ProjectDetails project={project} summary={description} tags={tags} />
+          project && (
+            <ProjectDetails pageId={id} project={project} summary={description} tags={tags} />
+          )
         }
         pageHeader={
           isHome ? (

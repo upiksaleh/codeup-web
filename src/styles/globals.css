@@ -1135,6 +1135,41 @@ a:hover {
   padding-bottom: 24px;
   border-bottom: 1px solid var(--site-line);
 }
+.project-page .notion-page > .notion-page-icon-hero {
+  display: none;
+}
+/* Like article headers: the icon sits in a narrow column beside the details. */
+.project-meta:has(.project-icon) {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+}
+.project-meta .project-icon {
+  width: 48px;
+  height: 48px;
+}
+.project-details .project-meta .project-icon .notion-page-icon-hero {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.project-icon img {
+  border-radius: 0;
+  object-fit: contain;
+}
+@media (max-width: 580px) {
+  .project-meta:has(.project-icon) {
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .project-meta .project-icon {
+    width: 36px;
+    height: 36px;
+  }
+}
 .project-summary {
   margin: 0;
   color: var(--site-muted);
@@ -1163,16 +1198,33 @@ a:hover {
   gap: 10px;
 }
 .project-links a {
-  padding: 6px 14px;
-  border: 1px solid var(--site-accent);
-  border-radius: 6px;
-  color: var(--site-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  color: var(--site-ink);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
+  background: var(--site-tint);
 }
 .project-links a:hover {
-  background: var(--site-tint);
+  background: color-mix(in srgb, var(--site-tint) 80%, var(--site-ink));
+}
+/* The first link is the primary action, styled like the Contact button. */
+.project-links a:first-child {
+  color: light-dark(var(--site-surface), var(--site-accent));
+  background: light-dark(
+    var(--site-accent),
+    color-mix(in srgb, var(--site-accent) 14%, transparent)
+  );
+}
+.project-links a:first-child:hover {
+  background: light-dark(
+    color-mix(in srgb, var(--site-accent) 85%, var(--site-ink)),
+    color-mix(in srgb, var(--site-accent) 24%, transparent)
+  );
 }
 .entry-pagination {
   display: flex;
