@@ -10,7 +10,12 @@ export function SiteNavigation() {
   return (
     <nav className="site-navigation" aria-label="Main navigation">
       {siteConfig.navigation.map(({ label, path }) => (
-        <Link key={path} href={path} aria-current={path === pathname ? 'page' : undefined}>
+        <Link
+          key={path}
+          href={path}
+          className={path === siteConfig.navigationCta ? 'navigation-cta' : undefined}
+          aria-current={path === pathname ? 'page' : undefined}
+        >
           {label}
         </Link>
       ))}

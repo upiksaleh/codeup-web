@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { siteConfig } from '@/site.config'
+import { MobileMenu } from './mobile-menu'
 import { SearchButton } from './search-button'
 import { SiteNavigation } from './site-navigation'
 import { ThemeToggle } from './theme-toggle'
@@ -21,6 +22,7 @@ export function SiteHeader() {
         <div className="site-actions">
           <SearchButton />
           <ThemeToggle />
+          <MobileMenu />
         </div>
       </div>
     </header>

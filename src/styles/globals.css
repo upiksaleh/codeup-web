@@ -225,34 +225,48 @@ a:hover {
 }
 .site-navigation {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 6px;
+  align-items: center;
+  gap: 4px;
   margin-left: auto;
 }
-.site-navigation a {
+.site-navigation a,
+.mobile-menu-dialog a {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding-inline: 8px;
+  min-height: 36px;
+  padding-inline: 12px;
+  border-radius: 999px;
   color: var(--site-muted);
   font-size: 14px;
   text-decoration: none;
 }
-.site-navigation a[aria-current='page'] {
+.site-navigation a:hover,
+.mobile-menu-dialog a:hover {
   color: var(--site-ink);
-  text-decoration: underline;
-  text-decoration-color: var(--site-accent);
-  text-underline-offset: 8px;
-  text-decoration-thickness: 2px;
+  background: color-mix(in srgb, var(--site-tint) 60%, transparent);
 }
-button {
-  padding: 10px 16px;
-  color: inherit;
-  background: var(--site-surface);
-  border: 1px solid var(--site-line);
-  border-radius: 8px;
-  font: inherit;
-  cursor: pointer;
+.site-navigation a[aria-current='page'],
+.mobile-menu-dialog a[aria-current='page'] {
+  color: var(--site-ink);
+  background: var(--site-tint);
+}
+.site-navigation .navigation-cta,
+.mobile-menu-dialog .navigation-cta {
+  margin-left: 8px;
+  color: light-dark(var(--site-surface), var(--site-accent));
+  font-weight: 600;
+  background: light-dark(
+    var(--site-accent),
+    color-mix(in srgb, var(--site-accent) 14%, transparent)
+  );
+}
+.site-navigation .navigation-cta:is(:hover, [aria-current='page']),
+.mobile-menu-dialog .navigation-cta:is(:hover, [aria-current='page']) {
+  color: light-dark(var(--site-surface), var(--site-accent));
+  background: light-dark(
+    color-mix(in srgb, var(--site-accent) 85%, var(--site-ink)),
+    color-mix(in srgb, var(--site-accent) 24%, transparent)
+  );
 }
 .icon-button {
   display: inline-flex;
@@ -270,10 +284,72 @@ button {
 .icon-button:hover {
   background: var(--site-tint);
 }
+.theme-toggle,
+.mobile-menu-trigger {
+  border-color: transparent;
+}
+.mobile-menu-trigger {
+  display: none;
+}
 .site-actions {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.site-dialog.mobile-menu-dialog {
+  padding: 12px;
+  align-content: start;
+  justify-items: end;
+}
+.mobile-menu-dialog .dialog-content {
+  max-width: 320px;
+  padding: 60px 12px 12px;
+}
+.mobile-menu-dialog .dialog-close {
+  border-color: transparent;
+  color: var(--site-muted);
+  background: transparent;
+}
+.mobile-menu-dialog .dialog-close:hover {
+  color: var(--site-ink);
+  background: var(--site-tint);
+}
+.mobile-menu-dialog nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mobile-menu-dialog a {
+  min-height: 48px;
+  padding-inline: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+.mobile-menu-dialog .navigation-cta {
+  justify-content: center;
+  margin: 8px 0 0;
+}
+@media (max-width: 1024px) {
+  .site-navigation {
+    display: none;
+  }
+  .site-actions {
+    margin-left: auto;
+  }
+  .mobile-menu-trigger {
+    display: inline-flex;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu-dialog .dialog-content {
+    animation: menu-enter 180ms ease-out;
+  }
+  @keyframes menu-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+  }
 }
 .theme-sun {
   display: none;
@@ -1643,9 +1719,6 @@ button {
   .site-label {
     display: none;
   }
-  .site-navigation {
-    gap: 8px 16px;
-  }
   .home-hero {
     gap: 22px;
     padding: 38px 30px 48px;
@@ -1663,23 +1736,12 @@ button {
   }
 }
 @media (max-width: 580px) {
-  :root {
-    scroll-padding-top: 136px;
-  }
-
   .site-header-inner {
     gap: 8px 12px;
     padding: 12px 20px;
   }
   .site-name {
     flex: 1;
-  }
-  .site-navigation {
-    order: 3;
-    justify-content: space-between;
-    gap: 8px;
-    width: 100%;
-    margin: 0;
   }
   .home-hero {
     flex-direction: column;
@@ -2181,6 +2243,7 @@ button {
 }
 @media (prefers-reduced-motion: no-preference) {
   .site-navigation a,
+  .mobile-menu-dialog a,
   .theme-toggle {
     transition:
       color 150ms ease,

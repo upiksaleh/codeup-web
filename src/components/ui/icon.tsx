@@ -2,6 +2,7 @@ import type { ReactNode, SVGProps } from 'react'
 
 const paths = {
   contents: <path d="M4 6h2m4 0h10M4 12h2m4 0h10M4 18h2m4 0h10" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   chevronDown: <path d="m6 9 6 6 6-6" />,
   search: (
     <>

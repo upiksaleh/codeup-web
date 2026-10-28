@@ -33,6 +33,7 @@ export const siteConfig = {
     { label: 'Articles', path: '/articles', pageId: null },
     { label: 'Contact', path: '/contact', pageId: '7ed4ac77-d51a-8385-af1c-011f2551fb4e' },
   ],
+  navigationCta: '/contact',
   pageAliases: [{ path: '/notes', pageId: notesPageId }],
   socialLinks: [
     { label: 'GitHub', handle: 'upiksaleh', icon: 'github', url: 'https://github.com/upiksaleh' },
