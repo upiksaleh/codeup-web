@@ -6,7 +6,6 @@ import type { Block, Collection, ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { cache } from 'react'
 import { siteConfig } from '@/site.config'
-import { memoizeAsync } from '../memoize-async'
 import { normalizePageId } from './page-id'
 
 const notion = new NotionAPI({ ofetchOptions: { timeout: 15_000 } })
@@ -105,36 +104,50 @@ async function fetchPage(pageId: string) {
   }
 }
 
-const fetchValidatedPage = memoizeAsync(
-  async (pageId: string) => {
-    const recordMap = await fetchPage(pageId)
-    if (recordMap) {
-      await resolveCustomEmojiIcons(recordMap)
-      promoteHeadings(recordMap)
-    }
-    const page = recordMap && getBlockValue(recordMap.block[pageId])
+// Fetches without the cache, for callers that keep their own cache entry per page.
+export async function fetchValidatedPage(pageId: string) {
+  const recordMap = await fetchPage(pageId)
+  if (recordMap) {
+    await resolveCustomEmojiIcons(recordMap)
+    promoteHeadings(recordMap)
+  }
+  const page = recordMap && getBlockValue(recordMap.block[pageId])
 
-    if (
-      !recordMap ||
-      !page?.alive ||
-      (page.type !== 'page' && page.type !== 'collection_view_page') ||
-      !belongsToSite(recordMap, page)
-    ) {
-      return null
-    }
+  if (
+    !recordMap ||
+    !page?.alive ||
+    (page.type !== 'page' && page.type !== 'collection_view_page') ||
+    !belongsToSite(recordMap, page)
+  ) {
+    return null
+  }
 
-    return recordMap
-  },
-  { ttl: 300_000, maxEntries: 128 },
-)
+  return recordMap
+}
 
-const loadCachedPage = unstable_cache(
-  fetchValidatedPage,
-  ['notion-page', 'validated-memory-v2', siteConfig.rootNotionPageId],
-  { revalidate: 300 },
-)
+export const notionPageTag = (pageId: string) => `notion:${pageId}`
+
+// Entries stay until /api/revalidate expires their tag; the daily limit covers a missed check.
+export const cacheDuration = 86_400
 
 export const loadNotionPage = cache(async (pageId: string) => {
   const id = normalizePageId(pageId)
-  return id ? ((await loadCachedPage(id)) ?? undefined) : undefined
+  if (!id) return undefined
+  const load = unstable_cache(
+    () => fetchValidatedPage(id),
+    ['notion-page', 'v3', siteConfig.rootNotionPageId, id],
+    { tags: [notionPageTag(id)], revalidate: cacheDuration },
+  )
+  return (await load()) ?? undefined
 })
+
+// Current edit times, read in one request, for detecting changes.
+export async function getLastEditedTimes(pageIds: string[]) {
+  const { recordMap } = await notion.getBlocks(pageIds)
+  return new Map(
+    pageIds.map((id) => {
+      const block = getBlockValue(recordMap.block[id])
+      return [id, block?.alive ? block.last_edited_time : undefined]
+    }),
+  )
+}

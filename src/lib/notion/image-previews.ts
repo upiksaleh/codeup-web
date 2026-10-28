@@ -4,7 +4,6 @@ import { unstable_cache } from 'next/cache'
 import type { ExtendedRecordMap, PreviewImage } from 'notion-types'
 import sharp from 'sharp'
 import { siteConfig } from '@/site.config'
-import { memoizeAsync } from '../memoize-async'
 import { canOptimizeImage, isRemoteImageAllowed } from './image-source'
 import { getPreviewImageUrls } from './preview-image-urls'
 
@@ -56,28 +55,25 @@ export async function readImage(url: string) {
   throw new Error('Too many image redirects')
 }
 
-const createImagePreview = memoizeAsync(
-  async (url: string): Promise<PreviewImage> => {
-    const image = sharp(await readImage(url), { limitInputPixels: 40_000_000 }).rotate()
-    const { data } = await image
-      .resize(16, 16, { fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 40 })
-      .toBuffer({ resolveWithObject: true })
-    const metadata = await image.metadata()
-    const { width, height } = metadata.autoOrient
+async function createImagePreview(url: string): Promise<PreviewImage> {
+  const image = sharp(await readImage(url), { limitInputPixels: 40_000_000 }).rotate()
+  const { data } = await image
+    .resize(16, 16, { fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 40 })
+    .toBuffer({ resolveWithObject: true })
+  const metadata = await image.metadata()
+  const { width, height } = metadata.autoOrient
 
-    return {
-      originalWidth: width,
-      originalHeight: height,
-      dataURIBase64: `data:image/webp;base64,${data.toString('base64')}`,
-    }
-  },
-  { ttl: 86_400_000, maxEntries: 256 },
-)
+  return {
+    originalWidth: width,
+    originalHeight: height,
+    dataURIBase64: `data:image/webp;base64,${data.toString('base64')}`,
+  }
+}
 
 const getImagePreview = unstable_cache(
   createImagePreview,
-  ['image-preview', 'bounded-memory-v1', JSON.stringify(siteConfig.imageSources)],
+  ['image-preview', 'v2', JSON.stringify(siteConfig.imageSources)],
   { revalidate: 86_400 },
 )
 

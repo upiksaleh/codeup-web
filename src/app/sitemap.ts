@@ -2,8 +2,6 @@ import type { MetadataRoute } from 'next'
 import { getSitePages } from '@/lib/notion/site-pages'
 import { siteConfig } from '@/site.config'
 
-export const revalidate = 300
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages = (await getSitePages()).map(({ url, lastEdited }) => ({
     url: `https://${siteConfig.domain}${url}`,

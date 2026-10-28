@@ -1,8 +1,6 @@
 import { NotionPage } from '@/components/notion-page'
 import { getPageMetadata } from '@/lib/notion/page-metadata'
 
-export const revalidate = 300
-
 export function generateStaticParams() {
   return []
 }

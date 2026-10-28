@@ -2,9 +2,9 @@ import 'server-only'
 
 import { lookup } from 'node:dns'
 import { get } from 'node:https'
+import { unstable_cache } from 'next/cache'
 import sharp from 'sharp'
 import { isPublicAddress, parseLinkMetadata, parsePreviewUrl } from './link-metadata'
-import { memoizeAsync } from './memoize-async'
 
 async function readPublicResource(value: string, signal: AbortSignal, image = false) {
   let url = parsePreviewUrl(value)
@@ -68,7 +68,7 @@ async function readPublicResource(value: string, signal: AbortSignal, image = fa
   throw new Error('Too many preview redirects')
 }
 
-export const getExternalLinkPreview = memoizeAsync(
+export const getExternalLinkPreview = unstable_cache(
   async (url: string) => {
     const signal = AbortSignal.timeout(8_000)
     const html = await readPublicResource(url, signal)
@@ -90,5 +90,6 @@ export const getExternalLinkPreview = memoizeAsync(
     }
     return metadata
   },
-  { ttl: 3_600_000, maxEntries: 128 },
+  ['external-link-preview', 'v1'],
+  { revalidate: 3_600 },
 )

@@ -1,55 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { memoizeAsync } from '../src/lib/memoize-async.ts'
 import { getPreviewImageUrls } from '../src/lib/notion/preview-image-urls.ts'
-
-test('concurrent callers share work and resolved values expire', async (t) => {
-  t.mock.timers.enable({ apis: ['Date'], now: 1000 })
-  let calls = 0
-  let finish
-  const load = memoizeAsync(
-    () => {
-      calls++
-      return new Promise((resolve) => {
-        finish = resolve
-      })
-    },
-    { ttl: 100, maxEntries: 2 },
-  )
-  const first = load('page')
-  assert.equal(load('page'), first)
-  await Promise.resolve()
-  assert.equal(calls, 1)
-  finish('result')
-  assert.equal(await first, 'result')
-  assert.equal(await load('page'), 'result')
-  t.mock.timers.setTime(1100)
-  const refreshed = load('page')
-  await Promise.resolve()
-  assert.equal(calls, 2)
-  finish('fresh')
-  assert.equal(await refreshed, 'fresh')
-})
-
-test('failures are retried, null is cached, and capacity is bounded', async () => {
-  let calls = 0
-  const load = memoizeAsync(
-    async (key) => {
-      calls++
-      if (calls === 1) throw new Error('Network failure')
-      return key === 'missing' ? null : key
-    },
-    { ttl: 1000, maxEntries: 2 },
-  )
-  await assert.rejects(load('page'), /Network failure/)
-  assert.equal(await load('page'), 'page')
-  assert.equal(await load('missing'), null)
-  assert.equal(await load('missing'), null)
-  assert.equal(calls, 3)
-  await load('other')
-  await load('page')
-  assert.equal(calls, 5)
-})
 
 const page = (id, content = []) => ({
   value: {

@@ -1,0 +1,21 @@
+name: Refresh Notion content
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  revalidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Expire pages changed in Notion
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 120 \
+            --request POST \
+            --header "Authorization: Bearer $REVALIDATE_SECRET" \
+            "$SITE_URL/api/revalidate"

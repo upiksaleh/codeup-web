@@ -2,7 +2,6 @@ import { getSitePages } from '@/lib/notion/site-pages'
 import { siteConfig } from '@/site.config'
 
 export const dynamic = 'force-static'
-export const revalidate = 300
 
 function xml(value: string) {
   return value.replace(/[<>&"']/g, (character) => {

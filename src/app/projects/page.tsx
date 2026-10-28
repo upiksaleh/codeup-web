@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import { EntryListingPage } from '@/components/entry-listing-page'
 
-export const revalidate = 300
-
 export const metadata: Metadata = {
   title: 'Projects',
   alternates: { canonical: '/projects' },
