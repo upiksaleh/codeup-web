@@ -1836,16 +1836,20 @@ a:hover {
 
 .content-page .notion-page-content-inner > .notion-page-link {
   height: auto;
-  min-height: 54px;
-  margin: 0;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--site-line);
+  min-height: 30px;
+  margin: 1px 0;
+  padding: 3px 2px;
+  border-radius: 3px;
+  border-bottom: 0;
 }
 
 .content-page .notion-page-link .notion-page-title-text {
+  top: 0;
   white-space: normal;
   overflow: visible;
-  border-bottom: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--site-ink) 20%, transparent);
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .content-page .notion-h {
