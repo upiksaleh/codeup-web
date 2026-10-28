@@ -14,7 +14,7 @@ export function useGalleryCardTitles(enabled: boolean, maxLines = 2) {
         '.notion-gallery-grid .notion-collection-card',
       )) {
         const title = card.querySelector<HTMLElement>(
-          '.notion-collection-card-property:first-child .notion-page-title-text',
+          '.notion-collection-card-property:first-child .notion-page-title',
         )
         if (!title || !title.getClientRects().length) continue
 

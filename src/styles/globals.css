@@ -1253,6 +1253,22 @@ a:hover {
   color: var(--site-ink);
 }
 :is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-page-icon-inline {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: -4px;
+}
+/* Keep the icon's own shape: no card image height cap or rounded crop. */
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-page-title-icon {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border-radius: 0;
+  object-fit: contain;
+}
+/* Entries without a Notion icon skip the renderer's default page icon. */
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-page-icon-inline:has(> svg) {
   display: none;
 }
 :is(.home-page, .entry-listing-gallery) .entry-collection .notion-collection-card-body {
@@ -1264,7 +1280,7 @@ a:hover {
   margin-top: auto;
 }
 /* Keep titles proportional to the narrower cards in the three-column grid. */
-.notion-gallery-grid .notion-page-title-text {
+.notion-gallery-grid :is(.notion-page-title, .notion-page-title-text) {
   font-size: 1.125rem;
   line-height: 1.4;
 }
@@ -1300,11 +1316,19 @@ a:hover {
 :is(.home-page, .entry-listing-gallery)
   .notion-gallery-grid
   .notion-collection-card-property:first-child
-  .notion-page-title-text {
+  .notion-page-title {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--gallery-title-lines, 2);
+  white-space: normal;
+}
+/* The icon sits on the first line; wrapped lines start at the left edge. */
+:is(.home-page, .entry-listing-gallery)
+  .notion-gallery-grid
+  .notion-collection-card-property:first-child
+  .notion-page-title-text {
+  display: inline;
   white-space: normal;
 }
 
@@ -1319,9 +1343,10 @@ a:hover {
 :is(.home-page, .entry-listing-gallery)
   .entry-collection
   .notion-collection-card-property:first-child
-  .notion-page-title-text {
+  .notion-page-title {
   position: absolute;
   inset-inline: -10px;
+  max-width: none;
   top: auto;
   bottom: 4px;
   height: calc(var(--gallery-title-height, 2.8em) + 12px);
@@ -1334,7 +1359,7 @@ a:hover {
   .entry-collection
   .notion-collection-card[data-title-overflow]:is(:hover, :focus-visible)
   .notion-collection-card-property:first-child
-  .notion-page-title-text {
+  .notion-page-title {
   height: auto;
   border-radius: 12px 12px 0 0;
   -webkit-line-clamp: unset;
@@ -1347,7 +1372,7 @@ a:hover {
 }
 @media (prefers-reduced-motion: no-preference) {
   :is(.home-page, .entry-listing-gallery) .entry-collection .notion-collection-card-cover,
-  :is(.home-page, .entry-listing-gallery) .entry-collection .notion-page-title-text {
+  :is(.home-page, .entry-listing-gallery) .entry-collection .notion-page-title {
     transition:
       height 280ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1358,10 +1383,7 @@ a:hover {
   .home-page .entry-collection .notion-collection-card-property:first-child {
     height: auto;
   }
-  .home-page
-    .entry-collection
-    .notion-collection-card-property:first-child
-    .notion-page-title-text {
+  .home-page .entry-collection .notion-collection-card-property:first-child .notion-page-title {
     position: static;
     height: auto;
     padding: 0;
