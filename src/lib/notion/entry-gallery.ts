@@ -53,10 +53,41 @@ export async function getEntryGallery(kind: 'article' | 'project') {
   return { ...gallery, recordMap: await withImagePreviews(gallery.recordMap, gallery.blockId) }
 }
 
+function sortByStartDate(recordMap: ExtendedRecordMap, ids: string[]) {
+  const date = (id: string) => {
+    const page = getBlockValue(recordMap.block[id])
+    if (!page) return 0
+    const value =
+      getPageProperty<unknown>('Start Date', page, recordMap) ??
+      getPageProperty<unknown>('Published', page, recordMap)
+    return typeof value === 'number' && Number.isFinite(value) ? value : page.created_time
+  }
+  return [...ids].sort((a, b) => date(b) - date(a))
+}
+
 // The linked home view uses the Projects database gallery's display settings and results.
 export async function withHomeProjectGallery(recordMap: ExtendedRecordMap) {
   const gallery = await loadEntryGallery('project')
-  const projects = gallery.recordMap
+  const query = gallery.recordMap.collection_query[gallery.collectionId]![gallery.viewId]!
+  const projects: ExtendedRecordMap = {
+    ...gallery.recordMap,
+    collection_query: {
+      ...gallery.recordMap.collection_query,
+      [gallery.collectionId]: {
+        ...gallery.recordMap.collection_query[gallery.collectionId],
+        [gallery.viewId]: {
+          ...query,
+          blockIds: sortByStartDate(gallery.recordMap, query.blockIds ?? []),
+          ...(query.collection_group_results && {
+            collection_group_results: {
+              ...query.collection_group_results,
+              blockIds: sortByStartDate(gallery.recordMap, query.collection_group_results.blockIds),
+            },
+          }),
+        },
+      },
+    },
+  }
   const block = { ...projects.block, ...recordMap.block }
   for (const [id, entry] of Object.entries(recordMap.block)) {
     const linked = getBlockValue(entry)
