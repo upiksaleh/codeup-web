@@ -69,6 +69,69 @@
   --notion-gray_background_co: light-dark(rgba(235, 236, 237, 0.3), rgba(69, 75, 78, 0.3));
 }
 
+/* Preserve Notion category colors with subdued fills in dark mode. */
+.notion {
+  --notion-item-text-blue: light-dark(rgb(24, 51, 71), #9bc4e2);
+  --notion-item-blue: light-dark(
+    rgb(211, 229, 239),
+    color-mix(in srgb, var(--notion-item-text-blue) 12%, var(--site-background))
+  );
+  --notion-item-text-orange: light-dark(rgb(73, 41, 14), #dfb087);
+  --notion-item-orange: light-dark(
+    rgb(250, 222, 201),
+    color-mix(in srgb, var(--notion-item-text-orange) 12%, var(--site-background))
+  );
+  --notion-item-text-green: light-dark(rgb(28, 56, 41), #a2c6a6);
+  --notion-item-green: light-dark(
+    rgb(219, 237, 219),
+    color-mix(in srgb, var(--notion-item-text-green) 12%, var(--site-background))
+  );
+  --notion-item-text-pink: light-dark(rgb(76, 35, 55), #d6a5bf);
+  --notion-item-pink: light-dark(
+    rgb(245, 224, 233),
+    color-mix(in srgb, var(--notion-item-text-pink) 12%, var(--site-background))
+  );
+  --notion-item-text-brown: light-dark(rgb(68, 42, 30), #cbb2a0);
+  --notion-item-brown: light-dark(
+    rgb(238, 224, 218),
+    color-mix(in srgb, var(--notion-item-text-brown) 12%, var(--site-background))
+  );
+  --notion-item-text-red: light-dark(rgb(93, 23, 21), #dfa3a0);
+  --notion-item-red: light-dark(
+    rgb(255, 226, 221),
+    color-mix(in srgb, var(--notion-item-text-red) 12%, var(--site-background))
+  );
+  --notion-item-text-yellow: light-dark(rgb(64, 44, 27), #d9c38c);
+  --notion-item-yellow: light-dark(
+    rgb(253, 236, 200),
+    color-mix(in srgb, var(--notion-item-text-yellow) 12%, var(--site-background))
+  );
+  --notion-item-text-default: light-dark(rgb(50, 48, 44), #b6bdc9);
+  --notion-item-default: light-dark(
+    rgba(227, 226, 224, 0.5),
+    color-mix(in srgb, var(--notion-item-text-default) 12%, var(--site-background))
+  );
+  --notion-item-text-purple: light-dark(rgb(65, 36, 84), #beaee0);
+  --notion-item-purple: light-dark(
+    rgb(232, 222, 238),
+    color-mix(in srgb, var(--notion-item-text-purple) 12%, var(--site-background))
+  );
+  --notion-item-text-gray: light-dark(rgb(50, 48, 44), #bec2ca);
+  --notion-item-gray: light-dark(
+    rgb(227, 226, 224),
+    color-mix(in srgb, var(--notion-item-text-gray) 12%, var(--site-background))
+  );
+}
+.notion
+  :is(
+    .notion-property-select-item,
+    .notion-property-multi_select-item,
+    .notion-property-status-item
+  ) {
+  box-shadow: inset 0 0 0 1px
+    light-dark(transparent, color-mix(in srgb, currentColor 18%, transparent));
+}
+
 .notion {
   --highlight-padding: 0 0.5rem;
   --highlight-margin: 0 -0.5rem 0 -0.25rem;
