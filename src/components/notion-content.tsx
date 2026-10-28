@@ -17,6 +17,7 @@ import { NotionCollection, type NotionCollectionProps } from './notion-collectio
 import { attachPointerTrail } from './pointer-trail'
 import { propertyDateValue } from './property-date-value'
 import { usePointerEffects } from './use-pointer-effects'
+import { LinkPreviews } from './link-previews'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
 
@@ -24,6 +25,7 @@ export function NotionContent({
   recordMap,
   pageId,
   pageUrls,
+  previewTargets,
   isHome,
   pageType,
   pageHeader,
@@ -33,6 +35,7 @@ export function NotionContent({
   recordMap: ExtendedRecordMap
   pageId: string
   pageUrls: Record<string, string>
+  previewTargets: Record<string, string>
   isHome: boolean
   pageType?: 'article' | 'project'
   pageHeader: ReactNode
@@ -96,6 +99,7 @@ export function NotionContent({
           propertyDateValue,
         }}
       />
+      <LinkPreviews key={`previews-${pageId}`} pageId={pageId} targets={previewTargets} />
       {!!toc.entries.length && <MobileTableOfContents key={pageId} toc={toc} />}
     </>
   )

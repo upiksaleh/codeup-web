@@ -28,6 +28,11 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     ),
     withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id),
   ])
+  const previewTargets = Object.fromEntries(
+    Object.entries(pageUrls)
+      .filter(([targetId]) => targetId !== id)
+      .map(([targetId, url]) => [url, targetId]),
+  )
 
   const articleData = isArticle && {
     '@context': 'https://schema.org',
@@ -57,6 +62,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         recordMap={renderMap}
         pageId={id}
         pageUrls={pageUrls}
+        previewTargets={previewTargets}
         isHome={isHome}
         pageType={isArticle ? 'article' : project ? 'project' : undefined}
         pageProperties={
