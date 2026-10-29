@@ -53,8 +53,7 @@ export async function getEntryGallery(kind: 'article' | 'project') {
   return { ...gallery, recordMap: await withImagePreviews(gallery.recordMap, gallery.blockId) }
 }
 
-// Newest projects first, capped to the home limit.
-function latestProjects(recordMap: ExtendedRecordMap, ids: string[]) {
+function sortByStartDate(recordMap: ExtendedRecordMap, ids: string[]) {
   const date = (id: string) => {
     const page = getBlockValue(recordMap.block[id])
     if (!page) return 0
@@ -63,11 +62,44 @@ function latestProjects(recordMap: ExtendedRecordMap, ids: string[]) {
       getPageProperty<unknown>('Published', page, recordMap)
     return typeof value === 'number' && Number.isFinite(value) ? value : page.created_time
   }
-  return [...ids].sort((a, b) => date(b) - date(a)).slice(0, siteConfig.homeProjectLimit)
+  return [...ids].sort((a, b) => date(b) - date(a))
+}
+
+// Home galleries list only entries with the Featured checkbox.
+function withFeaturedEntries(recordMap: ExtendedRecordMap, collectionIds: string[]) {
+  const isFeatured = (id: string) => {
+    const page = getBlockValue(recordMap.block[id])
+    return !!page && getPageProperty<unknown>('Featured', page, recordMap) === true
+  }
+  const collectionQuery = { ...recordMap.collection_query }
+  for (const collectionId of collectionIds) {
+    const views = collectionQuery[collectionId]
+    if (!views) continue
+    collectionQuery[collectionId] = Object.fromEntries(
+      Object.entries(views).map(([viewId, query]) => {
+        const blockIds = (query.blockIds ?? []).filter(isFeatured)
+        return [
+          viewId,
+          {
+            ...query,
+            total: blockIds.length,
+            blockIds,
+            ...(query.collection_group_results && {
+              collection_group_results: {
+                ...query.collection_group_results,
+                blockIds: query.collection_group_results.blockIds.filter(isFeatured),
+              },
+            }),
+          },
+        ]
+      }),
+    )
+  }
+  return { ...recordMap, collection_query: collectionQuery }
 }
 
 // The linked home view uses the Projects database gallery's display settings and results.
-export async function withHomeProjectGallery(recordMap: ExtendedRecordMap) {
+export async function withHomeGalleries(recordMap: ExtendedRecordMap) {
   const gallery = await loadEntryGallery('project')
   const query = gallery.recordMap.collection_query[gallery.collectionId]![gallery.viewId]!
   const projects: ExtendedRecordMap = {
@@ -78,11 +110,11 @@ export async function withHomeProjectGallery(recordMap: ExtendedRecordMap) {
         ...gallery.recordMap.collection_query[gallery.collectionId],
         [gallery.viewId]: {
           ...query,
-          blockIds: latestProjects(gallery.recordMap, query.blockIds ?? []),
+          blockIds: sortByStartDate(gallery.recordMap, query.blockIds ?? []),
           ...(query.collection_group_results && {
             collection_group_results: {
               ...query.collection_group_results,
-              blockIds: latestProjects(gallery.recordMap, query.collection_group_results.blockIds),
+              blockIds: sortByStartDate(gallery.recordMap, query.collection_group_results.blockIds),
             },
           }),
         },
@@ -100,12 +132,15 @@ export async function withHomeProjectGallery(recordMap: ExtendedRecordMap) {
     }
   }
 
-  return withoutHiddenCardIcons({
-    ...recordMap,
-    block,
-    collection: { ...recordMap.collection, ...projects.collection },
-    collection_view: { ...recordMap.collection_view, ...projects.collection_view },
-    collection_query: { ...recordMap.collection_query, ...projects.collection_query },
-    signed_urls: { ...recordMap.signed_urls, ...projects.signed_urls },
-  })
+  return withFeaturedEntries(
+    withoutHiddenCardIcons({
+      ...recordMap,
+      block,
+      collection: { ...recordMap.collection, ...projects.collection },
+      collection_view: { ...recordMap.collection_view, ...projects.collection_view },
+      collection_query: { ...recordMap.collection_query, ...projects.collection_query },
+      signed_urls: { ...recordMap.signed_urls, ...projects.signed_urls },
+    }),
+    [siteConfig.articleCollectionId, gallery.collectionId],
+  )
 }

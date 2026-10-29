@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getBlockValue } from 'notion-utils'
 import { getNotionPage } from '@/lib/notion/get-page'
-import { withHomeProjectGallery } from '@/lib/notion/entry-gallery'
+import { withHomeGalleries } from '@/lib/notion/entry-gallery'
 import { hideHomePagesSection } from '@/lib/notion/home-content'
 import { withImagePreviews } from '@/lib/notion/image-previews'
 import { getPageInfo } from '@/lib/notion/page-info'
@@ -18,8 +18,7 @@ import { NotionImage } from './notion-image'
 
 export async function NotionPage({ pageId }: { pageId: string }) {
   const { recordMap: pageMap, pageId: id } = await getNotionPage(pageId)
-  const recordMap =
-    id === siteConfig.rootNotionPageId ? await withHomeProjectGallery(pageMap) : pageMap
+  const recordMap = id === siteConfig.rootNotionPageId ? await withHomeGalleries(pageMap) : pageMap
   const context = await getEntryContext(id)
   const page = getBlockValue(recordMap.block[id])
   const isHome = id === siteConfig.rootNotionPageId

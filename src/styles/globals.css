@@ -1904,6 +1904,7 @@ a:hover {
 /* Simple tables scroll inside the column instead of widening the page. */
 .notion-simple-table {
   display: block;
+  width: 100%;
   max-width: 100%;
   overflow-x: auto;
   margin-block: 8px;
@@ -1911,6 +1912,11 @@ a:hover {
   border-radius: 8px;
   border-collapse: separate;
   font-size: 15px;
+}
+.notion-simple-table > tbody {
+  display: table;
+  width: 100%;
+  border-spacing: 0;
 }
 .notion-simple-table td {
   padding: 10px 14px;
