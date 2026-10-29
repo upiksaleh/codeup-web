@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { Block, Collection, ExtendedRecordMap } from 'notion-types'
-import { getBlockValue } from 'notion-utils'
+import { getBlockValue, getPageProperty } from 'notion-utils'
 import { siteConfig } from '@/site.config'
 import { fetchCustomEmojiUrls } from './client'
 
@@ -23,10 +23,24 @@ export function belongsToSite(recordMap: ExtendedRecordMap, page: Block) {
   return false
 }
 
+// Articles stay unlisted until their Public checkbox is set.
+function isUnpublishedArticle(recordMap: ExtendedRecordMap, page: Block) {
+  return (
+    page.parent_table === 'collection' &&
+    page.parent_id === siteConfig.articleCollectionId &&
+    getPageProperty<unknown>('Public', page, recordMap) !== true
+  )
+}
+
 export function findSitePageIds(recordMap: ExtendedRecordMap) {
   return Object.keys(recordMap.block).filter((id) => {
     const block = getBlockValue(recordMap.block[id])
-    return block?.alive && isPageBlock(block) && belongsToSite(recordMap, block)
+    return (
+      block?.alive &&
+      isPageBlock(block) &&
+      !isUnpublishedArticle(recordMap, block) &&
+      belongsToSite(recordMap, block)
+    )
   })
 }
 
