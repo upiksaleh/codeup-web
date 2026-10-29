@@ -1362,11 +1362,60 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-top: 32px;
+  margin-top: 40px;
+  color: var(--site-muted);
   font-size: 14px;
 }
+.entry-pagination button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-ink);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+.entry-pagination button:not(:disabled):hover {
+  border-color: var(--site-accent);
+  color: var(--site-accent);
+}
+.entry-pagination button:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+.collection-view-all {
+  display: flex;
+  width: fit-content;
+  min-height: 40px;
+  align-items: center;
+  margin: 24px auto 0;
+  padding: 0 20px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+.collection-view-all:hover {
+  border-color: var(--site-accent);
+  color: var(--site-accent);
+}
+.collection-view-all:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
 .entry-pagination button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 @media (max-width: 600px) {
@@ -1851,6 +1900,34 @@ a:hover {
 .notion-table-view {
   min-width: 100%;
   padding-inline: 0 !important;
+}
+/* Simple tables scroll inside the column instead of widening the page. */
+.notion-simple-table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 8px;
+  border: 1px solid var(--site-line);
+  border-radius: 8px;
+  border-collapse: separate;
+  font-size: 15px;
+}
+.notion-simple-table td {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--site-line);
+  overflow-wrap: normal;
+  vertical-align: top;
+}
+.notion-simple-table td + td {
+  border-left: 1px solid var(--site-line);
+}
+.notion-simple-table tr:last-child td {
+  border-bottom: 0;
+}
+.notion-simple-table :is(.notion-simple-table-header-row td, .notion-simple-table-header-cell) {
+  background: var(--site-tint);
+  font-weight: 600;
 }
 
 .content-page .notion-page {

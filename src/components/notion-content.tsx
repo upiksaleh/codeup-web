@@ -74,10 +74,10 @@ export function NotionContent({
         return pageProperties && props.block.id === pageId ? (
           pageProperties
         ) : (
-          <NotionCollection {...props} />
+          <NotionCollection {...props} showViewAll={isHome} />
         )
       },
-    [pageId, pageProperties],
+    [isHome, pageId, pageProperties],
   )
   useEffect(() => {
     // The renderer owns the cover markup, so the trail canvas is added after it renders.

@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { getBlockCollectionId, getBlockValue } from 'notion-utils'
 import type { ComponentProps } from 'react'
 import { useNotionContext } from 'react-notion-x'
@@ -16,8 +17,9 @@ export type NotionCollectionProps = ComponentProps<typeof Collection>
 
 export function NotionCollection({
   titleLines = 2,
+  showViewAll = false,
   ...props
-}: NotionCollectionProps & { titleLines?: number }) {
+}: NotionCollectionProps & { titleLines?: number; showViewAll?: boolean }) {
   const { recordMap } = useNotionContext()
   const collectionId = getBlockCollectionId(props.block, recordMap)
   const isArticleCollection = collectionId === siteConfig.articleCollectionId
@@ -35,6 +37,14 @@ export function NotionCollection({
       className={`notion-collection-section${isEntryCollection ? ' entry-collection' : ''}${isArticleCollection ? ' article-collection' : isProjectCollection ? ' project-collection' : ''}`}
     >
       <Collection {...props} />
+      {showViewAll && isEntryCollection && (
+        <Link
+          className="collection-view-all"
+          href={isArticleCollection ? '/articles' : '/projects'}
+        >
+          View all {isArticleCollection ? 'articles' : 'projects'}
+        </Link>
+      )}
     </div>
   )
 }

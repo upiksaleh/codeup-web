@@ -15,6 +15,36 @@ type Entry = {
 
 const pageSize = 12
 
+const uniqueSorted = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b))
+
+function FilterSelect({
+  label,
+  allLabel,
+  value,
+  options,
+  onChange,
+}: {
+  label: string
+  allLabel: string
+  value: string
+  options: string[]
+  onChange: (value: string) => void
+}) {
+  return (
+    <div className="entry-tag-field">
+      <select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">{allLabel}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <Icon name="chevronDown" />
+    </div>
+  )
+}
+
 export function EntryListing({
   kind,
   entries,
@@ -26,16 +56,20 @@ export function EntryListing({
 }) {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState('')
+  const [stack, setStack] = useState('')
   const [page, setPage] = useState(1)
   const title = kind === 'article' ? 'Articles' : 'Projects'
-  const tags = [...new Set(entries.flatMap((entry) => entry.tags))].sort((a, b) =>
-    a.localeCompare(b),
-  )
+  const tags = uniqueSorted(entries.flatMap((entry) => entry.tags))
+  const stacks = uniqueSorted(entries.flatMap((entry) => entry.techStack))
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)
   const filtered = entries.filter((entry) => {
     const text =
       `${entry.title} ${entry.description} ${entry.tags.join(' ')} ${entry.techStack.join(' ')}`.toLocaleLowerCase()
-    return (!tag || entry.tags.includes(tag)) && terms.every((term) => text.includes(term))
+    return (
+      (!tag || entry.tags.includes(tag)) &&
+      (!stack || entry.techStack.includes(stack)) &&
+      terms.every((term) => text.includes(term))
+    )
   })
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
   const currentPage = Math.min(page, pageCount)
@@ -59,24 +93,28 @@ export function EntryListing({
             }}
           />
         </div>
-        <div className="entry-tag-field">
-          <select
-            aria-label="Filter by tag"
-            value={tag}
-            onChange={(event) => {
-              setTag(event.target.value)
+        {stacks.length > 0 && (
+          <FilterSelect
+            label="Filter by tech stack"
+            allLabel="All stacks"
+            value={stack}
+            options={stacks}
+            onChange={(value) => {
+              setStack(value)
               setPage(1)
             }}
-          >
-            <option value="">All tags</option>
-            {tags.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-          <Icon name="chevronDown" />
-        </div>
+          />
+        )}
+        <FilterSelect
+          label="Filter by tag"
+          allLabel="All tags"
+          value={tag}
+          options={tags}
+          onChange={(value) => {
+            setTag(value)
+            setPage(1)
+          }}
+        />
       </search>
       <output className="entry-count">
         {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
@@ -90,7 +128,7 @@ export function EntryListing({
       ) : (
         <p>
           {entries.length
-            ? 'No matching results. Try another search or tag.'
+            ? 'No matching results. Try another search or filter.'
             : `No ${title.toLowerCase()} yet.`}
         </p>
       )}

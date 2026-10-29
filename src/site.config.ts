@@ -7,6 +7,7 @@ export const siteConfig = {
   notesPageId,
   projectsDatabaseId,
   articleCollectionId: 'd494ac77-d51a-8330-828c-07a4da417c6a',
+  homeProjectLimit: 6,
   name: 'CodeUP',
   domain: 'codeup.id',
   description:
