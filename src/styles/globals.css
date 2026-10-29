@@ -128,8 +128,7 @@
     .notion-property-multi_select-item,
     .notion-property-status-item
   ) {
-  box-shadow: inset 0 0 0 1px
-    light-dark(transparent, color-mix(in srgb, currentColor 18%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 18%, transparent);
 }
 
 .notion {
@@ -1585,6 +1584,11 @@ a:hover {
   padding: 2px 8px;
   border-radius: 4px;
 }
+/* Tech stack and tags take one row each; the 20px item height comes from the renderer. */
+:is(.home-page, .entry-listing-gallery) .notion-gallery-grid .notion-property-multi_select {
+  max-height: 20px;
+  overflow: hidden;
+}
 /* The listing starts at three lines and shares the home hover/focus reveal. */
 .entry-listing-gallery .notion-collection-header {
   display: none;
@@ -1599,6 +1603,11 @@ a:hover {
   width: 100%;
   max-width: none;
   padding: 0;
+}
+/* Project titles stay on one line and reveal the rest on hover or focus. */
+.project-collection {
+  --gallery-title-lines: 1;
+  --gallery-title-height: 1.575rem;
 }
 .entry-listing-gallery > .notion-collection-section {
   width: 100%;

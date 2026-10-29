@@ -25,7 +25,7 @@ export function NotionCollection({
     !!collectionId &&
     getBlockValue(recordMap.collection[collectionId])?.parent_id === siteConfig.projectsDatabaseId
   const isEntryCollection = isArticleCollection || isProjectCollection
-  const ref = useGalleryCardTitles(isEntryCollection, titleLines)
+  const ref = useGalleryCardTitles(isEntryCollection, isProjectCollection ? 1 : titleLines)
   useCardCoverTrails(ref, isEntryCollection)
 
   return (
