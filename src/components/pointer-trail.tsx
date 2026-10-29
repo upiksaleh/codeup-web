@@ -116,8 +116,19 @@ export function PointerTrail() {
   return <canvas ref={canvasRef} className="pointer-trail" aria-hidden="true" />
 }
 
-// Gallery cards appear after render, so covers are observed and each gets a canvas.
-export function useCardCoverTrails(ref: RefObject<HTMLElement | null>, enabled: boolean) {
+function markLoaded(cover: HTMLElement) {
+  const image = cover.querySelector('img')
+  if (!image) return
+  const done = () => cover.setAttribute('data-loaded', '')
+  if (image.complete) done()
+  else {
+    image.addEventListener('load', done, { once: true })
+    image.addEventListener('error', done, { once: true })
+  }
+}
+
+// Gallery cards appear after render, so covers are observed for their trail and loaded state.
+export function useCardCovers(ref: RefObject<HTMLElement | null>, enabled: boolean) {
   useEffect(() => {
     const collection = ref.current
     if (!enabled || !collection) return
@@ -128,6 +139,7 @@ export function useCardCoverTrails(ref: RefObject<HTMLElement | null>, enabled: 
         '.notion-collection-card-cover',
       )) {
         if (trails.has(cover)) continue
+        markLoaded(cover)
         const canvas = document.createElement('canvas')
         canvas.className = 'pointer-trail'
         canvas.setAttribute('aria-hidden', 'true')

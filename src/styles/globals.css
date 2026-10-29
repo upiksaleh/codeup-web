@@ -924,7 +924,17 @@ a:hover {
   margin-top: 0;
   border-radius: 24px;
 }
-.skeleton-cover::after {
+/* Gallery covers show the same skeleton until their image loads. */
+.entry-collection .notion-collection-card-cover:has(img):not([data-loaded]) {
+  background: light-dark(
+    var(--site-cover),
+    color-mix(in srgb, var(--site-cover) 45%, var(--site-background))
+  );
+}
+:is(
+  .skeleton-cover,
+  .entry-collection .notion-collection-card-cover:has(img):not([data-loaded])
+)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -935,7 +945,10 @@ a:hover {
   mask-image: linear-gradient(to right, #000 30%, transparent 100%);
 }
 /* A brighter copy of the grid, revealed by a band sweeping left to right while loading */
-.skeleton-cover::before {
+:is(
+  .skeleton-cover,
+  .entry-collection .notion-collection-card-cover:has(img):not([data-loaded])
+)::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -1037,11 +1050,17 @@ a:hover {
   .skeleton {
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
   }
-  .skeleton-cover::before {
+  :is(
+    .skeleton-cover,
+    .entry-collection .notion-collection-card-cover:has(img):not([data-loaded])
+  )::before {
     opacity: 1;
     animation: skeleton-grid-sweep 2.4s ease-in-out 0.6s infinite;
   }
-  .skeleton-cover::after {
+  :is(
+    .skeleton-cover,
+    .entry-collection .notion-collection-card-cover:has(img):not([data-loaded])
+  )::after {
     animation: home-hero-grid 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
 }
