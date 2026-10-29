@@ -9,6 +9,10 @@ import { canOptimizeImage } from './notion/image-source'
 import { readImage } from './notion/image-previews'
 
 export const socialImageSize = { width: 1200, height: 630 }
+
+export function getSocialImageUrl(pageId: string = siteConfig.rootNotionPageId) {
+  return `/static/images/${pageId.replaceAll('-', '')}.png`
+}
 const panelWidth = 440
 
 const colors = {

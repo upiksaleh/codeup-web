@@ -1,4 +1,4 @@
-import { getSitePages } from '@/lib/notion/site-pages'
+import { getEntryPages } from '@/lib/notion/index/entries'
 import { siteConfig } from '@/site.config'
 
 export const dynamic = 'force-static'
@@ -11,7 +11,7 @@ function xml(value: string) {
 
 export async function GET() {
   const origin = `https://${siteConfig.domain}`
-  const articles = (await getSitePages())
+  const articles = (await getEntryPages())
     .filter(({ isArticle }) => isArticle)
     .sort((a, b) => b.published - a.published)
   const items = articles

@@ -6,9 +6,7 @@ const cell = 14
 const lifetime = 1100
 const glyphs = '01{}[]<>/\\=+-*;:$#&|!?abcdefxyz'
 
-// Random code characters on glow-colored cells left behind a mouse pointer, fading out.
-// Draws on the canvas across its parent element; returns a cleanup function.
-// Ambient mode also scatters characters across random cells while the pointer is away.
+// Fading code characters behind the pointer; ambient mode scatters them while it is away.
 export function attachPointerTrail(canvas: HTMLCanvasElement, { ambient = false } = {}) {
   const area = canvas.parentElement
   const context = canvas.getContext('2d')
@@ -46,7 +44,6 @@ export function attachPointerTrail(canvas: HTMLCanvasElement, { ambient = false 
         marks.delete(key)
         continue
       }
-      // The cell fades first; the glyph lingers faintly, as if printed on the grid.
       if (age < 0.5) {
         context.globalAlpha = (1 - age / 0.5) * 0.85 * mark.strength
         context.fillStyle = age < 0.2 ? from : to
@@ -119,8 +116,7 @@ export function PointerTrail() {
   return <canvas ref={canvasRef} className="pointer-trail" aria-hidden="true" />
 }
 
-// The renderer owns gallery card markup and adds cards as they load, so covers are found
-// by observing the collection and each gets its own trail canvas.
+// Gallery cards appear after render, so covers are observed and each gets a canvas.
 export function useCardCoverTrails(ref: RefObject<HTMLElement | null>, enabled: boolean) {
   useEffect(() => {
     const collection = ref.current

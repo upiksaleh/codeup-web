@@ -2,7 +2,7 @@ import 'server-only'
 
 import { getSearchTerms, getTermPattern } from '@/lib/search-terms'
 import { siteConfig } from '@/site.config'
-import { getSitePages } from './site-pages'
+import { getSitePages } from './index/site'
 
 type SitePage = Awaited<ReturnType<typeof getSitePages>>[number]
 
@@ -30,7 +30,6 @@ function getLabel(page: SitePage) {
   })
 }
 
-// A short excerpt around the first term found in the page body.
 function getSnippet(content: string, terms: string[]) {
   const index = content.search(getTermPattern(terms))
   if (index === -1) return ''

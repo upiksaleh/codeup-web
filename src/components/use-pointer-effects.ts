@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react'
 
-// Position along an inline link, across wrapped lines, as a percentage of its full length.
-// Uses the line nearest to the pointer, since leave events can fire just outside the text.
+// Pointer position along a wrapped link as a percentage; leave events can land outside the text.
 function getLinkOrigin(link: HTMLElement, x: number, y: number) {
   const rects = [...link.getClientRects()]
   const total = rects.reduce((sum, rect) => sum + rect.width, 0)

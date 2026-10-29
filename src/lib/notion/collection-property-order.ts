@@ -15,8 +15,7 @@ export function withCollectionPropertyOrder(recordMap: ExtendedRecordMap): Exten
     )
     if (!missing.length) continue
 
-    // Upstream subtracts property indexes when sorting. Missing indexes produce NaN,
-    // which can order rows differently in the server and browser engines.
+    // Missing indexes sort as NaN, which orders rows differently on server and browser.
     collection[id] = {
       ...entry,
       value: {

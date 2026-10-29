@@ -4,8 +4,8 @@ import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { NotionRenderer } from 'react-notion-x'
-import { normalizePageId } from '@/lib/notion/page-id'
-import { getPageUrl } from '@/lib/notion/page-url'
+import { normalizePageId } from '@/lib/notion/urls'
+import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
@@ -76,7 +76,7 @@ export function EntryGallery({
       blockId={blockId}
       rootPageId={siteConfig.rootNotionPageId}
       rootDomain={siteConfig.domain}
-      mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
+      mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getDefaultPageUrl(id)}
       className="entry-listing-gallery"
       fullPage={false}
       darkMode={theme === 'dark'}

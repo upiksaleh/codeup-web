@@ -1,7 +1,8 @@
 import { timingSafeEqual } from 'node:crypto'
 import { revalidatePath, revalidateTag } from 'next/cache'
-import { notionPageTag } from '@/lib/notion/load-page'
-import { findChangedPageIds } from '@/lib/notion/site-pages'
+import { findChangedPageIds } from '@/lib/notion/index/changes'
+import { siteIndexTag } from '@/lib/notion/index/site'
+import { notionPageTag } from '@/lib/notion/pages'
 
 function isAuthorized(request: Request) {
   const secret = process.env.REVALIDATE_SECRET
@@ -11,8 +12,7 @@ function isAuthorized(request: Request) {
   return a.length === b.length && timingSafeEqual(a, b)
 }
 
-// Called on a schedule. Expires only pages edited in Notion since they were cached,
-// then marks every route stale so links, listings, and the index pick up the change.
+// Expires pages edited since caching, then marks every route stale.
 export async function POST(request: Request) {
   const headers = { 'Cache-Control': 'no-store' }
   if (!isAuthorized(request)) {
@@ -22,7 +22,10 @@ export async function POST(request: Request) {
   try {
     const changed = await findChangedPageIds()
     for (const id of changed) revalidateTag(notionPageTag(id), { expire: 0 })
-    if (changed.length) revalidatePath('/', 'layout')
+    if (changed.length) {
+      revalidateTag(siteIndexTag, { expire: 0 })
+      revalidatePath('/', 'layout')
+    }
     return Response.json({ changed: changed.length }, { headers })
   } catch {
     return Response.json({ error: 'Notion is unavailable' }, { status: 502, headers })

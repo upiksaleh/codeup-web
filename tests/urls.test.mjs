@@ -3,8 +3,8 @@ import { register } from 'node:module'
 import { test } from 'node:test'
 
 register('./page-paths-loader.mjs', import.meta.url)
-const { withPageUrls, resolveSitePageId, isSupportedPagePath } =
-  await import('../src/lib/notion/page-paths.ts')
+const { withPageUrls, findPageIdByPath, isSupportedPagePath } =
+  await import('../src/lib/notion/urls.ts')
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`
 const page = (n, slug, kind = 'page', parentId) => ({ id: id(n), slug, kind, parentId })
 
@@ -25,12 +25,12 @@ test('entry descendants inherit their actual ancestry and slugs are unique per p
   assert.equal(url(5), '/project/other/logo-concept')
   assert.equal(url(7), '/article/article/details')
   assert.equal(url(8), '/ordinary')
-  assert.equal(resolveSitePageId('project/privyx/logo-concept', pages), id(2))
-  assert.equal(resolveSitePageId(`project/privyx/${id(2).replaceAll('-', '')}`, pages), id(2))
-  assert.equal(resolveSitePageId('project/other/details', pages), undefined)
-  assert.equal(resolveSitePageId('article/privyx/logo-concept', pages), undefined)
-  assert.equal(resolveSitePageId('project/privyx/missing', pages), undefined)
-  assert.equal(resolveSitePageId('details', pages), undefined)
+  assert.equal(findPageIdByPath('project/privyx/logo-concept', pages), id(2))
+  assert.equal(findPageIdByPath(`project/privyx/${id(2).replaceAll('-', '')}`, pages), id(2))
+  assert.equal(findPageIdByPath('project/other/details', pages), undefined)
+  assert.equal(findPageIdByPath('article/privyx/logo-concept', pages), undefined)
+  assert.equal(findPageIdByPath('project/privyx/missing', pages), undefined)
+  assert.equal(findPageIdByPath('details', pages), undefined)
 })
 
 test('duplicate sibling slugs use IDs and legacy URLs resolve only when unambiguous', () => {
@@ -42,11 +42,11 @@ test('duplicate sibling slugs use IDs and legacy URLs resolve only when unambigu
     page(5, 'opengraph-image', 'page', id(1)),
   ])
   assert.equal(pages[1].url, `/project/entry/${id(2).replaceAll('-', '')}`)
-  assert.equal(pages[4].url, `/project/entry/${id(5).replaceAll('-', '')}`)
-  assert.equal(resolveSitePageId('project/entry/same', pages), undefined)
-  assert.equal(resolveSitePageId('same', pages), undefined)
-  assert.equal(resolveSitePageId('unique', pages), id(4))
-  assert.equal(resolveSitePageId(id(4), pages), id(4))
+  assert.equal(pages[4].url, '/project/entry/opengraph-image')
+  assert.equal(findPageIdByPath('project/entry/same', pages), undefined)
+  assert.equal(findPageIdByPath('same', pages), undefined)
+  assert.equal(findPageIdByPath('unique', pages), id(4))
+  assert.equal(findPageIdByPath(id(4), pages), id(4))
   assert.equal(isSupportedPagePath('project/entry/child/grandchild'), true)
   for (const path of [
     'project//child',

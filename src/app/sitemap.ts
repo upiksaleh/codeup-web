@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getSitePages } from '@/lib/notion/site-pages'
+import { getSitePages } from '@/lib/notion/index/site'
 import { siteConfig } from '@/site.config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

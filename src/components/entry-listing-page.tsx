@@ -1,9 +1,9 @@
 import { getEntryGallery } from '@/lib/notion/entry-gallery'
-import { getSitePages } from '@/lib/notion/site-pages'
+import { getEntryPages } from '@/lib/notion/index/entries'
 import { EntryListing } from './entry-listing'
 
 export async function EntryListingPage({ kind }: { kind: 'article' | 'project' }) {
-  const [pages, gallery] = await Promise.all([getSitePages(), getEntryGallery(kind)])
+  const [pages, gallery] = await Promise.all([getEntryPages(), getEntryGallery(kind)])
   const date = (page: (typeof pages)[number]) => page.project?.startDate ?? page.published
   const entries = pages
     .filter((page) => page.kind === kind)

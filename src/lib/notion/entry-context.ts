@@ -1,10 +1,13 @@
 import 'server-only'
 
-import { getSitePages } from './site-pages'
-import { loadNotionPage } from './load-page'
+import { isEntryOrConfiguredPage } from './index/lookup'
+import { getSitePages } from './index/site'
+import { loadNotionPage } from './pages'
 import { getBlockValue, resolveDefaultImageUrl } from 'notion-utils'
 
+// Only pages under an article or project have context.
 export async function getEntryContext(pageId: string) {
+  if (await isEntryOrConfiguredPage(pageId)) return
   const pages = await getSitePages()
   const byId = new Map(pages.map((page) => [page.id, page]))
   const page = byId.get(pageId)

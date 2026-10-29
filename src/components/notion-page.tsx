@@ -6,8 +6,9 @@ import { withHomeGalleries } from '@/lib/notion/entry-gallery'
 import { hideHomePagesSection } from '@/lib/notion/home-content'
 import { withImagePreviews } from '@/lib/notion/image-previews'
 import { getPageInfo } from '@/lib/notion/page-info'
-import { normalizePageId } from '@/lib/notion/page-id'
-import { getSitePageUrls } from '@/lib/notion/site-pages'
+import { normalizePageId } from '@/lib/notion/urls'
+import { isPageBlock } from '@/lib/notion/record-map'
+import { getPageUrls } from '@/lib/notion/index/lookup'
 import { siteConfig } from '@/site.config'
 import { getEntryContext } from '@/lib/notion/entry-context'
 import { NotionContent } from './notion-content'
@@ -27,8 +28,12 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     recordMap,
   )
   const [pageUrls, renderMap] = await Promise.all([
-    getSitePageUrls(
-      Object.keys(recordMap.block).flatMap((blockId) => normalizePageId(blockId) ?? []),
+    getPageUrls(
+      Object.keys(recordMap.block).flatMap((blockId) =>
+        isPageBlock(getBlockValue(recordMap.block[blockId]))
+          ? (normalizePageId(blockId) ?? [])
+          : [],
+      ),
     ),
     withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id),
   ])

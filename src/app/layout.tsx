@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
+import { getSocialImageUrl } from '@/lib/social-image'
 import { siteConfig } from '@/site.config'
 import 'react-notion-x/styles.css'
 import '@/styles/globals.css'
@@ -21,11 +22,13 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     url: '/',
+    images: [getSocialImageUrl()],
   },
   twitter: {
     card: 'summary_large_image',
     title: siteConfig.name,
     description: siteConfig.description,
+    images: [getSocialImageUrl()],
   },
 }
 

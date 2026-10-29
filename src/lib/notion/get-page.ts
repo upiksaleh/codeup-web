@@ -2,30 +2,26 @@ import 'server-only'
 
 import { notFound, permanentRedirect } from 'next/navigation'
 import { cache } from 'react'
-import { loadNotionPage } from './load-page'
-import { resolvePageId } from './page-url'
-import { getSitePages, getSitePageUrl } from './site-pages'
-import { isReservedSlug, isSupportedPagePath, resolveSitePageId } from './page-paths'
+import { findPageIdForPath, getPageUrl } from './index/lookup'
+import { loadNotionPage } from './pages'
+import { isReservedSlug, isSupportedPagePath, resolvePageId } from './urls'
 
 export const getNotionPage = cache(async (segment: string) => {
   if (!isSupportedPagePath(segment)) notFound()
   let pageId = resolvePageId(segment)
-
-  // Reserved routes, such as the studio's /about, never resolve to a Notion title.
+  // Reserved routes never resolve to a Notion title.
   if (!pageId && isReservedSlug(segment)) notFound()
-
-  if (!pageId) pageId = resolveSitePageId(segment, await getSitePages())
-
+  pageId ??= await findPageIdForPath(segment)
   if (!pageId) notFound()
+
   const recordMap = await loadNotionPage(pageId)
   if (!recordMap) notFound()
-
   return { pageId, recordMap }
 })
 
-// Layouts validate before their loading boundary, preserving real 404 responses.
+// Runs in layouts, before the loading boundary, so missing pages return a real 404.
 export async function validatePagePath(path: string) {
   const { pageId } = await getNotionPage(path)
-  const url = await getSitePageUrl(pageId)
+  const url = await getPageUrl(pageId)
   if (`/${path}` !== url) permanentRedirect(url)
 }

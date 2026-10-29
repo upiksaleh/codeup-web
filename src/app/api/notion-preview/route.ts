@@ -1,5 +1,5 @@
-import { loadNotionPage } from '@/lib/notion/load-page'
-import { normalizePageId } from '@/lib/notion/page-id'
+import { loadNotionPage } from '@/lib/notion/pages'
+import { normalizePageId } from '@/lib/notion/urls'
 import { selectPagePreview } from '@/lib/notion/page-preview'
 
 export async function GET(request: Request) {

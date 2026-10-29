@@ -6,9 +6,9 @@ import type { ExtendedRecordMap } from 'notion-types'
 import { useEffect, useMemo, type ComponentProps, type ReactNode } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
-import { normalizePageId } from '@/lib/notion/page-id'
+import { normalizePageId } from '@/lib/notion/urls'
 import { withCollectionPropertyOrder } from '@/lib/notion/collection-property-order'
-import { getPageUrl } from '@/lib/notion/page-url'
+import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { siteConfig } from '@/site.config'
 import { NotionImage } from './notion-image'
 import { MobileTableOfContents } from './mobile-table-of-contents'
@@ -66,8 +66,7 @@ export function NotionContent({
   const renderMap = useMemo(() => withCollectionPropertyOrder(recordMap), [recordMap])
   const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
-  // The renderer shows a database page's properties through Collection; a page with its own
-  // property view replaces that generic table.
+  // A page with its own property view replaces the renderer's property table.
   const PageCollection = useMemo(
     () =>
       function PageCollection(props: NotionCollectionProps) {
@@ -100,7 +99,7 @@ export function NotionContent({
         blockId={pageId}
         rootPageId={siteConfig.rootNotionPageId}
         rootDomain={siteConfig.domain}
-        mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getPageUrl(id)}
+        mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getDefaultPageUrl(id)}
         fullPage={!isHome}
         showCollectionViewDropdown={!isHome}
         className={

@@ -9,8 +9,7 @@ import { canOptimizeImage } from '@/lib/notion/image-source'
 const zoomClass = 'medium-zoom-image'
 const instantZoomImages = new WeakSet<HTMLImageElement>()
 
-// medium-zoom waits for a full srcset download before it animates. Open with the
-// variant already on screen, then let the zoomed copy swap in a sharper one.
+// Zoom opens with the on-screen variant instead of waiting for the full srcset.
 function openWithLoadedImage(event: Event) {
   const image = event.currentTarget as HTMLImageElement
   const { srcset, sizes, src, currentSrc } = image

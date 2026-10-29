@@ -1,19 +1,37 @@
+import { idToUuid } from 'notion-utils'
 import { siteConfig } from '@/site.config'
-import { getPageUrl, resolvePageId } from './page-url'
 
-const reservedSlugs = new Set([
-  'about',
-  'articles',
-  'feed',
-  'search',
-  'article',
-  'blog',
-  'project',
-  'opengraph-image',
-])
+const reservedSlugs = new Set(['about', 'articles', 'feed', 'search', 'article', 'blog', 'project'])
 const prefixes = { article: '/article', project: '/project', note: '', page: '' } as const
+const configuredPages = [...siteConfig.navigation, ...siteConfig.pageAliases]
 
 type PagePathInfo = { id: string; slug: string; kind: keyof typeof prefixes; parentId?: string }
+
+export function normalizePageId(value: string) {
+  if (!/^(?:[a-f\d]{32}|[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})$/i.test(value)) {
+    return undefined
+  }
+  return idToUuid(value.replaceAll('-', '').toLowerCase())
+}
+
+export function findConfiguredPath(pageId: string) {
+  return configuredPages.find((page) => page.pageId === pageId)?.path
+}
+
+// Configured path, bare ID, or `title-<id>` segment.
+export function resolvePageId(segment: string) {
+  return (
+    configuredPages.find(({ path }) => path === `/${segment}`)?.pageId ??
+    normalizePageId(segment) ??
+    normalizePageId(segment.match(/^.+-([a-f\d]{32})$/i)?.[1] ?? '')
+  )
+}
+
+export function getDefaultPageUrl(pageId: string) {
+  const id = resolvePageId(pageId)
+  if (!id) return `https://www.notion.so/${encodeURIComponent(pageId)}`
+  return findConfiguredPath(id) ?? `/${id.replaceAll('-', '')}`
+}
 
 export function isSupportedPagePath(path: string) {
   const segments = path.split('/')
@@ -29,7 +47,7 @@ export function isReservedSlug(segment: string) {
   return reservedSlugs.has(segment)
 }
 
-// Slugs are unique within their database namespace or parent page.
+// Slugs are unique per database or parent page; duplicates fall back to IDs.
 export function withPageUrls<T extends PagePathInfo>(pages: T[]) {
   const byId = new Map(pages.map((page) => [page.id, page]))
   const nestedParents = new Map<string, T>()
@@ -57,26 +75,24 @@ export function withPageUrls<T extends PagePathInfo>(pages: T[]) {
   function getUrl(page: T): string {
     const existing = urls.get(page.id)
     if (existing) return existing
-    const configuredPage = [...siteConfig.navigation, ...siteConfig.pageAliases].find(
-      ({ pageId }) => pageId === page.id,
-    )
     const parent = nestedParents.get(page.id)
     const prefix = parent ? getUrl(parent) : prefixes[page.kind]
     const usesSlug =
       page.slug &&
       counts.get(candidate(page)) === 1 &&
-      page.slug !== 'opengraph-image' &&
       (prefix || (!resolvePageId(page.slug) && !isReservedSlug(page.slug)))
-    const fallback = prefix ? `${prefix}/${page.id.replaceAll('-', '')}` : getPageUrl(page.id)
+    const fallback = prefix
+      ? `${prefix}/${page.id.replaceAll('-', '')}`
+      : getDefaultPageUrl(page.id)
 
-    const url = configuredPage?.path ?? (usesSlug ? `${prefix}/${page.slug}` : fallback)
+    const url = findConfiguredPath(page.id) ?? (usesSlug ? `${prefix}/${page.slug}` : fallback)
     urls.set(page.id, url)
     return url
   }
   return pages.map((page) => ({ ...page, url: getUrl(page) }))
 }
 
-export function resolveSitePageId(path: string, pages: (PagePathInfo & { url: string })[]) {
+export function findPageIdByPath(path: string, pages: (PagePathInfo & { url: string })[]) {
   if (!isSupportedPagePath(path)) return
   const segments = path.split('/')
 
@@ -105,7 +121,7 @@ export function resolveSitePageId(path: string, pages: (PagePathInfo & { url: st
     return parent?.id
   }
 
-  // A legacy flat slug redirects only if it identifies exactly one page.
+  // Legacy flat slugs redirect only when unambiguous.
   const matches = pages.filter(({ slug }) => slug === path)
   if (matches.length === 1) return matches[0].id
 }

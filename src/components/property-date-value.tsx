@@ -6,8 +6,7 @@ type DateValueProps = {
   pageHeader?: boolean
 }
 
-// Article headers show the Published date in full, like "April 4, 2023". Project cards show
-// the Start Date as month and year, like "Sep, 2026".
+// Articles show the full Published date; project cards show Start Date as month and year.
 export function propertyDateValue(
   { data, schema, pageHeader }: DateValueProps,
   fallback: () => ReactNode,

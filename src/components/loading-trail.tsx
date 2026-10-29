@@ -3,8 +3,7 @@
 import { useEffect } from 'react'
 import { attachPointerTrail } from './pointer-trail'
 
-// React leaves a server-rendered loading fallback unhydrated, so effects inside the
-// skeleton never run on a full page load. The layout attaches the trail instead.
+// Loading fallbacks stay unhydrated on full loads, so the layout mounts the trail.
 export function LoadingTrail() {
   useEffect(() => {
     const attached = new Map<HTMLCanvasElement, (() => void) | undefined>()

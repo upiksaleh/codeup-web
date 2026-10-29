@@ -1,7 +1,7 @@
 import { getExternalLinkPreview } from '@/lib/external-link-preview'
 import { getExternalPageLinks, parsePreviewUrl } from '@/lib/link-metadata'
-import { loadNotionPage } from '@/lib/notion/load-page'
-import { normalizePageId } from '@/lib/notion/page-id'
+import { loadNotionPage } from '@/lib/notion/pages'
+import { normalizePageId } from '@/lib/notion/urls'
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams

@@ -3,7 +3,7 @@ import 'server-only'
 import type { ExtendedRecordMap } from 'notion-types'
 import { getBlockCollectionId, getBlockValue, getPageProperty } from 'notion-utils'
 import { siteConfig } from '@/site.config'
-import { loadNotionPage } from './load-page'
+import { loadNotionPage } from './pages'
 import { withImagePreviews } from './image-previews'
 
 // Entries with the meta_hide_icon_on_card checkbox keep their icon on their own page only.

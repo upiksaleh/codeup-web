@@ -1689,8 +1689,7 @@ a:hover {
 .notion-page-link {
   opacity: 1;
 }
-/* Like the old site: a quiet underline at rest; on hover it fades and a gradient
-   draws in from the pointer (set by usePointerEffects), or from the center for keyboard focus. */
+/* On hover a gradient underline draws in from the pointer, or from the center on focus. */
 .notion-link {
   --link-origin: 50%;
   border-bottom: 1px solid color-mix(in srgb, var(--site-ink) 35%, transparent);
