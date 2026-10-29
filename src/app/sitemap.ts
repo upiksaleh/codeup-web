@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next'
 import { getSitePages } from '@/lib/notion/index/site'
-import { siteConfig } from '@/site.config'
+import { siteUrl } from '@/lib/site-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages = (await getSitePages()).map(({ url, lastEdited }) => ({
-    url: `https://${siteConfig.domain}${url}`,
+    url: `${siteUrl}${url}`,
     lastModified: new Date(lastEdited),
   }))
-  return [...pages, { url: `https://${siteConfig.domain}/articles` }]
+  return [...pages, { url: `${siteUrl}/articles` }]
 }

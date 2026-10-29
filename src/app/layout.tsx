@@ -4,12 +4,13 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
 import { getSocialImageUrl } from '@/lib/social-image'
+import { siteUrl } from '@/lib/site-url'
 import { siteConfig } from '@/site.config'
 import 'react-notion-x/styles.css'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`https://${siteConfig.domain}`),
+  metadataBase: new URL(siteUrl),
   title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   authors: [{ name: siteConfig.author }],

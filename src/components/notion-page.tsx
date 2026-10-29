@@ -9,6 +9,7 @@ import { getPageInfo } from '@/lib/notion/page-info'
 import { normalizePageId } from '@/lib/notion/urls'
 import { isPageBlock } from '@/lib/notion/record-map'
 import { getPageUrls } from '@/lib/notion/index/lookup'
+import { siteUrl } from '@/lib/site-url'
 import { siteConfig } from '@/site.config'
 import { getEntryContext } from '@/lib/notion/entry-context'
 import { NotionContent } from './notion-content'
@@ -52,7 +53,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
     dateModified: new Date(lastEdited).toISOString(),
     keywords: tags.length ? tags.join(', ') : undefined,
     author: { '@type': 'Person', name: siteConfig.author },
-    mainEntityOfPage: `https://${siteConfig.domain}${pageUrls[id] ?? ''}`,
+    mainEntityOfPage: `${siteUrl}${pageUrls[id] ?? ''}`,
   }
 
   return (
@@ -80,7 +81,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
           pageUrls[id] && (
             <EntryShare
               kind={isArticle ? 'article' : 'project'}
-              url={`https://${siteConfig.domain}${pageUrls[id]}`}
+              url={`${siteUrl}${pageUrls[id]}`}
               title={title}
             />
           )
