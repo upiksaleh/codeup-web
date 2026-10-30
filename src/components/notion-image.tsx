@@ -4,7 +4,7 @@ import Image, { type ImageProps } from 'next/image'
 import { getBlockValue } from 'notion-utils'
 import { createContext, useContext, useState } from 'react'
 import { useNotionContext } from 'react-notion-x'
-import { canOptimizeImage } from '@/lib/notion/image-source'
+import { canServeImage } from '@/lib/notion/image-source'
 
 // Pages whose gallery card covers load with high priority; the first one is also preloaded.
 export const PriorityCoverContext = createContext<string[]>([])
@@ -68,7 +68,7 @@ export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props
       alt={props.alt}
       sizes={imageSizes}
       unoptimized={
-        unoptimized || failedSource === src || (typeof src === 'string' && !canOptimizeImage(src))
+        unoptimized || failedSource === src || (typeof src === 'string' && !canServeImage(src))
       }
       onLoad={(event) => {
         onLoad?.(event)

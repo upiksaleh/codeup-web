@@ -17,6 +17,12 @@ export function isRemoteImageAllowed(value: string) {
   }
 }
 
+// The Next.js optimizer serves these from the site origin; SVG passes through unchanged.
+export function canServeImage(value: string) {
+  return value === siteConfig.logo || isRemoteImageAllowed(value)
+}
+
+// Raster images that sharp can resize and decode for previews.
 export function canOptimizeImage(value: string) {
   if (value === siteConfig.logo) return true
   if (!isRemoteImageAllowed(value)) return false

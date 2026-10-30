@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
       pathname: `${pathname}**`,
     })),
     qualities: [75],
+    // Notion SVG covers load from the site origin; scripts inside them never run.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     maximumResponseBody: 10_000_000,
   },
 }
