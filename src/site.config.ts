@@ -1,11 +1,13 @@
 const rootNotionPageId = 'e664ac77-d51a-82f3-aa20-019a00acc091'
 const notesPageId = '1264ac77-d51a-8351-aa55-816c46f31bc2'
 const projectsDatabaseId = 'ecc33737-84d0-491e-a468-b7ce4abebea7'
+const articlesDatabaseId = '45b4ac77-d51a-8221-beb4-0170c70bc296'
 
 export const siteConfig = {
   rootNotionPageId,
   notesPageId,
   projectsDatabaseId,
+  articlesDatabaseId,
   articleCollectionId: 'd494ac77-d51a-8330-828c-07a4da417c6a',
   name: 'CodeUP',
   domain: 'codeup.id',
@@ -30,7 +32,7 @@ export const siteConfig = {
     { label: 'About', path: '/about', pageId: '4064ac77-d51a-8169-85e1-cdf3a41ae29c' },
     { label: 'Upik', path: '/upik', pageId: 'ce74ac77-d51a-8280-8913-81a8aec519bd' },
     { label: 'Projects', path: '/projects', pageId: projectsDatabaseId },
-    { label: 'Articles', path: '/articles', pageId: null },
+    { label: 'Articles', path: '/articles', pageId: articlesDatabaseId },
     { label: 'Contact', path: '/contact', pageId: '7ed4ac77-d51a-8385-af1c-011f2551fb4e' },
   ],
   navigationCta: '/contact',

@@ -25,8 +25,7 @@ export function summarizePage(id: string, recordMap: ExtendedRecordMap) {
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim()
-  const childIds = findSitePageIds(recordMap).filter((childId) => childId !== id)
-  return { ...getPageInfo(id, recordMap), content, childIds }
+  return { ...getPageInfo(id, recordMap), content }
 }
 
 // Entries are not block content; the page showing the collection lists them.

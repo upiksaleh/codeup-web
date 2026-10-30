@@ -19,34 +19,32 @@ function withoutHiddenCardIcons(recordMap: ExtendedRecordMap): ExtendedRecordMap
   return { ...recordMap, block }
 }
 
+export const entryDatabaseIds = {
+  article: siteConfig.articlesDatabaseId,
+  project: siteConfig.projectsDatabaseId,
+}
+
+// Each gallery uses the first Gallery view of its full-page database.
 async function loadEntryGallery(kind: 'article' | 'project') {
-  const pageId = kind === 'article' ? siteConfig.rootNotionPageId : siteConfig.projectsDatabaseId
+  const pageId = entryDatabaseIds[kind]
   const source = await loadNotionPage(pageId)
-  if (!source) throw new Error('The gallery source page is unavailable')
+  if (!source) throw new Error(`The ${kind} database page is unavailable`)
   const recordMap = withoutHiddenCardIcons(source)
-
-  for (const entry of Object.values(recordMap.block)) {
-    const block = getBlockValue(entry)
-    if (block?.type !== 'collection_view' && block?.type !== 'collection_view_page') continue
+  const block = getBlockValue(recordMap.block[pageId])
+  if (block?.type === 'collection_view_page') {
     const collectionId = getBlockCollectionId(block, recordMap)
-    if (!collectionId) continue
-    if (
-      kind === 'article'
-        ? collectionId !== siteConfig.articleCollectionId
-        : block.id !== siteConfig.projectsDatabaseId
-    )
-      continue
-
     const viewId = block.view_ids.find(
       (id) => getBlockValue(recordMap.collection_view[id])?.type === 'gallery',
     )
-    if (viewId && recordMap.collection_query[collectionId]?.[viewId]) {
+    if (collectionId && viewId && recordMap.collection_query[collectionId]?.[viewId]) {
       return { recordMap, blockId: block.id, collectionId, viewId }
     }
   }
 
   throw new Error(`The ${kind} gallery is unavailable`)
 }
+
+type EntryGallery = Awaited<ReturnType<typeof loadEntryGallery>>
 
 export async function getEntryGallery(kind: 'article' | 'project') {
   const gallery = await loadEntryGallery(kind)
@@ -98,49 +96,54 @@ function withFeaturedEntries(recordMap: ExtendedRecordMap, collectionIds: string
   return { ...recordMap, collection_query: collectionQuery }
 }
 
-// The linked home view uses the Projects database gallery's display settings and results.
-export async function withHomeGalleries(recordMap: ExtendedRecordMap) {
-  const gallery = await loadEntryGallery('project')
-  const query = gallery.recordMap.collection_query[gallery.collectionId]![gallery.viewId]!
-  const projects: ExtendedRecordMap = {
-    ...gallery.recordMap,
-    collection_query: {
-      ...gallery.recordMap.collection_query,
-      [gallery.collectionId]: {
-        ...gallery.recordMap.collection_query[gallery.collectionId],
-        [gallery.viewId]: {
-          ...query,
-          blockIds: sortByStartDate(gallery.recordMap, query.blockIds ?? []),
-          ...(query.collection_group_results && {
-            collection_group_results: {
-              ...query.collection_group_results,
-              blockIds: sortByStartDate(gallery.recordMap, query.collection_group_results.blockIds),
-            },
-          }),
+function withSortedGalleryQuery({ recordMap, collectionId, viewId }: EntryGallery) {
+  const query = recordMap.collection_query[collectionId]![viewId]!
+  return {
+    ...recordMap.collection_query[collectionId],
+    [viewId]: {
+      ...query,
+      blockIds: sortByStartDate(recordMap, query.blockIds ?? []),
+      ...(query.collection_group_results && {
+        collection_group_results: {
+          ...query.collection_group_results,
+          blockIds: sortByStartDate(recordMap, query.collection_group_results.blockIds),
         },
-      },
+      }),
     },
   }
-  const block = { ...projects.block, ...recordMap.block }
-  for (const [id, entry] of Object.entries(recordMap.block)) {
-    const linked = getBlockValue(entry)
-    if (
-      linked?.type === 'collection_view' &&
-      getBlockCollectionId(linked, recordMap) === gallery.collectionId
-    ) {
-      block[id] = { role: 'reader', value: { ...linked, view_ids: [gallery.viewId] } }
+}
+
+// Linked home views use their database's Gallery view settings and results.
+export async function withHomeGalleries(recordMap: ExtendedRecordMap) {
+  const galleries = await Promise.all([loadEntryGallery('article'), loadEntryGallery('project')])
+  const block = Object.assign(
+    {},
+    ...galleries.map((gallery) => gallery.recordMap.block),
+    recordMap.block,
+  ) as ExtendedRecordMap['block']
+  const merged: ExtendedRecordMap = { ...recordMap, block }
+  for (const gallery of galleries) {
+    merged.collection = { ...merged.collection, ...gallery.recordMap.collection }
+    merged.collection_view = { ...merged.collection_view, ...gallery.recordMap.collection_view }
+    merged.collection_query = {
+      ...merged.collection_query,
+      ...gallery.recordMap.collection_query,
+      [gallery.collectionId]: withSortedGalleryQuery(gallery),
+    }
+    merged.signed_urls = { ...merged.signed_urls, ...gallery.recordMap.signed_urls }
+    for (const [id, entry] of Object.entries(recordMap.block)) {
+      const linked = getBlockValue(entry)
+      if (
+        linked?.type === 'collection_view' &&
+        getBlockCollectionId(linked, recordMap) === gallery.collectionId
+      ) {
+        block[id] = { role: 'reader', value: { ...linked, view_ids: [gallery.viewId] } }
+      }
     }
   }
 
   return withFeaturedEntries(
-    withoutHiddenCardIcons({
-      ...recordMap,
-      block,
-      collection: { ...recordMap.collection, ...projects.collection },
-      collection_view: { ...recordMap.collection_view, ...projects.collection_view },
-      collection_query: { ...recordMap.collection_query, ...projects.collection_query },
-      signed_urls: { ...recordMap.signed_urls, ...projects.signed_urls },
-    }),
-    [siteConfig.articleCollectionId, gallery.collectionId],
+    withoutHiddenCardIcons(merged),
+    galleries.map((gallery) => gallery.collectionId),
   )
 }
