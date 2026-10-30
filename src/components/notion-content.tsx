@@ -10,7 +10,8 @@ import { normalizePageId } from '@/lib/notion/urls'
 import { withCollectionPropertyOrder } from '@/lib/notion/collection-property-order'
 import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { siteConfig } from '@/site.config'
-import { NotionImage } from './notion-image'
+import { getFirstGalleryCoverCard } from '@/lib/notion/gallery-cover'
+import { NotionImage, PriorityCoverContext } from './notion-image'
 import { MobileTableOfContents } from './mobile-table-of-contents'
 import { TableOfContents, useTableOfContents } from './table-of-contents'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
@@ -64,6 +65,10 @@ export function NotionContent({
 }) {
   const theme = useSiteTheme()
   const renderMap = useMemo(() => withCollectionPropertyOrder(recordMap), [recordMap])
+  const priorityCover = useMemo(
+    () => (isHome ? getFirstGalleryCoverCard(renderMap, pageId) : undefined),
+    [isHome, renderMap, pageId],
+  )
   const toc = useTableOfContents(recordMap, pageId, !isHome)
   usePointerEffects()
   // A page with its own property view replaces the renderer's property table.
@@ -93,7 +98,7 @@ export function NotionContent({
     }
   }, [pageId])
   return (
-    <>
+    <PriorityCoverContext value={priorityCover}>
       <NotionRenderer
         recordMap={renderMap}
         blockId={pageId}
@@ -125,6 +130,6 @@ export function NotionContent({
       />
       <LinkPreviews key={`previews-${pageId}`} pageId={pageId} targets={previewTargets} />
       {!!toc.entries.length && <MobileTableOfContents key={pageId} toc={toc} />}
-    </>
+    </PriorityCoverContext>
   )
 }

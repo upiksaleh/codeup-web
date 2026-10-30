@@ -1,9 +1,13 @@
 'use client'
 
 import Image, { type ImageProps } from 'next/image'
-import { useState } from 'react'
+import { getBlockValue } from 'notion-utils'
+import { createContext, useContext, useState } from 'react'
 import { useNotionContext } from 'react-notion-x'
 import { canOptimizeImage } from '@/lib/notion/image-source'
+
+// Page whose gallery card cover loads with high priority.
+export const PriorityCoverContext = createContext<string | undefined>(undefined)
 
 // The renderer attaches medium-zoom on load; this marks those images so the zoom also works by keyboard.
 const zoomClass = 'medium-zoom-image'
@@ -34,7 +38,11 @@ function openWithLoadedImage(event: Event) {
 }
 
 export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props }: ImageProps) {
-  const { fullPage } = useNotionContext()
+  const { fullPage, recordMap, mapImageUrl } = useNotionContext()
+  const priorityId = useContext(PriorityCoverContext)
+  const priorityPage = priorityId ? getBlockValue(recordMap.block[priorityId]) : undefined
+  const priorityCover = priorityPage?.format?.page_cover
+  const isPriority = !!priorityCover && mapImageUrl(priorityCover, priorityPage) === src
   const [failedSource, setFailedSource] = useState<ImageProps['src']>()
   let imageSizes =
     sizes || '(max-width: 580px) calc(100vw - 44px), (max-width: 780px) calc(100vw - 60px), 720px'
@@ -50,6 +58,7 @@ export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props
   return (
     <Image
       {...props}
+      {...(isPriority && { preload: true, loading: undefined, fetchPriority: 'high' })}
       src={src}
       alt={props.alt}
       sizes={imageSizes}

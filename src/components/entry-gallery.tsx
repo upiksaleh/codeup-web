@@ -9,7 +9,8 @@ import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
-import { NotionImage } from './notion-image'
+import { getFirstGalleryCoverCard } from '@/lib/notion/gallery-cover'
+import { NotionImage, PriorityCoverContext } from './notion-image'
 import { propertyDateValue } from './property-date-value'
 
 export type EntryGalleryData = {
@@ -71,24 +72,26 @@ export function EntryGallery({
   }
 
   return (
-    <NotionRenderer
-      recordMap={galleryMap}
-      blockId={blockId}
-      rootPageId={siteConfig.rootNotionPageId}
-      rootDomain={siteConfig.domain}
-      mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getDefaultPageUrl(id)}
-      className="entry-listing-gallery"
-      fullPage={false}
-      darkMode={theme === 'dark'}
-      previewImages
-      disableHeader
-      showCollectionViewDropdown={false}
-      components={{
-        nextLink: Link,
-        nextImage: NotionImage,
-        Collection: ListingCollection,
-        propertyDateValue,
-      }}
-    />
+    <PriorityCoverContext value={getFirstGalleryCoverCard(galleryMap, blockId)}>
+      <NotionRenderer
+        recordMap={galleryMap}
+        blockId={blockId}
+        rootPageId={siteConfig.rootNotionPageId}
+        rootDomain={siteConfig.domain}
+        mapPageUrl={(id) => pageUrls[normalizePageId(id) ?? ''] ?? getDefaultPageUrl(id)}
+        className="entry-listing-gallery"
+        fullPage={false}
+        darkMode={theme === 'dark'}
+        previewImages
+        disableHeader
+        showCollectionViewDropdown={false}
+        components={{
+          nextLink: Link,
+          nextImage: NotionImage,
+          Collection: ListingCollection,
+          propertyDateValue,
+        }}
+      />
+    </PriorityCoverContext>
   )
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import { preconnect } from 'react-dom'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
@@ -41,6 +42,9 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // SVG covers load straight from Notion, which redirects to its file host.
+  preconnect('https://app.notion.com')
+  preconnect('https://img.notionusercontent.com')
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
