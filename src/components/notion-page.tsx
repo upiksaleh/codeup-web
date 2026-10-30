@@ -5,6 +5,7 @@ import { getNotionPage } from '@/lib/notion/get-page'
 import { withHomeGalleries } from '@/lib/notion/entry-gallery'
 import { hideHomePagesSection } from '@/lib/notion/home-content'
 import { withImagePreviews } from '@/lib/notion/image-previews'
+import { withRenderedBlocks } from '@/lib/notion/rendered-blocks'
 import { getPageInfo } from '@/lib/notion/page-info'
 import { normalizePageId } from '@/lib/notion/urls'
 import { isPageBlock } from '@/lib/notion/record-map'
@@ -36,7 +37,9 @@ export async function NotionPage({ pageId }: { pageId: string }) {
           : [],
       ),
     ),
-    withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id),
+    withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id).then(
+      (previewMap) => withRenderedBlocks(previewMap, id),
+    ),
   ])
   const previewTargets = Object.fromEntries(
     Object.entries(pageUrls)

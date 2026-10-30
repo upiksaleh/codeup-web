@@ -5,6 +5,7 @@ import { getBlockCollectionId, getBlockValue, getPageProperty } from 'notion-uti
 import { siteConfig } from '@/site.config'
 import { loadNotionPage } from './pages'
 import { withImagePreviews } from './image-previews'
+import { withRenderedBlocks } from './rendered-blocks'
 
 // Entries with the meta_hide_icon_on_card checkbox keep their icon on their own page only.
 function withoutHiddenCardIcons(recordMap: ExtendedRecordMap): ExtendedRecordMap {
@@ -48,7 +49,8 @@ type EntryGallery = Awaited<ReturnType<typeof loadEntryGallery>>
 
 export async function getEntryGallery(kind: 'article' | 'project') {
   const gallery = await loadEntryGallery(kind)
-  return { ...gallery, recordMap: await withImagePreviews(gallery.recordMap, gallery.blockId) }
+  const recordMap = await withImagePreviews(gallery.recordMap, gallery.blockId)
+  return { ...gallery, recordMap: withRenderedBlocks(recordMap, gallery.blockId) }
 }
 
 function sortByStartDate(recordMap: ExtendedRecordMap, ids: string[]) {

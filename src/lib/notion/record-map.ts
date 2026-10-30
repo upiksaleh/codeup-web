@@ -87,7 +87,20 @@ function promoteHeadings(recordMap: ExtendedRecordMap) {
   }
 }
 
+// Collaborative editing state and edit attribution are never rendered but dominate the page payload.
+function removeEditorData(recordMap: ExtendedRecordMap) {
+  for (const entry of Object.values(recordMap.block)) {
+    const block = getBlockValue(entry) as Record<string, unknown> | undefined
+    if (!block) continue
+    delete block.crdt_data
+    const format = block.format as Record<string, unknown> | undefined
+    delete format?.created_attribution
+    delete format?.last_edited_attribution
+  }
+}
+
 export async function prepareRecordMap(recordMap: ExtendedRecordMap) {
+  removeEditorData(recordMap)
   await resolveCustomEmojiIcons(recordMap)
   promoteHeadings(recordMap)
 }

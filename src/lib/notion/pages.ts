@@ -27,7 +27,7 @@ export const loadNotionPage = cache(async (pageId: string) => {
   if (!id) return undefined
   const load = unstable_cache(
     () => fetchSitePage(id),
-    ['notion-page', 'v3', siteConfig.rootNotionPageId, id],
+    ['notion-page', 'v4', siteConfig.rootNotionPageId, id],
     { tags: [notionPageTag(id)], revalidate: cacheDuration },
   )
   return (await load()) ?? undefined
