@@ -8,8 +8,9 @@ import { canOptimizeImage, isRemoteImageAllowed } from './image-source'
 import { getPreviewImageUrls } from './preview-image-urls'
 
 const maxImageBytes = 10_000_000
+const rasterTypes = /^image\/(?:png|jpe?g|webp|avif|gif)(?:;|$)/i
 
-export async function readImage(url: string) {
+export async function readImage(url: string, accept = rasterTypes) {
   const signal = AbortSignal.timeout(8_000)
 
   for (let redirects = 0; redirects <= 3; redirects++) {
@@ -26,9 +27,7 @@ export async function readImage(url: string) {
 
     if (
       !response.ok ||
-      !/^image\/(?:png|jpe?g|webp|avif|gif)(?:;|$)/i.test(
-        response.headers.get('content-type') ?? '',
-      ) ||
+      !accept.test(response.headers.get('content-type') ?? '') ||
       Number(response.headers.get('content-length')) > maxImageBytes
     ) {
       await response.body?.cancel()

@@ -14,15 +14,23 @@ export async function renderPageSocialImage(path: string) {
         dateStyle: 'long',
         timeZone: 'UTC',
       })}`
-    : section && section.toLowerCase() !== info.title.toLowerCase()
-      ? section
-      : (context?.entry.title ?? siteConfig.label)
+    : info.project
+      ? [
+          'Project',
+          info.project.status,
+          info.project.startDate && `Since ${new Date(info.project.startDate).getUTCFullYear()}`,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : section && section.toLowerCase() !== info.title.toLowerCase()
+        ? section
+        : (context?.entry.title ?? siteConfig.label)
 
   return renderSocialImage({
     title: info.title,
     description: info.description,
     kicker,
-    tags: info.tags,
+    tags: info.project?.techStack.length ? info.project.techStack : info.tags,
     cover: context?.cover ?? info.image,
   })
 }
