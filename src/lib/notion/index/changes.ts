@@ -2,7 +2,7 @@ import 'server-only'
 
 import { siteConfig } from '@/site.config'
 import { fetchLastEditedTimes } from '../client'
-import { fetchSitePage } from '../pages'
+import { fetchSitePage, getCachedEditedTime } from '../pages'
 import { findSitePageIds } from '../record-map'
 import { getSitePages } from './site'
 
@@ -15,12 +15,19 @@ const galleryPageIds = [
 
 export async function findChangedPageIds() {
   const pages = await getSitePages()
-  const [editedTimes, galleries] = await Promise.all([
+  const [editedTimes, cachedTimes, galleries] = await Promise.all([
     fetchLastEditedTimes(pages.map(({ id }) => id)),
+    Promise.all(pages.map(({ id }) => getCachedEditedTime(id))),
     Promise.all(galleryPageIds.map(fetchSitePage)),
   ])
+  // The index and each page cache refresh separately; either may predate the edit.
   const changed = new Set(
-    pages.filter(({ id, lastEdited }) => editedTimes.get(id) !== lastEdited).map(({ id }) => id),
+    pages
+      .filter(({ id, lastEdited }, index) => {
+        const edited = editedTimes.get(id)
+        return edited !== lastEdited || edited !== (cachedTimes[index] ?? undefined)
+      })
+      .map(({ id }) => id),
   )
 
   const indexed = new Set(pages.map(({ id }) => id))
