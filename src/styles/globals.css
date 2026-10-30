@@ -878,6 +878,7 @@ a:hover {
 
 /* Delayed so fast navigations never flash the loading state */
 .page-loading {
+  min-height: 100svh;
   animation: page-loading-in 200ms ease 150ms both;
 }
 .page-loading-bar {
