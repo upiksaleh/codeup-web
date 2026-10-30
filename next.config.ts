@@ -3,6 +3,17 @@ import { siteConfig } from './src/site.config'
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+        ],
+      },
+    ]
+  },
   redirects() {
     return [{ source: '/blog/:path+', destination: '/article/:path+', permanent: true }]
   },

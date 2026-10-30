@@ -13,6 +13,7 @@ export function SiteNavigation() {
         <Link
           key={path}
           href={path}
+          prefetch={path === pathname ? false : undefined}
           className={path === siteConfig.navigationCta ? 'navigation-cta' : undefined}
           aria-current={path === pathname ? 'page' : undefined}
         >

@@ -1,0 +1,13 @@
+diff --git a/build/index.js b/build/index.js
+index 52a49b27096af23f7d9e74be962296bee0e44689..e295b9f13547a8bffa97fe57c416d8130d679f34 100644
+--- a/build/index.js
++++ b/build/index.js
+@@ -259,7 +259,7 @@ function humanizeReadTime(time) {
+ //#region src/format-date.ts
+ const formatDate = (input, { month = "short" } = {}) => {
+ 	const date = new Date(input);
+-	return `${date.toLocaleString("en-US", { month })} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
++	return `${date.toLocaleString("en-US", { month, timeZone: "UTC" })} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
+ };
+ 
+ //#endregion

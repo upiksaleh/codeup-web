@@ -9,7 +9,7 @@ import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
-import { getFirstGalleryCoverCard } from '@/lib/notion/gallery-cover'
+import { getFirstGalleryCoverCards } from '@/lib/notion/gallery-cover'
 import { NotionImage, PriorityCoverContext } from './notion-image'
 import { propertyDateValue } from './property-date-value'
 
@@ -72,7 +72,7 @@ export function EntryGallery({
   }
 
   return (
-    <PriorityCoverContext value={getFirstGalleryCoverCard(galleryMap, blockId)}>
+    <PriorityCoverContext value={getFirstGalleryCoverCards(galleryMap, blockId)}>
       <NotionRenderer
         recordMap={galleryMap}
         blockId={blockId}

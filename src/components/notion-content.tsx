@@ -10,7 +10,7 @@ import { normalizePageId } from '@/lib/notion/urls'
 import { withCollectionPropertyOrder } from '@/lib/notion/collection-property-order'
 import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { siteConfig } from '@/site.config'
-import { getFirstGalleryCoverCard } from '@/lib/notion/gallery-cover'
+import { getFirstGalleryCoverCards } from '@/lib/notion/gallery-cover'
 import { NotionImage, PriorityCoverContext } from './notion-image'
 import { MobileTableOfContents } from './mobile-table-of-contents'
 import { TableOfContents, useTableOfContents } from './table-of-contents'
@@ -66,7 +66,7 @@ export function NotionContent({
   const theme = useSiteTheme()
   const renderMap = useMemo(() => withCollectionPropertyOrder(recordMap), [recordMap])
   const priorityCover = useMemo(
-    () => (isHome ? getFirstGalleryCoverCard(renderMap, pageId) : undefined),
+    () => (isHome ? getFirstGalleryCoverCards(renderMap, pageId) : []),
     [isHome, renderMap, pageId],
   )
   const toc = useTableOfContents(recordMap, pageId, !isHome)

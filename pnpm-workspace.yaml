@@ -4,3 +4,5 @@ ignoredBuiltDependencies:
 
 ignoredOptionalDependencies:
   - react-pdf
+patchedDependencies:
+  notion-utils@8.0.8: patches/notion-utils@8.0.8.patch
