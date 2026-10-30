@@ -10,7 +10,7 @@ export function SiteFooter() {
           {siteConfig.name}
           <span className="brand-dot">.</span>
         </Link>
-        <p>{siteConfig.footerStatus}</p>
+        <p className="footer-status">{siteConfig.footerStatus}</p>
       </div>
       <nav aria-label="Social media and feeds" className="footer-links">
         {siteConfig.socialLinks.map(({ label, handle, icon, url }) => (

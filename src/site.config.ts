@@ -12,7 +12,7 @@ export const siteConfig = {
   name: 'CodeUP',
   domain: 'codeup.id',
   description:
-    "CodeUP is Upik's independent studio, building software from infrastructure and security to applications.",
+    'An independent studio by Upik Saleh, building software across infrastructure, security, and applications.',
   author: 'Upik',
   label: 'Independent Studio',
   logo: '/codeup.png',
@@ -26,7 +26,7 @@ export const siteConfig = {
       pathname: '/f/f/0334ac77-d51a-816c-b20d-0003b543bf8b/',
     },
   ],
-  footerStatus: 'CodeUP is an independent studio run by Upik Saleh',
+  footerStatus: 'An independent studio by Upik Saleh',
   navigation: [
     { label: 'Home', path: '/', pageId: rootNotionPageId },
     { label: 'About', path: '/about', pageId: '4064ac77-d51a-8169-85e1-cdf3a41ae29c' },

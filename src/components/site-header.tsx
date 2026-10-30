@@ -27,7 +27,6 @@ export function SiteHeader() {
             <span className="brand-dot">.</span>
           </span>
         </Link>
-        <span className="site-label">{siteConfig.label}</span>
         <SiteNavigation />
         <div className="site-actions">
           <SearchButton />

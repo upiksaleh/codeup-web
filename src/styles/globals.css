@@ -283,12 +283,6 @@ a:hover {
 .brand-dot {
   color: var(--site-accent);
 }
-.site-label {
-  padding-left: 18px;
-  border-left: 1px solid var(--site-line);
-  color: var(--site-muted);
-  font-size: 13px;
-}
 .site-navigation {
   display: flex;
   align-items: center;
@@ -839,10 +833,11 @@ a:hover {
   letter-spacing: -0.6px;
   text-decoration: none;
 }
-.site-footer p {
+.footer-status {
   margin: 6px 0 0;
   color: var(--site-muted);
   font-size: 0.8rem;
+  font-style: italic;
   line-height: 1.6;
 }
 .footer-links {
@@ -2193,9 +2188,6 @@ a:hover {
   .site-footer {
     padding-inline: 28px;
   }
-  .site-label {
-    display: none;
-  }
   .home-hero {
     gap: 22px;
     padding: 38px 30px 48px;
@@ -2252,7 +2244,7 @@ a:hover {
     align-items: flex-start;
     padding: 22px;
   }
-  .site-footer p {
+  .footer-status {
     max-width: 280px;
   }
   .content-page .notion-page {
