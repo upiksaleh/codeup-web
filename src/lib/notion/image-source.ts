@@ -22,6 +22,17 @@ export function canServeImage(value: string) {
   return value === siteConfig.logo || isRemoteImageAllowed(value)
 }
 
+// Keep local development on its current origin. Replayed URLs already include Wayback's prefix.
+export function localSvgCoverUrl(value: string, origin: string) {
+  try {
+    if (new URL(origin).origin !== origin) return value
+  } catch {
+    return value
+  }
+  const path = value.startsWith(origin) ? value.slice(origin.length) : value
+  return /^\/media\/[a-f\d]{32}\/cover-[a-f\d]{24}\.svg$/.test(path) ? path : value
+}
+
 // Raster images that sharp can resize and decode for previews.
 export function canOptimizeImage(value: string) {
   if (value === siteConfig.logo) return true

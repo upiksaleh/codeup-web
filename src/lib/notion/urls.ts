@@ -1,7 +1,16 @@
 import { idToUuid } from 'notion-utils'
 import { siteConfig } from '@/site.config'
 
-const reservedSlugs = new Set(['about', 'articles', 'feed', 'search', 'article', 'blog', 'project'])
+const reservedSlugs = new Set([
+  'about',
+  'articles',
+  'feed',
+  'search',
+  'article',
+  'blog',
+  'project',
+  'media',
+])
 const prefixes = { article: '/article', project: '/project', note: '', page: '' } as const
 const configuredPages = [...siteConfig.navigation, ...siteConfig.pageAliases]
 

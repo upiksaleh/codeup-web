@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
+import { SiteUrlContext } from '@/components/site-url-context'
 import { getSocialImageUrl } from '@/lib/social-image'
 import { siteUrl } from '@/lib/site-url'
 import { siteConfig } from '@/site.config'
@@ -59,7 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </a>
         <SiteHeader />
         <div id="main-content" className="site-content" lang="id" tabIndex={-1}>
-          {children}
+          <SiteUrlContext value={siteUrl}>{children}</SiteUrlContext>
         </div>
         <SiteFooter />
         <LoadingTrail />
