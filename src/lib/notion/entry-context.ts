@@ -4,7 +4,7 @@ import { isEntryOrConfiguredPage } from './index/lookup'
 import { getSitePages } from './index/site'
 import { loadNotionPage } from './pages'
 import { getBlockValue, resolveDefaultImageUrl } from 'notion-utils'
-import { getSvgCover } from './svg-media'
+import { getSvgPageAsset } from './svg-media'
 
 // Only pages under an article or project have context.
 export async function getEntryContext(pageId: string) {
@@ -25,7 +25,7 @@ export async function getEntryContext(pageId: string) {
           signedUrls: recordMap?.signed_urls,
           isPublic: true,
         })
-      const svg = recordMap && getSvgCover(recordMap, entry.id)
+      const svg = recordMap && getSvgPageAsset(recordMap, entry.id)
       return {
         entry,
         parent: parent!,

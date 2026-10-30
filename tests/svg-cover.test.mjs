@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { resolveDefaultImageUrl } from 'notion-utils'
 
 register('./page-paths-loader.mjs', import.meta.url)
-const { getSvgCover, withSvgMedia } = await import('../src/lib/notion/svg-media.ts')
+const { getSvgPageAsset, withSvgMedia } = await import('../src/lib/notion/svg-media.ts')
 const { localSvgMediaUrl } = await import('../src/lib/notion/image-source.ts')
 const { siteConfig } = await import('../src/site.config.ts')
 const { isReservedSlug } = await import('../src/lib/notion/urls.ts')
@@ -50,7 +50,7 @@ const fixture = () => ({
 test('public SVG covers get one versioned first-party URL, while raster covers retain optimization sources', () => {
   const source = fixture()
   const before = structuredClone(source)
-  const media = getSvgCover(source, pageId)
+  const media = getSvgPageAsset(source, pageId)
   assert.match(media.source, /^https:\/\/app\.notion\.com\/image\/attachment/)
   assert.match(media.path, /^\/media\/[a-f\d]{32}\/cover-[a-f\d]{24}\.svg$/)
   const rendered = withSvgMedia(source, origin)
@@ -60,12 +60,12 @@ test('public SVG covers get one versioned first-party URL, while raster covers r
   assert.equal(localSvgMediaUrl(origin + media.path, origin), media.path)
   assert.equal(isReservedSlug('media'), true)
   source.block[pageId].value.format.page_cover = 'attachment:other:replacement.svg'
-  assert.notEqual(getSvgCover(source, pageId).path, media.path)
+  assert.notEqual(getSvgPageAsset(source, pageId).path, media.path)
 })
 
 test('stable cover references survive Notion mapping and Wayback replay without root URL rebasing', () => {
   const map = fixture()
-  const media = getSvgCover(map, pageId)
+  const media = getSvgPageAsset(map, pageId)
   const page = map.block[pageId].value
   const replay = `https://web.archive.org/web/20261030122909im_/${origin}${media.path}`
   for (const value of [origin + media.path, replay]) {
@@ -84,7 +84,7 @@ test('stable cover references survive Notion mapping and Wayback replay without 
 })
 
 test('cover normalization follows the existing site URL utility for branch and deployment previews', () => {
-  const path = getSvgCover(fixture(), pageId).path
+  const path = getSvgPageAsset(fixture(), pageId).path
   const script = `
     import { register } from 'node:module'
     register(${JSON.stringify(new URL('./page-paths-loader.mjs', import.meta.url).href)})
@@ -125,7 +125,7 @@ test('cover normalization follows the existing site URL utility for branch and d
 })
 
 test('SVG references cannot be created for non-public, deleted, invalid or disallowed sources', () => {
-  assert.equal(getSvgCover(fixture(), 'invalid'), undefined)
+  assert.equal(getSvgPageAsset(fixture(), 'invalid'), undefined)
   for (const source of [
     'https://evil.example/file.svg',
     'https://app.notion.com/private/file.svg',
@@ -133,17 +133,17 @@ test('SVG references cannot be created for non-public, deleted, invalid or disal
   ]) {
     const map = fixture()
     map.block[pageId].value.format.page_cover = source
-    assert.equal(getSvgCover(map, pageId), undefined)
+    assert.equal(getSvgPageAsset(map, pageId), undefined)
   }
   const deleted = fixture()
   deleted.block[pageId].value.alive = false
-  assert.equal(getSvgCover(deleted, pageId), undefined)
+  assert.equal(getSvgPageAsset(deleted, pageId), undefined)
   const privateMap = fixture()
   privateMap.block[pageId].value.parent_id = 'unrelated'
   privateMap.block[pageId].value.permissions = [
     { type: 'user_permission', role: 'editor', user_id: 'owner' },
   ]
-  assert.equal(getSvgCover(privateMap, pageId), undefined)
+  assert.equal(getSvgPageAsset(privateMap, pageId), undefined)
   assert.equal(withSvgMedia(privateMap, origin).block[pageId], privateMap.block[pageId])
 })
 
@@ -167,12 +167,12 @@ test('database covers inherit public access through collection ancestry, indepen
   const prefix =
     'https://file.notion.com/f/f/0334ac77-d51a-816c-b20d-0003b543bf8b/25578707-7677-45a4-bd07-681ccffc2e9e/cover_2.svg'
   article.format.page_cover = prefix + '?expirationTimestamp=1&signature=expired'
-  const first = getSvgCover(map, pageId)
+  const first = getSvgPageAsset(map, pageId)
   assert.ok(first)
   assert.match(first.source, /app\.notion\.com\/image\/attachment/)
   assert.doesNotMatch(first.source, /signature|expirationTimestamp/)
   article.format.page_cover = prefix + '?expirationTimestamp=9999999999999&signature=renewed'
-  assert.deepEqual(getSvgCover(map, pageId), first)
+  assert.deepEqual(getSvgPageAsset(map, pageId), first)
   map.signed_urls[pageId] = article.format.page_cover
   map.signed_urls[rasterId] = 'https://example.com/preserve-other-signatures'
   const rendered = withSvgMedia(map, origin)
@@ -191,11 +191,11 @@ test('database covers inherit public access through collection ancestry, indepen
   map.block[rootId].value.permissions = [
     { type: 'user_permission', role: 'editor', user_id: 'owner' },
   ]
-  assert.equal(getSvgCover(map, pageId), undefined)
+  assert.equal(getSvgPageAsset(map, pageId), undefined)
   map.block[databaseId].value.permissions = [{ type: 'public_permission', role: 'reader' }]
-  assert.ok(getSvgCover(map, pageId))
+  assert.ok(getSvgPageAsset(map, pageId))
   delete map.collection[collectionId]
-  assert.equal(getSvgCover(map, pageId), undefined)
+  assert.equal(getSvgPageAsset(map, pageId), undefined)
 })
 
 test('Notion page, callout and collection icons use shared SVG URLs with explicit light/dark variants', () => {
@@ -245,4 +245,29 @@ test('Notion page, callout and collection icons use shared SVG URLs with explici
   assert.ok(isSvgImage('https://app.notion.com/icons/verified_orange.svg?mode=dark'))
   assert.ok(isSvgImage(origin + iconPath))
   assert.equal(isSvgImage('https://app.notion.com/image/photo.png'), false)
+})
+
+test('custom SVG page icons use authorized versioned media URLs without allowing other S3 folders', () => {
+  const map = fixture()
+  const logo =
+    'https://s3-us-west-2.amazonaws.com/public.notion-static.com/84892077-0c07-48ec-937d-34116e5bd217/privyx-logo.svg'
+  map.block[pageId].value.format.page_icon = logo
+  const original = structuredClone(map)
+  const icon = getSvgPageAsset(map, pageId, 'icon')
+  assert.equal(icon.source, logo)
+  assert.match(icon.path, /^\/media\/[a-f\d]{32}\/icon-[a-f\d]{24}\.svg$/)
+  assert.equal(withSvgMedia(map, origin).block[pageId].value.format.page_icon, origin + icon.path)
+  assert.equal(localSvgMediaUrl(origin + icon.path, origin, true), icon.path)
+  assert.deepEqual(map, original)
+  map.block[pageId].value.format.page_icon = logo.replace(
+    '84892077-0c07-48ec-937d-34116e5bd217',
+    'other-folder',
+  )
+  assert.equal(getSvgPageAsset(map, pageId, 'icon'), undefined)
+  map.block[pageId].value.format.page_icon = logo
+  map.block[pageId].value.parent_id = 'outside-site'
+  map.block[pageId].value.permissions = [
+    { type: 'user_permission', role: 'editor', user_id: 'owner' },
+  ]
+  assert.equal(getSvgPageAsset(map, pageId, 'icon'), undefined)
 })

@@ -1,6 +1,6 @@
 import { svgResponse } from '@/lib/svg-response'
 import { normalizePageId } from '@/lib/notion/urls'
-import { loadSvgCover } from '@/lib/notion/svg-cover-source'
+import { loadSvgMedia } from '@/lib/notion/svg-media-source'
 
 export async function GET(
   request: Request,
@@ -9,14 +9,14 @@ export async function GET(
   const { pageId, filename } = await params
   const id = normalizePageId(pageId)
   const noStore = { 'Cache-Control': 'no-store' }
-  if (!id || !/^cover-[a-f\d]{24}\.svg$/.test(filename)) {
-    return new Response('Cover not found', { status: 404, headers: noStore })
+  if (!id || !/^(?:cover|icon)-[a-f\d]{24}\.svg$/.test(filename)) {
+    return new Response('Image not found', { status: 404, headers: noStore })
   }
   try {
-    const image = await loadSvgCover(id, filename)
-    if (!image) return new Response('Cover not found', { status: 404, headers: noStore })
+    const image = await loadSvgMedia(id, filename)
+    if (!image) return new Response('Image not found', { status: 404, headers: noStore })
     return svgResponse(request, image)
   } catch {
-    return new Response('Cover temporarily unavailable', { status: 503, headers: noStore })
+    return new Response('Image temporarily unavailable', { status: 503, headers: noStore })
   }
 }

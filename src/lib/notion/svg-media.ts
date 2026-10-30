@@ -6,7 +6,11 @@ import { hasPublicSiteAccess } from './record-map'
 import { normalizePageId } from './urls'
 import { getNotionIconPath } from './icon-url'
 
-export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
+export function getSvgPageAsset(
+  recordMap: ExtendedRecordMap,
+  pageId: string,
+  kind: 'cover' | 'icon' = 'cover',
+) {
   const id = normalizePageId(pageId)
   if (!id) return
   const block = getBlockValue(recordMap.block[id])
@@ -16,7 +20,7 @@ export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
     !hasPublicSiteAccess(recordMap, block)
   )
     return
-  const raw = block.format?.page_cover
+  const raw = kind === 'cover' ? block.format?.page_cover : block.format?.page_icon
   if (!raw) return
   try {
     const url = new URL(raw)
@@ -35,7 +39,7 @@ export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
     return
   }
   const revision = createHash('sha256').update(source).digest('hex').slice(0, 24)
-  return { source, path: `/media/${id.replaceAll('-', '')}/cover-${revision}.svg` }
+  return { source, path: `/media/${id.replaceAll('-', '')}/${kind}-${revision}.svg` }
 }
 
 // Only the render copy changes; authorization and source lookup keep the original Notion map.
@@ -46,8 +50,9 @@ export function withSvgMedia(recordMap: ExtendedRecordMap, origin: string) {
   for (const [id, entry] of Object.entries(block)) {
     const page = getBlockValue(entry)!
     if (!page?.alive) continue
-    const cover = getSvgCover(recordMap, id)
-    const icon = getNotionIconPath(page.format?.page_icon)
+    const cover = getSvgPageAsset(recordMap, id)
+    const icon =
+      getNotionIconPath(page.format?.page_icon) ?? getSvgPageAsset(recordMap, id, 'icon')?.path
     if (!cover && !icon) continue
     block[id] = {
       ...entry,

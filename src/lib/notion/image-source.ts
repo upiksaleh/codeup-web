@@ -33,7 +33,7 @@ export function localSvgMediaUrl(value: string, origin: string, darkMode = false
     return themed
   }
   const path = themed.startsWith(origin) ? themed.slice(origin.length) : themed
-  return /^\/media\/(?:[a-f\d]{32}\/cover-[a-f\d]{24}\.svg|icons\/[a-z\d_-]{1,120}\.svg\?mode=(?:light|dark))$/i.test(
+  return /^\/media\/(?:[a-f\d]{32}\/(?:cover|icon)-[a-f\d]{24}\.svg|icons\/[a-z\d_-]{1,120}\.svg\?mode=(?:light|dark))$/i.test(
     path,
   )
     ? path

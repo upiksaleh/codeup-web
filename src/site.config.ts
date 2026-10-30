@@ -22,6 +22,10 @@ export const siteConfig = {
     { hostname: 'app.notion.com', pathname: '/icons/' },
     { hostname: 'img.notionusercontent.com', pathname: '/s3/' },
     {
+      hostname: 's3-us-west-2.amazonaws.com',
+      pathname: '/public.notion-static.com/84892077-0c07-48ec-937d-34116e5bd217/',
+    },
+    {
       hostname: 'file.notion.com',
       pathname: '/f/f/0334ac77-d51a-816c-b20d-0003b543bf8b/',
     },
