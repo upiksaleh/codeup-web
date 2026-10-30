@@ -23,6 +23,25 @@ export function belongsToSite(recordMap: ExtendedRecordMap, page: Block) {
   return false
 }
 
+// Database entries inherit access through their collection, then its containing page.
+export function hasPublicSiteAccess(recordMap: ExtendedRecordMap, page: Block) {
+  let current: Block | Collection | undefined = page
+  const visited = new Set<string>()
+  let shared = false
+  while (current && !visited.has(current.id)) {
+    if ('permissions' in current) {
+      shared ||= current.permissions?.some(({ type }) => type === 'public_permission') ?? false
+    }
+    if (current.id === siteConfig.rootNotionPageId) return shared
+    visited.add(current.id)
+    current =
+      current.parent_table === 'collection'
+        ? getBlockValue(recordMap.collection[current.parent_id])
+        : getBlockValue(recordMap.block[current.parent_id])
+  }
+  return false
+}
+
 // Articles stay unlisted until their Public checkbox is set.
 function isUnpublishedArticle(recordMap: ExtendedRecordMap, page: Block) {
   return (

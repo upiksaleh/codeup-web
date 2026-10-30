@@ -6,7 +6,7 @@ import { withHomeGalleries } from '@/lib/notion/entry-gallery'
 import { hideHomePagesSection } from '@/lib/notion/home-content'
 import { withImagePreviews } from '@/lib/notion/image-previews'
 import { withRenderedBlocks } from '@/lib/notion/rendered-blocks'
-import { withSvgCovers } from '@/lib/notion/svg-cover'
+import { withSvgMedia } from '@/lib/notion/svg-media'
 import { getPageInfo } from '@/lib/notion/page-info'
 import { normalizePageId } from '@/lib/notion/urls'
 import { isPageBlock } from '@/lib/notion/record-map'
@@ -39,7 +39,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
       ),
     ),
     withImagePreviews(isHome ? hideHomePagesSection(recordMap, id) : recordMap, id).then(
-      (previewMap) => withSvgCovers(withRenderedBlocks(previewMap, id), siteUrl),
+      (previewMap) => withSvgMedia(withRenderedBlocks(previewMap, id), siteUrl),
     ),
   ])
   const previewTargets = Object.fromEntries(

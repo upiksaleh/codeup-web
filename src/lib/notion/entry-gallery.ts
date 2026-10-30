@@ -6,7 +6,7 @@ import { siteConfig } from '@/site.config'
 import { loadNotionPage } from './pages'
 import { withImagePreviews } from './image-previews'
 import { withRenderedBlocks } from './rendered-blocks'
-import { withSvgCovers } from './svg-cover'
+import { withSvgMedia } from './svg-media'
 import { siteUrl } from '@/lib/site-url'
 
 // Entries with the meta_hide_icon_on_card checkbox keep their icon on their own page only.
@@ -54,7 +54,7 @@ export async function getEntryGallery(kind: 'article' | 'project') {
   const recordMap = await withImagePreviews(gallery.recordMap, gallery.blockId)
   return {
     ...gallery,
-    recordMap: withSvgCovers(withRenderedBlocks(recordMap, gallery.blockId), siteUrl),
+    recordMap: withSvgMedia(withRenderedBlocks(recordMap, gallery.blockId), siteUrl),
   }
 }
 

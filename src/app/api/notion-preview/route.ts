@@ -1,6 +1,8 @@
 import { loadNotionPage } from '@/lib/notion/pages'
 import { normalizePageId } from '@/lib/notion/urls'
 import { selectPagePreview } from '@/lib/notion/page-preview'
+import { withSvgMedia } from '@/lib/notion/svg-media'
+import { siteUrl } from '@/lib/site-url'
 
 export async function GET(request: Request) {
   const id = normalizePageId(new URL(request.url).searchParams.get('id') ?? '')
@@ -11,9 +13,12 @@ export async function GET(request: Request) {
     const recordMap = await loadNotionPage(id)
     const preview = recordMap && selectPagePreview(recordMap, id)
     if (!preview) return Response.json({ error: 'Page not found' }, { status: 404, headers })
-    return Response.json(preview, {
-      headers: { ...headers, 'Cache-Control': 'public, max-age=60' },
-    })
+    return Response.json(
+      { ...preview, recordMap: withSvgMedia(preview.recordMap, siteUrl) },
+      {
+        headers: { ...headers, 'Cache-Control': 'public, max-age=60' },
+      },
+    )
   } catch {
     return Response.json({ error: 'Preview unavailable' }, { status: 503, headers })
   }

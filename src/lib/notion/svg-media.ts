@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto'
 import type { ExtendedRecordMap } from 'notion-types'
-import { getBlockValue, isPublicNotionBlock, resolveDefaultImageUrl } from 'notion-utils'
-import { siteConfig } from '@/site.config'
+import { getBlockValue, resolveDefaultImageUrl } from 'notion-utils'
 import { isRemoteImageAllowed } from './image-source'
+import { hasPublicSiteAccess } from './record-map'
 import { normalizePageId } from './urls'
+import { getNotionIconPath } from './icon-url'
 
 export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
   const id = normalizePageId(pageId)
@@ -12,7 +13,7 @@ export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
   if (
     !block?.alive ||
     (block.type !== 'page' && block.type !== 'collection_view_page') ||
-    !isPublicNotionBlock(recordMap, id, siteConfig.rootNotionPageId)
+    !hasPublicSiteAccess(recordMap, block)
   )
     return
   const raw = block.format?.page_cover
@@ -38,16 +39,37 @@ export function getSvgCover(recordMap: ExtendedRecordMap, pageId: string) {
 }
 
 // Only the render copy changes; authorization and source lookup keep the original Notion map.
-export function withSvgCovers(recordMap: ExtendedRecordMap, origin: string) {
+export function withSvgMedia(recordMap: ExtendedRecordMap, origin: string) {
   const block = { ...recordMap.block }
+  const collection = { ...recordMap.collection }
+  const signedUrls = { ...recordMap.signed_urls }
   for (const [id, entry] of Object.entries(block)) {
-    const cover = getSvgCover(recordMap, id)
-    if (!cover) continue
     const page = getBlockValue(entry)!
+    if (!page?.alive) continue
+    const cover = getSvgCover(recordMap, id)
+    const icon = getNotionIconPath(page.format?.page_icon)
+    if (!cover && !icon) continue
     block[id] = {
       ...entry,
-      value: { ...page, format: { ...page.format, page_cover: `${origin}${cover.path}` } },
+      value: {
+        ...page,
+        format: {
+          ...page.format,
+          ...(cover && { page_cover: `${origin}${cover.path}` }),
+          ...(icon && { page_icon: `${origin}${icon}` }),
+        },
+      },
+    }
+    // The renderer's legacy per-page signature must not replace a public first-party cover.
+    if (cover) delete signedUrls[id]
+  }
+  for (const [id, entry] of Object.entries(collection)) {
+    const value = getBlockValue(entry)
+    const icon = getNotionIconPath(value?.icon)
+    // Catalog icons are public static files, independent of the collection's content permissions.
+    if (value && icon) {
+      collection[id] = { ...entry, value: { ...value, icon: `${origin}${icon}` } }
     }
   }
-  return { ...recordMap, block }
+  return { ...recordMap, block, collection, signed_urls: signedUrls }
 }

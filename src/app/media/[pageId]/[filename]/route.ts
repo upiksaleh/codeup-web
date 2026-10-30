@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { svgResponse } from '@/lib/svg-response'
 import { normalizePageId } from '@/lib/notion/urls'
 import { loadSvgCover } from '@/lib/notion/svg-cover-source'
 
@@ -15,19 +15,7 @@ export async function GET(
   try {
     const image = await loadSvgCover(id, filename)
     if (!image) return new Response('Cover not found', { status: 404, headers: noStore })
-    const etag = `"${createHash('sha256').update(image).digest('hex')}"`
-    const headers = {
-      'Content-Type': 'image/svg+xml',
-      'Content-Length': String(image.byteLength),
-      'Content-Disposition': 'attachment; filename="cover.svg"',
-      'Content-Security-Policy': "default-src 'self'; script-src 'none'; sandbox;",
-      'X-Content-Type-Options': 'nosniff',
-      'Cache-Control': 'public, max-age=60, s-maxage=300',
-      ETag: etag,
-    }
-    return request.headers.get('if-none-match') === etag
-      ? new Response(null, { status: 304, headers })
-      : new Response(new Uint8Array(image), { headers })
+    return svgResponse(request, image)
   } catch {
     return new Response('Cover temporarily unavailable', { status: 503, headers: noStore })
   }

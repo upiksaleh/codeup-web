@@ -4,7 +4,7 @@ import Image, { type ImageProps } from 'next/image'
 import { getBlockValue } from 'notion-utils'
 import { createContext, useContext, useState } from 'react'
 import { useNotionContext } from 'react-notion-x'
-import { canServeImage, localSvgCoverUrl } from '@/lib/notion/image-source'
+import { canServeImage, isSvgImage, localSvgMediaUrl } from '@/lib/notion/image-source'
 import { SiteUrlContext } from './site-url-context'
 
 // Pages whose gallery card covers load with high priority; the first one is also preloaded.
@@ -39,7 +39,7 @@ function openWithLoadedImage(event: Event) {
 }
 
 export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props }: ImageProps) {
-  const { fullPage, recordMap, mapImageUrl } = useNotionContext()
+  const { fullPage, recordMap, mapImageUrl, darkMode } = useNotionContext()
   const siteUrl = useContext(SiteUrlContext)
   const priorityIndex = useContext(PriorityCoverContext).findIndex((id) => {
     const page = getBlockValue(recordMap.block[id])
@@ -66,11 +66,13 @@ export function NotionImage({ src, sizes, unoptimized, onError, onLoad, ...props
         loading: priorityIndex === 0 ? undefined : 'eager',
         fetchPriority: 'high',
       })}
-      src={typeof src === 'string' ? localSvgCoverUrl(src, siteUrl) : src}
+      src={typeof src === 'string' ? localSvgMediaUrl(src, siteUrl, darkMode) : src}
       alt={props.alt}
       sizes={imageSizes}
       unoptimized={
-        unoptimized || failedSource === src || (typeof src === 'string' && !canServeImage(src))
+        unoptimized ||
+        failedSource === src ||
+        (typeof src === 'string' && (isSvgImage(src) || !canServeImage(src)))
       }
       onLoad={(event) => {
         onLoad?.(event)

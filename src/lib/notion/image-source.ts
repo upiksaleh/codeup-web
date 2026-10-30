@@ -23,14 +23,30 @@ export function canServeImage(value: string) {
 }
 
 // Keep local development on its current origin. Replayed URLs already include Wayback's prefix.
-export function localSvgCoverUrl(value: string, origin: string) {
+export function localSvgMediaUrl(value: string, origin: string, darkMode = false) {
+  const themed = /\/media\/icons\/[a-z\d_-]{1,120}\.svg$/i.test(value)
+    ? `${value}?mode=${darkMode ? 'dark' : 'light'}`
+    : value
   try {
-    if (new URL(origin).origin !== origin) return value
+    if (new URL(origin).origin !== origin) return themed
   } catch {
-    return value
+    return themed
   }
-  const path = value.startsWith(origin) ? value.slice(origin.length) : value
-  return /^\/media\/[a-f\d]{32}\/cover-[a-f\d]{24}\.svg$/.test(path) ? path : value
+  const path = themed.startsWith(origin) ? themed.slice(origin.length) : themed
+  return /^\/media\/(?:[a-f\d]{32}\/cover-[a-f\d]{24}\.svg|icons\/[a-z\d_-]{1,120}\.svg\?mode=(?:light|dark))$/i.test(
+    path,
+  )
+    ? path
+    : themed
+}
+
+export function isSvgImage(value: string) {
+  try {
+    const pathname = value.startsWith('/') ? value.split('?')[0] : new URL(value).pathname
+    return decodeURIComponent(pathname).toLowerCase().endsWith('.svg')
+  } catch {
+    return false
+  }
 }
 
 // Raster images that sharp can resize and decode for previews.
@@ -38,9 +54,5 @@ export function canOptimizeImage(value: string) {
   if (value === siteConfig.logo) return true
   if (!isRemoteImageAllowed(value)) return false
 
-  try {
-    return !decodeURIComponent(new URL(value).pathname).toLowerCase().endsWith('.svg')
-  } catch {
-    return false
-  }
+  return !isSvgImage(value)
 }

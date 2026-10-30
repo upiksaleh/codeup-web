@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache'
 import { findSitePageIds } from './record-map'
 import { loadNotionPage, notionPageTag } from './pages'
 import { readImage } from './image-previews'
-import { getSvgCover } from './svg-cover'
+import { getSvgCover } from './svg-media'
 
 export async function loadSvgCover(pageId: string, filename: string) {
   const recordMap = await loadNotionPage(pageId)

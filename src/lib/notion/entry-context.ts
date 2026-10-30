@@ -4,7 +4,7 @@ import { isEntryOrConfiguredPage } from './index/lookup'
 import { getSitePages } from './index/site'
 import { loadNotionPage } from './pages'
 import { getBlockValue, resolveDefaultImageUrl } from 'notion-utils'
-import { getSvgCover } from './svg-cover'
+import { getSvgCover } from './svg-media'
 
 // Only pages under an article or project have context.
 export async function getEntryContext(pageId: string) {
