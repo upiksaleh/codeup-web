@@ -1,9 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { siteConfig } from '@/site.config'
+import { LogoSymbol, LogoWordmark } from './logo'
 import { MobileMenu } from './mobile-menu'
 import { SearchButton } from './search-button'
 import { SiteNavigation } from './site-navigation'
@@ -21,11 +21,8 @@ export function SiteHeader() {
           className="site-name"
           aria-label={`${siteConfig.name} home`}
         >
-          <Image src={siteConfig.logo} alt="" width={32} height={32} loading="eager" />
-          <span>
-            {siteConfig.name}
-            <span className="brand-dot">.</span>
-          </span>
+          <LogoSymbol width={32} />
+          <LogoWordmark width={128} />
         </Link>
         <SiteNavigation />
         <div className="site-actions">

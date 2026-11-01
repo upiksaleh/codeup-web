@@ -11,7 +11,14 @@
   --site-line: light-dark(#dce6e5, #3e4451);
   --site-accent: light-dark(#087c73, #7ed3c8);
   --site-cover: light-dark(#127b72, #287c73);
+  /* The cover stays a dark teal in both themes, so type on it does not invert. */
+  --site-on-cover: #ffffff;
+  --site-on-cover-body: #ecfaf6;
+  --site-on-cover-quiet: #e4faf4;
+  --site-on-cover-mark: #9fe6da;
   --site-tint: light-dark(#e7f2ef, #333842);
+  /* Logo and wordmark share one color: teal on light, white on dark. */
+  --site-brand: light-dark(#087c73, #ffffff);
   --site-glow-from: light-dark(#0d9488, #2dd4bf);
   --site-glow-to: light-dark(#7c3aed, #a78bfa);
   --site-width: 1200px;
@@ -267,21 +274,23 @@ a:hover {
   align-items: center;
   gap: 10px 22px;
 }
-.site-name {
+.site-name,
+.footer-name {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 44px;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -1px;
   text-decoration: none;
 }
-.site-name img {
-  border-radius: 50%;
+.logo-symbol,
+.logo-wordmark {
+  display: block;
+  flex-shrink: 0;
+  color: var(--site-brand);
 }
-.brand-dot {
-  color: var(--site-accent);
+.notion-page-icon-hero .logo-symbol {
+  width: 100%;
+  height: 100%;
 }
 .site-navigation {
   display: flex;
@@ -765,7 +774,7 @@ a:hover {
   margin: 24px 24px 32px;
   padding: 42px 54px 50px;
   border-radius: 18px;
-  color: #ffffff;
+  color: var(--site-on-cover);
   background: var(--site-cover);
 }
 .home-hero-content {
@@ -774,7 +783,7 @@ a:hover {
 .home-hero-label {
   display: block;
   margin-bottom: 10px;
-  color: #e4faf4;
+  color: var(--site-on-cover-quiet);
   font:
     12px/1.6 ui-monospace,
     'SFMono-Regular',
@@ -784,33 +793,45 @@ a:hover {
   text-transform: uppercase;
 }
 .home-hero h1 {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.08em;
   margin: 0;
-  color: inherit;
-  font-size: clamp(2.25rem, 4vw, 3rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -2px;
+  font-size: clamp(40px, 5vw, 58px);
+  line-height: 1;
 }
-.home-hero .brand-dot {
-  color: #c3f0e4;
+/* Square dot echoes the detached module in the symbol. */
+.home-hero-dot {
+  flex-shrink: 0;
+  width: 0.24em;
+  height: 0.24em;
+  /* Sits on the wordmark baseline (8/102 of its height). */
+  margin-bottom: 0.08em;
+  border-top-right-radius: 0.03em;
+  background: var(--site-on-cover-mark);
+}
+.home-hero h1 .logo-wordmark {
+  width: 4.5em;
+  height: auto;
+  color: var(--site-on-cover);
 }
 .home-hero p {
   max-width: 460px;
   margin: 16px 0 0;
-  color: #ecfaf6;
+  color: var(--site-on-cover-body);
   font-size: 17px;
   line-height: 1.65;
 }
-.home-hero-logo {
-  flex-shrink: 0;
+.home-hero .home-hero-logo {
   margin-left: auto;
-  border-radius: 50%;
+  color: var(--site-on-cover);
+  opacity: 0.92;
 }
 .home-hero-domain {
   position: absolute;
   right: 24px;
   bottom: 18px;
-  color: #e4faf4;
+  color: var(--site-on-cover-quiet);
   font:
     12px/1.5 ui-monospace,
     'SFMono-Regular',
@@ -826,12 +847,6 @@ a:hover {
   gap: 18px 24px;
   padding-block: 24px;
   border-top: 1px solid var(--site-line);
-}
-.footer-name {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.6px;
-  text-decoration: none;
 }
 .footer-status {
   margin: 6px 0 0;
@@ -1552,7 +1567,19 @@ a:hover {
 }
 /* Entries without a cover keep the card layout with the brand cover. */
 .entry-collection .notion-collection-card-cover:not(:has(img)) {
-  background: var(--site-cover) url('/codeup.png') center / 72px no-repeat;
+  background: var(--site-cover);
+}
+.entry-collection .notion-collection-card-cover:not(:has(img))::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 72px;
+  height: 72px;
+  margin: auto;
+  background: var(--site-on-cover);
+  pointer-events: none;
+  -webkit-mask: url('/codeup.svg') center / contain no-repeat;
+  mask: url('/codeup.svg') center / contain no-repeat;
 }
 /* Titles wrap to two lines so cards in a row keep the same height. */
 :is(.home-page, .entry-listing-gallery)
@@ -2192,7 +2219,7 @@ a:hover {
     gap: 22px;
     padding: 38px 30px 48px;
   }
-  .home-hero-logo {
+  .home-hero .home-hero-logo {
     width: 110px;
     height: 110px;
   }
@@ -2211,6 +2238,11 @@ a:hover {
   }
   .site-name {
     flex: 1;
+    gap: 6px;
+  }
+  .site-name .logo-wordmark {
+    width: 86px;
+    height: auto;
   }
   .home-hero {
     flex-direction: column;
@@ -2221,11 +2253,12 @@ a:hover {
     padding: 28px 24px 46px;
     border-radius: 14px;
   }
-  .home-hero-logo {
+  .home-hero .home-hero-logo {
     order: -1;
     width: 72px;
     height: 72px;
-    margin: 0;
+    /* Cancel the symbol's built-in inset (20/128) so it lines up with the text. */
+    margin: -11px 0 -11px -11px;
   }
   .home-hero p {
     font-size: 15px;

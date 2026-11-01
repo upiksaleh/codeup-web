@@ -1,10 +1,9 @@
 import 'server-only'
 
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import { unstable_cache } from 'next/cache'
 import { ImageResponse } from 'next/og'
 import sharp from 'sharp'
+import { LogoSymbol, LogoWordmark } from '@/components/logo'
 import { siteConfig } from '@/site.config'
 import { isRemoteImageAllowed } from './notion/image-source'
 import { readImage } from './notion/image-previews'
@@ -27,6 +26,8 @@ const colors = {
   cover: '#287c73',
   coverInk: '#d6ecea',
   tint: '#344a48',
+  // Dark image, so the logo follows the site's dark theme: white.
+  brand: '#ffffff',
 }
 
 function toDataUrl(image: Buffer, mimeType: string) {
@@ -87,16 +88,32 @@ function tagList(tags: string[], size: number) {
   ))
 }
 
-function wordmark(size: number) {
+function wordmark(width: number) {
+  return <LogoWordmark width={width} fill={colors.brand} />
+}
+
+// Domain sits at the foot of the brand panel, like the address on the site hero.
+function panelDomain(size: number, bottom: number) {
   return (
-    <div style={{ display: 'flex', fontSize: size, letterSpacing: -1 }}>
-      {siteConfig.name}
-      <span style={{ color: colors.accent }}>.</span>
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom,
+        display: 'flex',
+        justifyContent: 'center',
+        color: colors.coverInk,
+        fontSize: size,
+        letterSpacing: 1,
+      }}
+    >
+      {siteConfig.domain}
     </div>
   )
 }
 
-type Content = { title: string; description?: string; kicker: string; tags: string[]; logo: string }
+type Content = { title: string; description?: string; kicker: string; tags: string[] }
 
 // Cover band on top; text keeps the left column and the brand the right.
 function coverLayout({
@@ -104,7 +121,6 @@ function coverLayout({
   description,
   kicker: label,
   tags,
-  logo,
   cover,
 }: Content & { cover: string }) {
   return (
@@ -155,37 +171,34 @@ function coverLayout({
             alignItems: 'center',
             justifyContent: 'center',
             gap: 14,
+            position: 'relative',
             width: brandWidth,
             background: colors.cover,
           }}
         >
-          <img alt="" src={logo} width={110} height={110} style={{ borderRadius: 55 }} />
-          {wordmark(30)}
-          <div style={{ color: colors.coverInk, fontSize: 18 }}>{siteConfig.domain}</div>
+          <LogoSymbol width={96} fill={colors.brand} />
+          {wordmark(150)}
+          {panelDomain(18, 28)}
         </div>
       </div>
     </div>
   )
 }
 
-function brandLayout({ title, description, kicker: label, tags, logo }: Content) {
+function brandLayout({ title, description, kicker: label, tags }: Content) {
   return (
     <div style={{ display: 'flex', width: '100%', height: '100%' }}>
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'center',
           flex: 1,
           padding: '56px 64px',
           borderTop: `10px solid ${colors.accent}`,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <img alt="" src={logo} width={52} height={52} style={{ borderRadius: 26 }} />
-          {wordmark(34)}
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {kicker(label, 22)}
           <div
             style={{
@@ -215,24 +228,29 @@ function brandLayout({ title, description, kicker: label, tags, logo }: Content)
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 36 }}>
-          {tagList(tags, 20)}
-          <div style={{ marginLeft: 'auto', color: colors.muted, fontSize: 22 }}>
-            {siteConfig.domain}
+        {tags.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 36 }}>
+            {tagList(tags, 20)}
           </div>
-        </div>
+        )}
       </div>
 
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: 28,
+          position: 'relative',
           width: panelWidth,
           background: colors.cover,
         }}
       >
-        <img alt="" src={logo} width={220} height={220} style={{ borderRadius: 110 }} />
+        {/* All identity lives in the panel, like the cover layout. */}
+        <LogoSymbol width={170} fill={colors.brand} />
+        {wordmark(220)}
+        {panelDomain(22, 48)}
       </div>
     </div>
   )
@@ -251,13 +269,8 @@ export async function renderSocialImage({
   tags?: string[]
   cover?: string
 }) {
-  const [logo, coverImage] = await Promise.all([
-    readFile(join(process.cwd(), 'public', siteConfig.logo)).then((file) =>
-      toDataUrl(file, 'image/png'),
-    ),
-    loadCover(cover),
-  ])
-  const content = { title, description, kicker, tags, logo }
+  const coverImage = await loadCover(cover)
+  const content = { title, description, kicker, tags }
 
   return new ImageResponse(
     <div

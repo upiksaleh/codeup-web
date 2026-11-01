@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import Script from 'next/script'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
@@ -15,7 +16,14 @@ export const metadata: Metadata = {
   title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   authors: [{ name: siteConfig.author }],
-  icons: { icon: siteConfig.logo, apple: siteConfig.logo },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+  },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -45,7 +53,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
+        <Script
+          id="site-theme"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `try {
           const theme = localStorage.getItem('codeup-theme')

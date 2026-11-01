@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import { siteConfig } from '@/site.config'
 import { PointerTrail } from './pointer-trail'
 import { TypingText } from './typing-text'
+import { LogoSymbol, LogoWordmark } from './logo'
 
 export function HomeHero() {
   return (
@@ -10,20 +10,12 @@ export function HomeHero() {
       <div className="home-hero-content">
         <TypingText className="home-hero-label" text={siteConfig.label} />
         <h1>
-          {siteConfig.name}
-          <span className="brand-dot">.</span>
+          <LogoWordmark aria-label={siteConfig.name} width={260} />
+          <span className="home-hero-dot" aria-hidden="true" />
         </h1>
         <p>{siteConfig.description}</p>
       </div>
-      <Image
-        className="home-hero-logo"
-        src={siteConfig.logo}
-        alt=""
-        width={150}
-        height={150}
-        sizes="(max-width: 580px) 72px, (max-width: 800px) 110px, 150px"
-        loading="eager"
-      />
+      <LogoSymbol className="home-hero-logo" width={150} />
       <span className="home-hero-domain" aria-hidden="true">
         {siteConfig.domain}
       </span>

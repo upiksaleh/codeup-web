@@ -1,14 +1,15 @@
 import Link from 'next/link'
 import { siteConfig } from '@/site.config'
+import { LogoSymbol, LogoWordmark } from './logo'
 import { Icon } from './ui/icon'
 
 export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div>
-        <Link href="/" className="footer-name">
-          {siteConfig.name}
-          <span className="brand-dot">.</span>
+        <Link href="/" className="footer-name" aria-label={`${siteConfig.name} home`}>
+          <LogoSymbol width={22} />
+          <LogoWordmark width={92} />
         </Link>
         <p className="footer-status">{siteConfig.footerStatus}</p>
       </div>

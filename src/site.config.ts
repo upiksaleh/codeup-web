@@ -15,7 +15,7 @@ export const siteConfig = {
     'An independent studio by Upik Saleh, building software across infrastructure, security, and applications.',
   author: 'Upik',
   label: 'Independent Studio',
-  logo: '/codeup.png',
+  logo: '/codeup.svg',
   imageSources: [
     { hostname: 'app.notion.com', pathname: '/image/' },
     { hostname: 'app.notion.com', pathname: '/images/' },

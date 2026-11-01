@@ -10,6 +10,10 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     background_color: '#282c34',
     theme_color: '#21252b',
-    icons: [{ src: siteConfig.logo, sizes: '512x512', type: 'image/png', purpose: 'any' }],
+    icons: [
+      { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+    ],
   }
 }

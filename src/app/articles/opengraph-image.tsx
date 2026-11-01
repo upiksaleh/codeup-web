@@ -6,5 +6,5 @@ export const size = socialImageSize
 export const contentType = 'image/png'
 
 export default function Image() {
-  return renderSocialImage({ title: 'Articles', kicker: siteConfig.name })
+  return renderSocialImage({ title: 'Articles', kicker: siteConfig.label })
 }

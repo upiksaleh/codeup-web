@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { LogoSymbol } from './logo'
 import Link from 'next/link'
 import { getBlockValue } from 'notion-utils'
 import { getNotionPage } from '@/lib/notion/get-page'
@@ -106,7 +106,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
             isArticle &&
             !page?.format?.page_icon && (
               <div className="notion-page-icon-hero notion-page-icon-image">
-                <Image src={siteConfig.logo} alt={siteConfig.name} width={124} height={124} />
+                <LogoSymbol aria-label={siteConfig.name} width={124} />
               </div>
             )
           )
