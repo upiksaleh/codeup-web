@@ -23,6 +23,34 @@ export function ProjectDetails({
       icon: project.repository?.includes('github.com') ? 'github' : 'external',
     },
   ].filter((link): link is { label: string; href: string; icon: IconName } => !!link.href)
+  const specifications = (
+    <dl>
+      {project.techStack.length > 0 && (
+        <div>
+          <dt>Tech stack</dt>
+          <dd>
+            <ul className="entry-tags">
+              {project.techStack.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div>
+          <dt>Topics</dt>
+          <dd>
+            <ul className="entry-tags">
+              {tags.map((tag) => (
+                <li key={tag}>{tag}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      )}
+    </dl>
+  )
 
   return (
     <div className="project-details" lang="en">
@@ -58,30 +86,6 @@ export function ProjectDetails({
               </dd>
             </div>
           )}
-          {project.techStack.length > 0 && (
-            <div>
-              <dt>Tech stack</dt>
-              <dd>
-                <ul className="entry-tags">
-                  {project.techStack.map((tech) => (
-                    <li key={tech}>{tech}</li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          )}
-          {tags.length > 0 && (
-            <div>
-              <dt>Tags</dt>
-              <dd>
-                <ul className="entry-tags">
-                  {tags.map((tag) => (
-                    <li key={tag}>{tag}</li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          )}
         </dl>
       </div>
       {links.length > 0 && (
@@ -94,6 +98,16 @@ export function ProjectDetails({
           ))}
         </div>
       )}
+      {project.techStack.length + tags.length > 8 ? (
+        <details className="project-specifications">
+          <summary>
+            Technologies & topics <Icon name="chevronDown" width={16} height={16} />
+          </summary>
+          {specifications}
+        </details>
+      ) : project.techStack.length + tags.length > 0 ? (
+        specifications
+      ) : null}
     </div>
   )
 }

@@ -132,7 +132,7 @@ function SearchPalette({ onClose }: { onClose: () => void }) {
         <input
           type="search"
           role="combobox"
-          aria-label="Search pages, notes, and projects"
+          aria-label="Search all content"
           aria-expanded={results.length > 0}
           aria-controls={listId}
           aria-autocomplete="list"

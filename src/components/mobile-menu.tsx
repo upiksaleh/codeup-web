@@ -1,14 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { siteConfig } from '@/site.config'
+import { SiteNavigation } from './site-navigation'
 import { Icon } from './ui/icon'
 import { Modal } from './ui/modal'
 
 export function MobileMenu() {
-  const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -34,19 +31,7 @@ export function MobileMenu() {
       </button>
       {open && (
         <Modal label="Menu" className="mobile-menu-dialog" onClose={() => setOpen(false)}>
-          <nav aria-label="Main navigation">
-            {siteConfig.navigation.map(({ label, path }) => (
-              <Link
-                key={path}
-                href={path}
-                className={path === siteConfig.navigationCta ? 'navigation-cta' : undefined}
-                aria-current={path === pathname ? 'page' : undefined}
-                onClick={() => setOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+          <SiteNavigation className="mobile-navigation" onNavigate={() => setOpen(false)} />
         </Modal>
       )}
     </>

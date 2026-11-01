@@ -1,8 +1,9 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, type MouseEvent } from 'react'
 import { EntryGallery, type EntryGalleryData } from './entry-gallery'
 import { Icon } from './ui/icon'
+import { useListingLocation } from './use-listing-location'
 
 type Entry = {
   id: string
@@ -99,14 +100,17 @@ export function EntryListing({
   entries: Entry[]
   gallery: EntryGalleryData
 }) {
-  const [query, setQuery] = useState('')
-  const [tag, setTag] = useState('')
-  const [stack, setStack] = useState('')
-  const [page, setPage] = useState(1)
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const { params, navigate } = useListingLocation()
+  const resultsRef = useRef<HTMLOutputElement>(null)
   const { title, noun, intro } = copy[kind]
   const tags = countTags(entries)
   const stacks = uniqueSorted(entries.flatMap((entry) => entry.techStack))
+  const query = (params.get('q') ?? '').slice(0, 200)
+  const tag = tags.find(([name]) => name === params.get('tag'))?.[0] ?? ''
+  const stack = stacks.find((name) => name === params.get('stack')) ?? ''
+  const pageParam = params.get('page') ?? '1'
+  const page =
+    /^[1-9]\d*$/.test(pageParam) && Number.isSafeInteger(Number(pageParam)) ? Number(pageParam) : 1
   const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)
   const filtering = terms.length > 0 || !!tag || !!stack
   const filtered = entries.filter((entry) => {
@@ -126,28 +130,34 @@ export function EntryListing({
   const lead = !filtering && currentPage === 1 && visible.length > 1
 
   const nounFor = (count: number) => (count === 1 ? noun[0] : noun[1])
-  const update = (apply: () => void) => {
-    apply()
-    setPage(1)
+  const listingUrl = (changes: { q?: string; tag?: string; stack?: string; page?: number }) => {
+    const next = { q: query, tag, stack, page: currentPage, ...changes }
+    const search = new URLSearchParams(params)
+    for (const key of ['q', 'tag', 'stack', 'page'] as const) {
+      if (!next[key] || (key === 'page' && next[key] === 1)) search.delete(key)
+      else search.set(key, String(next[key]))
+    }
+    const suffix = search.toString()
+    return `/${noun[1]}${suffix ? `?${suffix}` : ''}`
   }
-  const clearFilters = () =>
-    update(() => {
-      setQuery('')
-      setTag('')
-      setStack('')
-    })
-  const goToPage = (next: number) => {
-    setPage(next)
-    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
-    resultsRef.current?.scrollIntoView({
-      block: 'start',
-      behavior: reduceMotion ? 'auto' : 'smooth',
+  const clearFilters = () => navigate(listingUrl({ q: '', tag: '', stack: '', page: 1 }))
+  const goToPage = (event: MouseEvent<HTMLAnchorElement>, next: number) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)
+      return
+    event.preventDefault()
+    navigate(listingUrl({ page: next }))
+    requestAnimationFrame(() => {
+      resultsRef.current?.focus({ preventScroll: true })
+      resultsRef.current?.scrollIntoView({
+        block: 'start',
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      })
     })
   }
 
   return (
-    <main className="entry-listing" data-kind={kind} lang="en">
-      <header className="entry-listing-header">
+    <main className="entry-listing" data-kind={kind}>
+      <header className="entry-listing-header" lang="en">
         <h1>{title}</h1>
         <p>{intro}</p>
         <dl className="entry-listing-stats">
@@ -168,7 +178,7 @@ export function EntryListing({
         </dl>
       </header>
 
-      <search className="entry-filters" aria-label={`Filter ${noun[1]}`}>
+      <search className="entry-filters" aria-label={`Filter ${noun[1]}`} lang="en">
         <div className="entry-filter-row">
           <div className="entry-search-field">
             <Icon name="search" />
@@ -178,7 +188,7 @@ export function EntryListing({
               value={query}
               maxLength={200}
               placeholder={`Search ${noun[1]} by title, summary, or tag`}
-              onChange={(event) => update(() => setQuery(event.target.value))}
+              onChange={(event) => navigate(listingUrl({ q: event.target.value, page: 1 }), true)}
             />
           </div>
           {stacks.length > 0 && (
@@ -187,14 +197,18 @@ export function EntryListing({
               allLabel="All technologies"
               value={stack}
               options={stacks}
-              onChange={(value) => update(() => setStack(value))}
+              onChange={(value) => navigate(listingUrl({ stack: value, page: 1 }))}
             />
           )}
         </div>
         {tags.length > 0 && (
           <fieldset className="entry-topics">
             <legend className="sr-only">Filter by topic</legend>
-            <button type="button" aria-pressed={!tag} onClick={() => update(() => setTag(''))}>
+            <button
+              type="button"
+              aria-pressed={!tag}
+              onClick={() => navigate(listingUrl({ tag: '', page: 1 }))}
+            >
               All
             </button>
             {tags.map(([name, count]) => (
@@ -202,7 +216,7 @@ export function EntryListing({
                 key={name}
                 type="button"
                 aria-pressed={tag === name}
-                onClick={() => update(() => setTag(tag === name ? '' : name))}
+                onClick={() => navigate(listingUrl({ tag: tag === name ? '' : name, page: 1 }))}
               >
                 {name}
                 <span aria-hidden="true">{count}</span>
@@ -212,9 +226,9 @@ export function EntryListing({
         )}
       </search>
 
-      <div className="entry-results" ref={resultsRef}>
-        <div className="entry-results-bar">
-          <output aria-live="polite">
+      <div className="entry-results">
+        <div className="entry-results-bar" lang="en">
+          <output aria-live="polite" tabIndex={-1} ref={resultsRef}>
             {filtered.length
               ? `Showing ${start + 1}–${start + visible.length} of ${filtered.length} ${nounFor(filtered.length)}`
               : `No ${noun[1]} found`}
@@ -236,7 +250,7 @@ export function EntryListing({
             />
           </div>
         ) : (
-          <div className="entry-empty">
+          <div className="entry-empty" lang="en">
             <Icon name="search" />
             <p>
               {entries.length
@@ -252,40 +266,50 @@ export function EntryListing({
         )}
 
         {pageCount > 1 && (
-          <nav className="entry-pagination" aria-label="Pagination">
-            <button
-              type="button"
-              aria-label="Previous page"
-              disabled={currentPage === 1}
-              onClick={() => goToPage(currentPage - 1)}
-            >
-              <Icon name="chevronLeft" />
-            </button>
+          <nav className="entry-pagination" aria-label="Pagination" lang="en">
+            {currentPage === 1 ? (
+              <button type="button" aria-label="Previous page" disabled>
+                <Icon name="chevronLeft" />
+              </button>
+            ) : (
+              <a
+                href={listingUrl({ page: currentPage - 1 })}
+                aria-label="Previous page"
+                onClick={(event) => goToPage(event, currentPage - 1)}
+              >
+                <Icon name="chevronLeft" />
+              </a>
+            )}
             {pageItems(currentPage, pageCount).map((item, index) =>
               item === 'gap' ? (
                 <span key={`gap-${index}`} aria-hidden="true">
                   …
                 </span>
               ) : (
-                <button
+                <a
                   key={item}
-                  type="button"
+                  href={listingUrl({ page: item })}
                   aria-label={`Page ${item}`}
                   aria-current={item === currentPage ? 'page' : undefined}
-                  onClick={() => goToPage(item)}
+                  onClick={(event) => goToPage(event, item)}
                 >
                   {item}
-                </button>
+                </a>
               ),
             )}
-            <button
-              type="button"
-              aria-label="Next page"
-              disabled={currentPage === pageCount}
-              onClick={() => goToPage(currentPage + 1)}
-            >
-              <Icon name="chevronRight" />
-            </button>
+            {currentPage === pageCount ? (
+              <button type="button" aria-label="Next page" disabled>
+                <Icon name="chevronRight" />
+              </button>
+            ) : (
+              <a
+                href={listingUrl({ page: currentPage + 1 })}
+                aria-label="Next page"
+                onClick={(event) => goToPage(event, currentPage + 1)}
+              >
+                <Icon name="chevronRight" />
+              </a>
+            )}
           </nav>
         )}
       </div>

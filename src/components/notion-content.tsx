@@ -3,10 +3,10 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
-import { useEffect, useMemo, type ComponentProps, type ReactNode } from 'react'
+import { useContext, useEffect, useMemo, type ComponentProps, type ReactNode } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 import { useSiteTheme } from '@/lib/theme'
-import { normalizePageId } from '@/lib/notion/urls'
+import { getInternalHref, normalizePageId } from '@/lib/notion/urls'
 import { withCollectionPropertyOrder } from '@/lib/notion/collection-property-order'
 import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { siteConfig } from '@/site.config'
@@ -20,14 +20,17 @@ import { propertyDateValue } from './property-date-value'
 import { usePointerEffects } from './use-pointer-effects'
 import { LinkPreviews } from './link-previews'
 import { NotionPageLink } from './notion-page-link'
+import { SiteUrlContext } from './site-url-context'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
 
 // The renderer sets target="_blank" on every link; internal pages should open in place.
 function NotionLink({ href, target, rel, children, ...props }: ComponentProps<'a'>) {
-  if (href?.startsWith('/')) {
+  const siteUrl = useContext(SiteUrlContext)
+  const internalHref = href === undefined ? undefined : getInternalHref(href, siteUrl)
+  if (internalHref !== undefined) {
     return (
-      <Link href={href} {...props}>
+      <Link href={internalHref} {...props}>
         {children}
       </Link>
     )

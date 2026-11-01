@@ -13,6 +13,31 @@ const reservedSlugs = new Set([
 ])
 const prefixes = { article: '/article', project: '/project', note: '', page: '' } as const
 const configuredPages = [...siteConfig.navigation, ...siteConfig.pageAliases]
+const canonicalOrigin = `https://${siteConfig.domain}`
+
+// Keep same-site links on the current deployment, including links written as full URLs in Notion.
+export function getInternalHref(value: string, siteUrl = canonicalOrigin) {
+  const href = value.trim()
+  try {
+    const base = new URL(siteUrl || canonicalOrigin)
+    const url = new URL(href, base)
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      (url.origin !== base.origin && url.host !== new URL(canonicalOrigin).host)
+    )
+      return undefined
+
+    if (href.startsWith('#') || href.startsWith('?')) return href
+    if (!href.startsWith('/') && !/^[a-z][a-z\d+.-]*:/i.test(href)) return href
+    // A rewritten path must never become a protocol-relative external URL.
+    if (url.pathname.startsWith('//')) return undefined
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return undefined
+  }
+}
 
 type PagePathInfo = { id: string; slug: string; kind: keyof typeof prefixes; parentId?: string }
 

@@ -43,6 +43,11 @@ function addMentionedPages(value: unknown, ids: Set<string>) {
 // The client copy keeps rendered blocks and their ancestors, which upstream public-access checks walk.
 export function withRenderedBlocks(recordMap: ExtendedRecordMap, blockId: string) {
   const ids = getRenderedBlockIds(recordMap, blockId)
+  // Inline page mentions need the target's title and icon, without its body.
+  for (const id of [...ids]) {
+    const properties = getBlockValue(recordMap.block[id])?.properties ?? {}
+    for (const value of Object.values(properties)) addMentionedPages(value, ids)
+  }
   for (const id of [...ids]) {
     let current = getBlockValue(recordMap.block[id])
     while (current) {

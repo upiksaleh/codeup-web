@@ -86,3 +86,45 @@ test('the client copy keeps the ancestors of a rendered block', () => {
     'root',
   ])
 })
+
+test('inline page mentions keep their target metadata and ancestry without the target body', () => {
+  const referenced = {
+    ...map,
+    block: {
+      ...map.block,
+      root: page('root', ['paragraph']),
+      paragraph: {
+        value: {
+          id: 'paragraph',
+          type: 'text',
+          properties: {
+            title: [
+              ['Read ', [['b']]],
+              ['this page', [['p', 'target']]],
+            ],
+          },
+        },
+      },
+      target: {
+        value: {
+          ...page('target', ['target-body']).value,
+          parent_id: 'target-parent',
+          parent_table: 'block',
+          properties: { title: [['Referenced page']] },
+        },
+      },
+      'target-parent': page('target-parent'),
+      'target-body': { value: { id: 'target-body', type: 'text' } },
+    },
+    signed_urls: { 'target-body': 'https://example.com/target-body.jpg' },
+  }
+  const result = withRenderedBlocks(referenced, 'root')
+  assert.deepEqual(Object.keys(result.block).sort(), [
+    'paragraph',
+    'root',
+    'target',
+    'target-parent',
+  ])
+  assert.equal(result.block.target, referenced.block.target)
+  assert.deepEqual(result.signed_urls, {})
+})

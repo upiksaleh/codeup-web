@@ -3,10 +3,52 @@ import { register } from 'node:module'
 import { test } from 'node:test'
 
 register('./page-paths-loader.mjs', import.meta.url)
-const { withPageUrls, findPageIdByPath, isSupportedPagePath } =
+const { withPageUrls, findPageIdByPath, isSupportedPagePath, getInternalHref } =
   await import('../src/lib/notion/urls.ts')
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`
 const page = (n, slug, kind = 'page', parentId) => ({ id: id(n), slug, kind, parentId })
+
+test('same-site full URLs stay on the current deployment and preserve queries and fragments', () => {
+  assert.equal(getInternalHref('https://codeup.id/contact'), '/contact')
+  assert.equal(getInternalHref('http://codeup.id/contact'), '/contact')
+  assert.equal(getInternalHref('https://codeup.id/contact?q=work#email'), '/contact?q=work#email')
+  assert.equal(
+    getInternalHref('https://codeup.id/contact', 'https://preview.vercel.app'),
+    '/contact',
+  )
+  assert.equal(
+    getInternalHref('https://preview.vercel.app/contact', 'https://preview.vercel.app'),
+    '/contact',
+  )
+  assert.equal(
+    getInternalHref('http://localhost:3000/contact', 'http://localhost:3000'),
+    '/contact',
+  )
+})
+
+test('relative links preserve their browser resolution', () => {
+  for (const href of ['/contact', '/contact?from=upik#email', '#email', '?q=work', '../contact']) {
+    assert.equal(getInternalHref(href), href)
+  }
+})
+
+test('external and ambiguous URLs cannot be rewritten into internal navigation', () => {
+  for (const href of [
+    'https://example.com/contact',
+    'https://codeup.id.example.com/contact',
+    'https://other.vercel.app/contact',
+    '//example.com/contact',
+    '/\\example.com/contact',
+    'https://codeup.id//example.com/contact',
+    'https://user:secret@codeup.id/contact',
+    'https://codeup.id:8443/contact',
+    'mailto:upik@codeup.id',
+    'javascript:alert(1)',
+    'https://[',
+  ]) {
+    assert.equal(getInternalHref(href), undefined, href)
+  }
+})
 
 test('entry descendants inherit their actual ancestry and slugs are unique per parent', () => {
   const pages = withPageUrls([

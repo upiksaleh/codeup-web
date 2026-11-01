@@ -10,6 +10,7 @@ import type { PagePreview } from '@/lib/notion/page-preview'
 import type { LinkMetadata } from '@/lib/link-metadata'
 import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
+import { getInternalHref } from '@/lib/notion/urls'
 import { NotionImage } from './notion-image'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
@@ -119,7 +120,7 @@ function PreviewContent({ preview }: { preview: PagePreview }) {
 }
 
 function getLinkKey(link: HTMLAnchorElement) {
-  return link.origin === location.origin ? link.pathname : link.href
+  return getInternalHref(link.href, location.origin) !== undefined ? link.pathname : link.href
 }
 
 export function LinkPreviews({
@@ -159,8 +160,8 @@ export function LinkPreviews({
         '.notion a.notion-link, .notion a.notion-page-link',
       )
       if (!link || link.closest('.notion-page-preview')) return null
-      if (link.origin === location.origin ? !targets[link.pathname] : link.protocol !== 'https:')
-        return null
+      const internal = getInternalHref(link.href, location.origin) !== undefined
+      if (internal ? !targets[link.pathname] : link.protocol !== 'https:') return null
       return link
     }
 

@@ -34,6 +34,7 @@ export function attachPointerTrail(canvas: HTMLCanvasElement, { ambient = false 
     // CSS resolves the light-dark() theme colors into these properties.
     const from = style.color
     const to = style.outlineColor
+    const ink = style.textDecorationColor
     context.font = `${cell - 2}px ${style.fontFamily}`
     context.textAlign = 'center'
     context.textBaseline = 'middle'
@@ -50,32 +51,56 @@ export function attachPointerTrail(canvas: HTMLCanvasElement, { ambient = false 
         context.fillRect(mark.x + 1, mark.y + 1, cell - 2, cell - 2)
       }
       context.globalAlpha = (age < 0.5 ? 1 - age * 1.4 : (1 - age) * 0.6) * mark.strength
-      context.fillStyle = '#ffffff'
+      context.fillStyle = ink
       context.fillText(mark.glyph, mark.x + cell / 2, mark.y + cell / 2)
     }
     frame = marks.size ? requestAnimationFrame(draw) : 0
   }
 
-  const mark = (x: number, y: number, strength = 1) => {
+  const mark = (x: number, y: number, strength = 1, born = performance.now()) => {
     const key = `${x},${y}`
     if (marks.has(key)) return
     const glyph = glyphs[Math.floor(Math.random() * glyphs.length)]
-    marks.set(key, { x, y, glyph, born: performance.now(), strength })
+    marks.set(key, { x, y, glyph, born, strength })
     if (!frame) frame = requestAnimationFrame(draw)
   }
 
   let hovering = false
+  let last: { column: number; row: number; time: number } | undefined
+  // Fast moves skip cells between events, so the path between them is filled in,
+  // with birth times spread along it so the trail still fades from its tail.
+  const trace = (column: number, row: number, time: number) => {
+    const from = last ?? { column, row, time }
+    // After a pause the previous event is old; filled cells would be born already faded.
+    const start = Math.max(from.time, time - 50)
+    const steps = Math.max(Math.abs(column - from.column), Math.abs(row - from.row))
+    for (let step = last ? 1 : 0; step <= steps; step++) {
+      const progress = steps ? step / steps : 1
+      mark(
+        Math.round(from.column + (column - from.column) * progress) * cell,
+        Math.round(from.row + (row - from.row) * progress) * cell,
+        1,
+        start + (time - start) * progress,
+      )
+    }
+    last = { column, row, time }
+  }
   const onMove = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse') return
     hovering = true
     const bounds = area.getBoundingClientRect()
-    mark(
-      Math.floor((event.clientX - bounds.left) / cell) * cell,
-      Math.floor((event.clientY - bounds.top) / cell) * cell,
-    )
+    const points = event.getCoalescedEvents?.()
+    for (const point of points?.length ? points : [event]) {
+      trace(
+        Math.floor((point.clientX - bounds.left) / cell),
+        Math.floor((point.clientY - bounds.top) / cell),
+        point.timeStamp,
+      )
+    }
   }
   const onLeave = () => {
     hovering = false
+    last = undefined
   }
 
   const scatter = () => {
