@@ -2,7 +2,8 @@
 
 import type { ExtendedRecordMap } from 'notion-types'
 import { getBlockValue, getPageTableOfContents, uuidToId } from 'notion-utils'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Icon } from './ui/icon'
 
 export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string, enabled: boolean) {
   const entries = useMemo(() => {
@@ -14,6 +15,7 @@ export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string,
       : []
   }, [recordMap, pageId, enabled])
   const [activeId, setActiveId] = useState('')
+  const [visibleIds, setVisibleIds] = useState<string[]>([])
   const selected = useRef<string | null>(null)
 
   useEffect(() => {
@@ -24,10 +26,6 @@ export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string,
 
     function update() {
       frame = 0
-      if (selected.current) {
-        setActiveId(selected.current)
-        return
-      }
       const headings = entries.flatMap(({ id }) => {
         const element = document.getElementById(id)
         return element ? [{ id, top: element.getBoundingClientRect().top }] : []
@@ -39,7 +37,16 @@ export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string,
       const current = atEnd
         ? headings.at(-1)!
         : (headings.findLast(({ top }) => top <= offset + 24) ?? headings[0]!)
-      setActiveId(current.id)
+      // Highlight entries whose heading is on screen below the header.
+      // A clicked heading always counts, even when the jump leaves it at the edge.
+      const visible = headings.filter(
+        ({ id, top }) => id === selected.current || (top >= offset - 24 && top < innerHeight),
+      )
+      setVisibleIds((ids) => {
+        const next = (visible.length ? visible : [current]).map(({ id }) => id)
+        return next.join() === ids.join() ? ids : next
+      })
+      setActiveId(selected.current ?? current.id)
     }
     function schedule() {
       if (!frame) frame = requestAnimationFrame(update)
@@ -89,6 +96,7 @@ export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string,
   return {
     entries,
     activeId: entries.some(({ id }) => id === activeId) ? activeId : entries[0]?.id,
+    visibleIds,
     select(id: string) {
       selected.current = id
       setActiveId(id)
@@ -98,30 +106,109 @@ export function useTableOfContents(recordMap: ExtendedRecordMap, pageId: string,
 
 export type TableOfContentsState = ReturnType<typeof useTableOfContents>
 
+const RAIL_STEP = 12
+const BEND_HEIGHT = 8
+
+type Rail = {
+  path: string
+  width: number
+  height: number
+  thumbs: { top: number; bottom: number }[]
+}
+
+// Measures the entries and draws one rail path that bends where the depth changes.
+function measureRail(nav: HTMLElement, depths: number[]): Rail | null {
+  const items = [...nav.querySelectorAll<HTMLElement>('.notion-table-of-contents-item')]
+  if (!items.length) return null
+  let path = ''
+  const thumbs = items.map((item, index) => {
+    const top = item.offsetTop
+    const bottom = top + item.offsetHeight
+    const x = depths[index]! * RAIL_STEP + 1
+    const previous = depths[index - 1]
+    if (previous === undefined) path += `M${x} ${top}`
+    else if (previous !== depths[index]) path += `L${x} ${top + BEND_HEIGHT}`
+    path += `V${bottom}`
+    return { top, bottom }
+  })
+  return { path, width: Math.max(...depths) * RAIL_STEP + 2, height: nav.scrollHeight, thumbs }
+}
+
 export function TableOfContents({ toc }: { toc: TableOfContentsState }) {
+  const minLevel = Math.min(...toc.entries.map(({ indentLevel }) => indentLevel))
+  const depths = toc.entries.map(({ indentLevel }) => Math.min(indentLevel - minLevel, 2))
+  const depthKey = depths.join()
+  const navRef = useRef<HTMLElement>(null)
+  const [rail, setRail] = useState<Rail | null>(null)
+
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const levels = depthKey.split(',').map(Number)
+    const update = () => setRail(measureRail(nav, levels))
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [depthKey])
+
+  const visible = toc.entries.flatMap(({ id }, index) =>
+    toc.visibleIds.includes(id) ? [index] : [],
+  )
+  const first = rail?.thumbs[visible[0] ?? -1]
+  const last = rail?.thumbs[visible.at(-1) ?? -1]
+  const thumb = first && last && { top: first.top, bottom: last.bottom }
+  const mask = rail
+    ? `url("data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns='http://www.w3.org/2000/svg' width='${rail.width}' height='${rail.height}'><path d='${rail.path}' fill='none' stroke='black' stroke-width='1'/></svg>`,
+      )}")`
+    : undefined
+
   return (
     <div className="notion-aside-table-of-contents">
-      <div className="notion-aside-table-of-contents-header">Table of contents</div>
-      <nav className="notion-table-of-contents" aria-label="Table of contents" lang="id">
-        {toc.entries.map(({ id, text, indentLevel }) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className={`notion-table-of-contents-item notion-table-of-contents-item-indent-level-${indentLevel}${toc.activeId === id ? ' notion-table-of-contents-active-item' : ''}`}
-            aria-current={toc.activeId === id ? 'location' : undefined}
-            onClick={(event) => {
-              if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey)
-                toc.select(id)
-            }}
-          >
-            <span
-              className="notion-table-of-contents-item-body"
-              style={{ display: 'inline-block', marginLeft: indentLevel * 16 }}
+      <div className="notion-aside-table-of-contents-header">
+        <Icon name="contents" />
+        On this page
+      </div>
+      <nav ref={navRef} className="notion-table-of-contents" aria-label="On this page" lang="id">
+        {rail && (
+          <>
+            <svg className="toc-rail" aria-hidden="true" width={rail.width} height={rail.height}>
+              <path d={rail.path} />
+            </svg>
+            <div
+              className="toc-thumb"
+              aria-hidden="true"
+              style={{ width: rail.width, height: rail.height, maskImage: mask }}
             >
-              {text}
-            </span>
-          </a>
-        ))}
+              {thumb && (
+                <div
+                  className="toc-thumb-fill"
+                  style={{ top: thumb.top, height: thumb.bottom - thumb.top }}
+                />
+              )}
+            </div>
+          </>
+        )}
+        {toc.entries.map(({ id, text, indentLevel }, index) => {
+          const active = toc.activeId === id
+          const visibleEntry = toc.visibleIds.includes(id)
+          return (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={`notion-table-of-contents-item notion-table-of-contents-item-indent-level-${indentLevel}${visibleEntry ? ' toc-visible-item' : ''}`}
+              style={{ '--depth': depths[index] } as CSSProperties}
+              aria-current={active ? 'location' : undefined}
+              onClick={(event) => {
+                if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey)
+                  toc.select(id)
+              }}
+            >
+              <span className="notion-table-of-contents-item-body">{text}</span>
+            </a>
+          )
+        })}
       </nav>
     </div>
   )

@@ -31,12 +31,12 @@ export function MobileTableOfContents({ toc }: { toc: TableOfContentsState }) {
       </button>
       {open && (
         <Modal
-          label="Table of contents"
+          label="On this page"
           className="mobile-contents-dialog"
           onClose={() => setOpen(false)}
         >
-          <h2>Table of contents</h2>
-          <nav aria-label="Table of contents" lang="id">
+          <h2>On this page</h2>
+          <nav aria-label="On this page" lang="id">
             {toc.entries.map(({ id, text, indentLevel }) => (
               <a
                 key={id}
