@@ -57,6 +57,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             __html: `try{const t=localStorage.getItem('codeup-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch{}`,
           }}
         />
+        {/* Wayback injects its toolbar into <body>; the hydration mismatch makes React
+            re-render the body and drop it, so put it back. No-op elsewhere. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(()=>{let t;const o=new MutationObserver(()=>{t??=document.getElementById('wm-ipp-base');if(t&&!t.isConnected)document.body.prepend(t)});o.observe(document.documentElement,{childList:true,subtree:true});addEventListener('load',()=>{if(!t)o.disconnect()})})()`,
+          }}
+        />
       </head>
       <body>
         <a className="skip-link" href="#main-content">
