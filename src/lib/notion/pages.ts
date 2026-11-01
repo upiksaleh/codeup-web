@@ -28,20 +28,26 @@ const loadCachedPage = (id: string) =>
     revalidate: cacheDuration,
   })()
 
+// Small entry under the page tag holding the edit time of the cached record map, so
+// /api/revalidate can detect stale pages without reading record maps. Next keys
+// unstable_cache by the callback's source; a bound native function prints the same
+// text in every bundle, so the endpoint and page renders address one entry.
+const editedTimeMarker = (id: string, editedTime: number | null) =>
+  unstable_cache(
+    Promise.resolve.bind(Promise, editedTime) as () => Promise<number | null>,
+    ['notion-page-edited', 'v2', siteConfig.rootNotionPageId, id],
+    { tags: [notionPageTag(id)], revalidate: cacheDuration },
+  )()
+
 export const loadNotionPage = cache(async (pageId: string) => {
   const id = normalizePageId(pageId)
   if (!id) return undefined
-  return (await loadCachedPage(id)) ?? undefined
+  const recordMap = await loadCachedPage(id)
+  if (!recordMap) return undefined
+  // Filled outside the record map cache; a nested unstable_cache skips its lookup.
+  await editedTimeMarker(id, getBlockValue(recordMap.block[id])?.last_edited_time ?? null)
+  return recordMap
 })
 
-// Edit time of the cached page content, kept as a small entry under the same tag so
-// /api/revalidate can detect stale pages without reading every record map.
-export const getCachedEditedTime = (id: string) =>
-  unstable_cache(
-    async () => {
-      const recordMap = await loadCachedPage(id)
-      return (recordMap && getBlockValue(recordMap.block[id])?.last_edited_time) ?? null
-    },
-    ['notion-page-edited', 'v1', siteConfig.rootNotionPageId, id],
-    { tags: [notionPageTag(id)], revalidate: cacheDuration },
-  )()
+// Null when no page read has filled the marker yet; never requests Notion.
+export const getCachedEditedTime = (id: string) => editedTimeMarker(id, null)
