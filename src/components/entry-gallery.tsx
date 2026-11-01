@@ -7,7 +7,7 @@ import { normalizePageId } from '@/lib/notion/urls'
 import { getDefaultPageUrl } from '@/lib/notion/urls'
 import { useSiteTheme } from '@/lib/theme'
 import { siteConfig } from '@/site.config'
-import { NotionCollection, type NotionCollectionProps } from './notion-collection'
+import { NotionCollection } from './notion-collection'
 import { getFirstGalleryCoverCards } from '@/lib/notion/gallery-cover'
 import { NotionImage, PriorityCoverContext } from './notion-image'
 import { NotionPageLink } from './notion-page-link'
@@ -18,10 +18,6 @@ export type EntryGalleryData = {
   blockId: string
   collectionId: string
   viewId: string
-}
-
-function ListingCollection(props: NotionCollectionProps) {
-  return <NotionCollection {...props} titleLines={3} />
 }
 
 export function EntryGallery({
@@ -88,7 +84,7 @@ export function EntryGallery({
         components={{
           PageLink: NotionPageLink,
           nextImage: NotionImage,
-          Collection: ListingCollection,
+          Collection: NotionCollection,
           propertyDateValue,
         }}
       />
