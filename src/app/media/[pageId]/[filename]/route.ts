@@ -15,7 +15,8 @@ export async function GET(
   try {
     const image = await loadSvgMedia(id, filename)
     if (!image) return new Response('Image not found', { status: 404, headers: noStore })
-    return svgResponse(request, image)
+    // Filename hashes the Notion source URL, so new content gets a new URL.
+    return svgResponse(request, image, 'public, max-age=31536000, immutable')
   } catch {
     return new Response('Image temporarily unavailable', { status: 503, headers: noStore })
   }

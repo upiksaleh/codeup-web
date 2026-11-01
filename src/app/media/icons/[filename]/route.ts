@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: RouteContext<'/media/ico
       ['notion-icon', 'v1', source],
       { revalidate: 86_400 },
     )()
-    return svgResponse(request, Buffer.from(encoded, 'base64'))
+    return svgResponse(request, Buffer.from(encoded, 'base64'), 'public, max-age=86400')
   } catch {
     return new Response('Icon temporarily unavailable', { status: 503, headers: noStore })
   }

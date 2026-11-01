@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 
-export function svgResponse(request: Request, image: Uint8Array) {
+export function svgResponse(request: Request, image: Uint8Array, cacheControl: string) {
   const etag = `"${createHash('sha256').update(image).digest('hex')}"`
   const headers = {
     'Content-Type': 'image/svg+xml',
@@ -8,7 +8,7 @@ export function svgResponse(request: Request, image: Uint8Array) {
     'Content-Disposition': 'attachment; filename="image.svg"',
     'Content-Security-Policy': "default-src 'self'; script-src 'none'; sandbox;",
     'X-Content-Type-Options': 'nosniff',
-    'Cache-Control': 'public, max-age=60, s-maxage=300',
+    'Cache-Control': cacheControl,
     ETag: etag,
   }
   return request.headers.get('if-none-match') === etag
