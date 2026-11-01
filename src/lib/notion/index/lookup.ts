@@ -41,3 +41,12 @@ export async function getPageUrls(pageIds: string[]) {
   }
   return Object.fromEntries(urls)
 }
+
+// Prerendered at build so first visits skip the Notion fetch. Static routes own these paths.
+const staticRoutes = new Set(['/', '/articles', '/projects'])
+
+export async function getPagePathSegments() {
+  return (await getSitePages())
+    .filter(({ url }) => !staticRoutes.has(url))
+    .map(({ url }) => url.split('/').slice(1))
+}

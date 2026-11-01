@@ -1,8 +1,11 @@
 import { NotionPage } from '@/components/notion-page'
 import { getPageMetadata } from '@/lib/notion/page-metadata'
+import { getPagePathSegments } from '@/lib/notion/index/lookup'
 
-export function generateStaticParams() {
-  return []
+export async function generateStaticParams() {
+  return (await getPagePathSegments())
+    .filter((segments) => segments.length === 1)
+    .map(([pageId]) => ({ pageId }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ pageId: string }> }) {

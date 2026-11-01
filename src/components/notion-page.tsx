@@ -84,6 +84,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
           (isArticle || project) &&
           pageUrls[id] && (
             <EntryShare
+              key="share"
               kind={isArticle ? 'article' : 'project'}
               url={`${siteUrl}${pageUrls[id]}`}
               title={title}
@@ -92,20 +93,26 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         }
         pageProperties={
           project && (
-            <ProjectDetails pageId={id} project={project} summary={description} tags={tags} />
+            <ProjectDetails
+              key="details"
+              pageId={id}
+              project={project}
+              summary={description}
+              tags={tags}
+            />
           )
         }
         pageHeader={
           isHome ? (
-            <HomeHero />
+            <HomeHero key="hero" />
           ) : context ? (
-            <Link className="entry-page-back" href={context.parent.url}>
+            <Link key="back" className="entry-page-back" href={context.parent.url}>
               <span aria-hidden="true">←</span> Back to {context.parent.title}
             </Link>
           ) : (
             isArticle &&
             !page?.format?.page_icon && (
-              <div className="notion-page-icon-hero notion-page-icon-image">
+              <div key="icon" className="notion-page-icon-hero notion-page-icon-image">
                 <LogoSymbol aria-label={siteConfig.name} width={124} />
               </div>
             )
@@ -113,7 +120,7 @@ export async function NotionPage({ pageId }: { pageId: string }) {
         }
         pageCover={
           context?.cover ? (
-            <div className="notion-page-cover-wrapper">
+            <div key="cover" className="notion-page-cover-wrapper">
               <NotionImage
                 src={context.coverPath ? `${siteUrl}${context.coverPath}` : context.cover}
                 alt={context.entry.title}
@@ -125,7 +132,11 @@ export async function NotionPage({ pageId }: { pageId: string }) {
               />
             </div>
           ) : !isHome && (context || !page?.format?.page_cover) ? (
-            <div className="notion-page-cover-wrapper fallback-cover" aria-hidden="true" />
+            <div
+              key="cover"
+              className="notion-page-cover-wrapper fallback-cover"
+              aria-hidden="true"
+            />
           ) : undefined
         }
       />

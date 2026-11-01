@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import type { ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import { NotionRenderer } from 'react-notion-x'
@@ -11,6 +10,7 @@ import { siteConfig } from '@/site.config'
 import { NotionCollection, type NotionCollectionProps } from './notion-collection'
 import { getFirstGalleryCoverCards } from '@/lib/notion/gallery-cover'
 import { NotionImage, PriorityCoverContext } from './notion-image'
+import { NotionPageLink } from './notion-page-link'
 import { propertyDateValue } from './property-date-value'
 
 export type EntryGalleryData = {
@@ -86,7 +86,7 @@ export function EntryGallery({
         disableHeader
         showCollectionViewDropdown={false}
         components={{
-          nextLink: Link,
+          PageLink: NotionPageLink,
           nextImage: NotionImage,
           Collection: ListingCollection,
           propertyDateValue,

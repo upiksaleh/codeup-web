@@ -19,6 +19,7 @@ import { attachPointerTrail } from './pointer-trail'
 import { propertyDateValue } from './property-date-value'
 import { usePointerEffects } from './use-pointer-effects'
 import { LinkPreviews } from './link-previews'
+import { NotionPageLink } from './notion-page-link'
 
 const NotionCode = dynamic(() => import('./notion-code').then((module) => module.NotionCode))
 
@@ -122,6 +123,7 @@ export function NotionContent({
         previewImages
         components={{
           Link: NotionLink,
+          PageLink: NotionPageLink,
           nextImage: NotionImage,
           Collection: PageCollection,
           Code: NotionCode,
