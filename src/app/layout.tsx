@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
-import Script from 'next/script'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { LoadingTrail } from '@/components/loading-trail'
@@ -53,14 +52,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script
-          id="site-theme"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
-            __html: `try {
-          const theme = localStorage.getItem('codeup-theme')
-          if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
-        } catch {}`,
+            __html: `try{const t=localStorage.getItem('codeup-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch{}`,
           }}
         />
       </head>

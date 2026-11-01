@@ -38,11 +38,29 @@ export function useSiteTheme() {
   return useSyncExternalStore(subscribe, getTheme, () => undefined)
 }
 
-export function setSiteTheme(theme: Theme) {
+function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme
   try {
     localStorage.setItem('codeup-theme', theme)
   } catch {
     // Theme changes still work when storage is unavailable.
   }
+}
+
+export function setSiteTheme(theme: Theme, origin?: { x: number; y: number }) {
+  const root = document.documentElement
+  if (
+    !document.startViewTransition ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    applyTheme(theme)
+    return
+  }
+  const x = origin?.x ?? window.innerWidth / 2
+  const y = origin?.y ?? 0
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
+  root.style.setProperty('--theme-x', `${x}px`)
+  root.style.setProperty('--theme-y', `${y}px`)
+  root.style.setProperty('--theme-r', `${radius}px`)
+  document.startViewTransition(() => applyTheme(theme))
 }

@@ -13,7 +13,13 @@ export function ThemeToggle() {
     <button
       className="icon-button theme-toggle"
       type="button"
-      onClick={() => setSiteTheme(theme === 'dark' ? 'light' : 'dark')}
+      onClick={(event) => {
+        const box = event.currentTarget.getBoundingClientRect()
+        setSiteTheme(theme === 'dark' ? 'light' : 'dark', {
+          x: box.left + box.width / 2,
+          y: box.top + box.height / 2,
+        })
+      }}
       aria-label={label}
       title={label}
     >
